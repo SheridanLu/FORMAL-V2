@@ -1,0 +1,76 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mochu_oa?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_general_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: mochu@2026
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: mochu@2026
+      database: 0
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    property-naming-strategy: SNAKE_CASE
+    serialization:
+      write-dates-as-timestamps: false
+
+# MyBatis-Plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# JWT
+jwt:
+  secret: MochuOA_V3_2_SecretKey_2026_AtLeast32Bytes!
+
+# MinIO
+minio:
+  endpoint: http://localhost:9000
+  access-key: mochu_admin
+  secret-key: mochu@2026
+  bucket: mochu-oa
+
+# XXL-JOB
+xxl:
+  job:
+    enabled: false
+    admin:
+      addresses: http://localhost:8090/xxl-job-admin
+    executor:
+      appname: mochu-oa-executor
+      port: 9999
+      logpath: /tmp/xxl-job/logs
+
+# Knife4j
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Logging
+logging:
+  level:
+    com.mochu: debug
+    org.springframework.security: info

@@ -1,0 +1,182 @@
+package com.mochu.business.controller;
+
+import com.mochu.business.dto.ApprovalActionDTO;
+import com.mochu.business.dto.FlowDefDTO;
+import com.mochu.business.entity.SysFlowDef;
+import com.mochu.business.service.ApprovalService;
+import com.mochu.common.result.PageResult;
+import com.mochu.common.result.R;
+import com.mochu.common.security.SecurityUtils;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 审批流程管理接口 — 对照 V3.2 审批引擎
+ */
+@RestController
+@RequestMapping("/api/v1/approval")
+@RequiredArgsConstructor
+public class ApprovalController {
+
+    private final ApprovalService approvalService;
+
+    // ===================== 流程定义 CRUD =====================
+
+    @GetMapping("/flows")
+    @PreAuthorize("hasAuthority('approval:flow-manage')")
+    public R<PageResult<SysFlowDef>> listFlowDefs(
+            @RequestParam(required = false) String bizType,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return R.ok(approvalService.listFlowDefs(bizType, status, page, size));
+    }
+
+    @GetMapping("/flows/{id}")
+    @PreAuthorize("hasAuthority('approval:flow-manage')")
+    public R<SysFlowDef> getFlowDef(@PathVariable Integer id) {
+        SysFlowDef def = approvalService.getFlowDefById(id);
+        if (def == null) return R.fail(404, "流程定义不存在");
+        return R.ok(def);
+    }
+
+    @PostMapping("/flows")
+    @PreAuthorize("hasAuthority('approval:flow-manage')")
+    public R<Void> createFlowDef(@Valid @RequestBody FlowDefDTO dto) {
+        approvalService.createFlowDef(dto);
+        return R.ok();
+    }
+
+    @PutMapping("/flows/{id}")
+    @PreAuthorize("hasAuthority('approval:flow-manage')")
+    public R<Void> updateFlowDef(@PathVariable Integer id, @Valid @RequestBody FlowDefDTO dto) {
+        approvalService.updateFlowDef(id, dto);
+        return R.ok();
+    }
+
+    @DeleteMapping("/flows/{id}")
+    @PreAuthorize("hasAuthority('approval:flow-manage')")
+    public R<Void> deleteFlowDef(@PathVariable Integer id) {
+        approvalService.deleteFlowDef(id);
+        return R.ok();
+    }
+
+    // ===================== 审批操作 =====================
+
+    @PostMapping("/submit")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> submitForApproval(@Valid @RequestBody ApprovalActionDTO dto) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.submitForApproval(dto.getBizType(), dto.getBizId(), userId);
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/approve")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> approve(@PathVariable Integer instanceId, @RequestBody Map<String, String> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.approve(instanceId, userId, body.get("opinion"));
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/reject")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> reject(@PathVariable Integer instanceId, @RequestBody Map<String, String> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.reject(instanceId, userId, body.get("opinion"));
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/withdraw")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> withdraw(@PathVariable Integer instanceId) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.withdraw(instanceId, userId);
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/transfer")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> transfer(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        Integer targetUserId = (Integer) body.get("target_user_id");
+        String opinion = (String) body.get("opinion");
+        approvalService.transfer(instanceId, userId, targetUserId, opinion);
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/cosign")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> addCosigner(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        Integer cosignerId = (Integer) body.get("cosigner_id");
+        String opinion = (String) body.get("opinion");
+        approvalService.addCosigner(instanceId, userId, cosignerId, opinion);
+        return R.ok();
+    }
+
+    @PostMapping("/cosign/{cosignId}/approve")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> approveCosign(@PathVariable Integer cosignId, @RequestBody Map<String, String> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.approveCosign(cosignId, userId, body.get("opinion"));
+        return R.ok();
+    }
+
+    @PostMapping("/{instanceId}/read-handle")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> sendReadHandle(@PathVariable Integer instanceId, @RequestBody Map<String, Integer> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.sendReadHandle(instanceId, userId, body.get("target_user_id"));
+        return R.ok();
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostMapping("/{instanceId}/cc")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> sendCc(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        List<Integer> userIds = (List<Integer>) body.get("user_ids");
+        approvalService.sendCc(instanceId, userId, userIds);
+        return R.ok();
+    }
+
+    @PostMapping("/cc/{ccId}/handle")
+    @PreAuthorize("hasAuthority('approval:operate')")
+    public R<Void> markHandled(@PathVariable Integer ccId) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        approvalService.markHandled(ccId, userId);
+        return R.ok();
+    }
+
+    // ===================== 查询 =====================
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasAuthority('approval:view')")
+    public R<PageResult<Map<String, Object>>> getMyPending(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        return R.ok(approvalService.getMyPending(userId, page, size));
+    }
+
+    @GetMapping("/initiated")
+    @PreAuthorize("hasAuthority('approval:view')")
+    public R<PageResult<Map<String, Object>>> getMyInitiated(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        return R.ok(approvalService.getMyInitiated(userId, page, size));
+    }
+
+    @GetMapping("/{instanceId}")
+    @PreAuthorize("hasAuthority('approval:view')")
+    public R<Map<String, Object>> getInstanceDetail(@PathVariable Integer instanceId) {
+        return R.ok(approvalService.getInstanceDetail(instanceId));
+    }
+}
