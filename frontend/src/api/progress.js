@@ -22,8 +22,8 @@ export function deleteMilestone(id) {
   return request.delete(`/api/v1/progress/milestones/${id}`)
 }
 
-export function updateMilestoneStatus(id, data) {
-  return request.put(`/api/v1/progress/milestones/${id}`, data)
+export function updateMilestoneStatus(id, status) {
+  return request.patch(`/api/v1/progress/milestones/${id}/status`, { status })
 }
 
 export function getMilestoneDeps(id) {
@@ -91,9 +91,9 @@ export function submitChangeOrder(id) {
   return request.patch(`/api/v1/progress/changes/${id}/status`, { status: 'submitted' })
 }
 
-// 进度填报
+// 进度填报 — 通过更新甘特任务状态实现
 export function reportProgress(taskId, data) {
-  return request.post(`/api/v1/progress/gantt/${taskId}/report`, data)
+  return request.patch(`/api/v1/progress/gantt/${taskId}/status`, data)
 }
 
 // 进度纠偏

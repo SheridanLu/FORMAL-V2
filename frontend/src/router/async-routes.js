@@ -61,7 +61,7 @@ export default [
         meta: {
           title: '供应商管理',
           icon: 'Van',
-          permission: ['contract:view-all', 'contract:view-own']
+          permission: ['supplier:view', 'supplier:edit']
         }
       },
 
@@ -157,7 +157,7 @@ export default [
           permission: [
             'finance:statement-manage', 'finance:payment-create', 'finance:payment-confirm',
             'finance:invoice-manage', 'finance:reimburse-manage',
-            'finance:cost-view', 'finance:cost-summary'
+            'finance:cost-view', 'finance:cost-summary', 'finance:receipt-create'
           ]
         }
       },
@@ -198,7 +198,7 @@ export default [
         path: 'approval',
         name: 'ApprovalManage',
         component: () => import('@/views/approval/index.vue'),
-        meta: { title: '流程审批', icon: 'Stamp' }
+        meta: { title: '流程审批', icon: 'Stamp', permission: ['approval:flow-manage', 'approval:operate', 'approval:view'] }
       },
 
       // ========== 报表分析 ==========
@@ -237,11 +237,18 @@ export default [
       {
         path: 'system',
         name: 'SystemManage',
+        component: () => import('@/layouts/PassThrough.vue'),
         redirect: '/system/users',
         meta: {
           title: '系统管理',
           icon: 'Setting',
-          permission: ['system:user-manage', 'system:role-manage', 'system:dept-manage', 'system:audit-log']
+          permission: [
+            'system:user-manage', 'system:role-manage', 'system:dept-manage',
+            'system:announcement-manage', 'system:audit-log',
+            'system:config', 'system:config:edit',
+            'system:delegation', 'system:delegation:edit',
+            'system:tpl-manage'
+          ]
         },
         children: [
           {
@@ -266,7 +273,7 @@ export default [
             path: 'announcements',
             name: 'AnnouncementManage',
             component: () => import('@/views/system/announcement/index.vue'),
-            meta: { title: '公告管理', icon: 'Bell', permission: 'system:user-manage' }
+            meta: { title: '公告管理', icon: 'Bell', permission: 'system:announcement-manage' }
           },
           {
             path: 'audit-logs',
@@ -278,13 +285,13 @@ export default [
             path: 'configs',
             name: 'ConfigManage',
             component: () => import('@/views/system/config/index.vue'),
-            meta: { title: '系统配置', icon: 'Tools', permission: 'system:user-manage' }
+            meta: { title: '系统配置', icon: 'Tools', permission: ['system:config', 'system:config:edit'] }
           },
           {
             path: 'delegations',
             name: 'DelegationManage',
             component: () => import('@/views/system/delegation/index.vue'),
-            meta: { title: '委托代理', icon: 'Switch', permission: 'system:user-manage' }
+            meta: { title: '委托代理', icon: 'Switch', permission: ['system:delegation', 'system:delegation:edit'] }
           },
           {
             path: 'contract-tpl',

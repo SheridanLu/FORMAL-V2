@@ -110,6 +110,9 @@ request.interceptors.response.use(
       ElMessage.error(res.message || '请求失败')
       if (res.code === 401) {
         localStorage.removeItem('token')
+        import('@/stores/user').then(({ useUserStore }) => {
+          useUserStore().resetState()
+        })
         router.push('/login')
       }
       return Promise.reject(new Error(res.message || '请求失败'))
@@ -121,6 +124,9 @@ request.interceptors.response.use(
       const { status, data } = error.response
       if (status === 401) {
         localStorage.removeItem('token')
+        import('@/stores/user').then(({ useUserStore }) => {
+          useUserStore().resetState()
+        })
         router.push('/login')
         ElMessage.error('登录已过期，请重新登录')
       } else if (status === 403) {

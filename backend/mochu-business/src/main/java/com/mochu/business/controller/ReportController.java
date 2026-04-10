@@ -49,4 +49,10 @@ public class ReportController {
     public R<Map<String, Object>> costSummary() {
         return R.ok(reportService.getCostSummary());
     }
+
+    @GetMapping("/hr")
+    @PreAuthorize("hasAuthority('report:view')")
+    public R<Map<String, Object>> hrSummary() {
+        return R.ok(reportService.getHrSummary());
+    }
 }

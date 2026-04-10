@@ -23,6 +23,9 @@ public class ReportService {
     private final BizCostLedgerMapper costLedgerMapper;
     private final BizStatementMapper statementMapper;
     private final BizPaymentApplyMapper paymentMapper;
+    private final BizHrEntryMapper hrEntryMapper;
+    private final BizHrResignMapper hrResignMapper;
+    private final BizSalaryMapper salaryMapper;
 
     /**
      * 项目汇总：按状态分组计数 + 预算/合同额合计
@@ -173,6 +176,26 @@ public class ReportService {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("costs", costs);
+        return result;
+    }
+
+    /**
+     * 人力资源汇总：入职/离职人数 + 薪资总额
+     */
+    public Map<String, Object> getHrSummary() {
+        long entryCount = hrEntryMapper.selectCount(new LambdaQueryWrapper<>());
+        long resignCount = hrResignMapper.selectCount(new LambdaQueryWrapper<>());
+
+        List<BizSalary> salaries = salaryMapper.selectList(new LambdaQueryWrapper<>());
+        BigDecimal totalSalary = salaries.stream()
+                .map(BizSalary::getNetSalary)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("entryCount", entryCount);
+        result.put("resignCount", resignCount);
+        result.put("totalSalary", totalSalary);
         return result;
     }
 }
