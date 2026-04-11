@@ -43,9 +43,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import {
   getReportTemplate, executeReportTemplate,
   getStockFlowReport, getStockAgingReport, getPurchasePriceComparison
@@ -73,28 +72,42 @@ async function loadTemplate() {
   templateName.value = t.report_name
   chartType.value = t.chart_type || 'table'
   xField.value = t.x_field || ''
-  yFields.value = t.y_fields ? t.y_fields.split(',').map(s => s.trim()) : []
+  yFields.value = t.y_fields ? t.y_fields.split(',').map(s => s.trim()).filter(Boolean) : []
+  paramsDef.value = []
+  Object.keys(paramValues).forEach(key => delete paramValues[key])
   if (t.params_json) {
-    try { paramsDef.value = JSON.parse(t.params_json) } catch {}
+    try {
+      paramsDef.value = JSON.parse(t.params_json)
+      paramsDef.value.forEach(p => { paramValues[p.name] = p.defaultValue ?? null })
+    } catch {
+      paramsDef.value = []
+    }
   }
   execute()
 }
 
 async function execute() {
   loading.value = true
+  chartVisible.value = false
   try {
-    let rows
+    let rows = []
     if (templateId.value) {
       const res = await executeReportTemplate(templateId.value, { ...paramValues })
-      rows = res.data || []
+      const payload = res.data || {}
+      templateName.value = payload.reportName || templateName.value
+      chartType.value = payload.chartType || chartType.value
+      xField.value = payload.xField || xField.value
+      yFields.value = Array.isArray(payload.yFields)
+        ? payload.yFields.map(s => String(s).trim()).filter(Boolean)
+        : yFields.value
+      rows = payload.rows || []
     }
-    if (!rows || !rows.length) { tableRows.value = []; tableColumns.value = []; return }
-    tableColumns.value = Object.keys(rows[0])
+    tableColumns.value = rows.length ? Object.keys(rows[0]) : []
     tableRows.value = rows
-    if (chartType.value !== 'table') {
+    if (rows.length && chartType.value !== 'table' && xField.value && yFields.value.length) {
       chartVisible.value = true
       await nextTick()
-      renderChart(rows)
+      await renderChart(rows)
     }
   } finally {
     loading.value = false
@@ -103,6 +116,7 @@ async function execute() {
 
 async function loadBuiltin(type) {
   loading.value = true
+  chartVisible.value = false
   chartType.value = 'table'
   try {
     let res
@@ -123,25 +137,45 @@ async function renderChart(rows) {
     if (chartInstance) chartInstance.dispose()
     chartInstance = echarts.init(chartRef.value)
     const categories = rows.map(r => r[xField.value] ?? '')
-    const series = yFields.value.map(field => ({
-      name: field,
-      type: chartType.value === 'pie' ? 'pie' : chartType.value,
-      data: chartType.value === 'pie'
-        ? rows.map(r => ({ name: r[xField.value], value: r[field] }))
-        : rows.map(r => r[field])
-    }))
-    const option = chartType.value === 'pie'
-      ? { tooltip: { trigger: 'item' }, legend: { orient: 'vertical', left: 'left' }, series }
-      : {
-          tooltip: { trigger: 'axis' },
-          legend: { data: yFields.value },
-          xAxis: { type: 'category', data: categories },
-          yAxis: { type: 'value' },
-          series
-        }
+    let option
+    if (chartType.value === 'pie') {
+      option = {
+        tooltip: { trigger: 'item' },
+        legend: { orient: 'vertical', left: 'left' },
+        series: yFields.value.slice(0, 1).map(field => ({
+          name: field,
+          type: 'pie',
+          radius: '60%',
+          data: rows.map(r => ({ name: r[xField.value], value: r[field] }))
+        }))
+      }
+    } else if (chartType.value === 'radar') {
+      const maxValue = Math.max(...yFields.value.flatMap(field => rows.map(r => Number(r[field]) || 0)), 1)
+      option = {
+        tooltip: {},
+        legend: { data: rows.map(r => r[xField.value]) },
+        radar: { indicator: yFields.value.map(field => ({ name: field, max: maxValue })) },
+        series: [{
+          type: 'radar',
+          data: rows.map(r => ({ name: r[xField.value], value: yFields.value.map(field => Number(r[field]) || 0) }))
+        }]
+      }
+    } else {
+      option = {
+        tooltip: { trigger: 'axis' },
+        legend: { data: yFields.value },
+        xAxis: { type: 'category', data: categories },
+        yAxis: { type: 'value' },
+        series: yFields.value.map(field => ({
+          name: field,
+          type: chartType.value,
+          data: rows.map(r => r[field])
+        }))
+      }
+    }
     chartInstance.setOption(option)
   } catch {
-    // echarts not installed, skip chart rendering
+    chartVisible.value = false
   }
 }
 
