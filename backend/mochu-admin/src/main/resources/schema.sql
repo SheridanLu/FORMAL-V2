@@ -1601,3 +1601,66 @@ CREATE TABLE IF NOT EXISTS infra_codegen_column (
 
 ALTER TABLE infra_codegen_table CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE infra_codegen_column CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- ============================================================
+-- 73. bpm_process_definition_ext — Flowable 流程定义扩展
+-- （Flowable 自动创建 ACT_* 表，此为业务扩展信息）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS bpm_process_definition_ext (
+    id                  INT AUTO_INCREMENT PRIMARY KEY,
+    process_def_key     VARCHAR(255) NOT NULL COMMENT 'Flowable流程定义Key',
+    process_def_id      VARCHAR(64)  NOT NULL COMMENT 'Flowable流程定义ID（带版本）',
+    biz_type            VARCHAR(50)  DEFAULT '' COMMENT '关联业务类型',
+    form_config         TEXT         COMMENT '表单配置JSON',
+    candidate_strategy  TINYINT      DEFAULT 1 COMMENT '候选人策略 1指定用户 2指定角色 3部门主管 4发起人自选',
+    candidate_param     VARCHAR(500) DEFAULT '' COMMENT '候选人参数（用户ID列表或角色code）',
+    status              TINYINT      DEFAULT 1 COMMENT '状态 1启用 0停用',
+    remark              VARCHAR(500) DEFAULT '',
+    creator_id          INT,
+    created_at          DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted             TINYINT      DEFAULT 0,
+    UNIQUE KEY uk_proc_def_id (process_def_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- 74. bpm_task_ext — Flowable 任务扩展（关联业务数据）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS bpm_task_ext (
+    id                  INT AUTO_INCREMENT PRIMARY KEY,
+    process_inst_id     VARCHAR(64)  NOT NULL COMMENT 'Flowable流程实例ID',
+    task_id             VARCHAR(64)  DEFAULT '' COMMENT 'Flowable任务ID',
+    biz_type            VARCHAR(50)  NOT NULL COMMENT '业务类型',
+    biz_id              INT          NOT NULL COMMENT '业务数据ID',
+    biz_no              VARCHAR(100) DEFAULT '' COMMENT '业务单号',
+    initiator_id        INT          COMMENT '发起人ID',
+    result              TINYINT      DEFAULT 0 COMMENT '审批结果 0进行中 1通过 2驳回 3撤回 4取消',
+    end_time            DATETIME     COMMENT '结束时间',
+    creator_id          INT,
+    created_at          DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted             TINYINT      DEFAULT 0,
+    KEY idx_process_inst_id (process_inst_id),
+    KEY idx_biz (biz_type, biz_id),
+    KEY idx_initiator (initiator_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- 75. bpm_oa_rule — 业务类型到Flowable流程定义的映射
+-- ============================================================
+CREATE TABLE IF NOT EXISTS bpm_oa_rule (
+    id                  INT AUTO_INCREMENT PRIMARY KEY,
+    biz_type            VARCHAR(50)  NOT NULL COMMENT '业务类型',
+    biz_name            VARCHAR(100) DEFAULT '' COMMENT '业务名称',
+    process_def_key     VARCHAR(255) NOT NULL COMMENT 'Flowable流程定义Key',
+    enabled             TINYINT      DEFAULT 1 COMMENT '是否启用',
+    creator_id          INT,
+    created_at          DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted             TINYINT      DEFAULT 0,
+    UNIQUE KEY uk_biz_type (biz_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE bpm_process_definition_ext CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE bpm_task_ext CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE bpm_oa_rule CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

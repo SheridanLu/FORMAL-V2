@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mochu</groupId>
+        <artifactId>mochu-oa</artifactId>
+        <version>3.2.0</version>
+    </parent>
+
+    <artifactId>mochu-bpm</artifactId>
+    <description>工作流模块 - Flowable BPM 引擎</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mochu</groupId>
+            <artifactId>mochu-system</artifactId>
+        </dependency>
+
+        <!-- Flowable BPM（Spring Boot 3.x / Jakarta EE 兼容版本） -->
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-process</artifactId>
+            <version>7.0.1</version>
+            <exclusions>
+                <!-- 排除旧版 MyBatis，使用项目统一版本 -->
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

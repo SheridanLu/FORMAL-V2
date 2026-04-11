@@ -161,6 +161,13 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('system:dict-manage', '字典管理', 'system', 1),
 ('infra:codegen', '代码生成', 'infra', 1);
 
+-- BPM (4)
+INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+('bpm:process-manage', '流程定义管理', 'bpm', 1),
+('bpm:task-operate', '流程任务操作', 'bpm', 1),
+('bpm:instance-view', '流程实例查看', 'bpm', 1),
+('bpm:rule-manage', '流程规则管理', 'bpm', 1);
+
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)
 -- ============================================================

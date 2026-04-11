@@ -25,6 +25,7 @@
         <module>mochu-system</module>
         <module>mochu-business</module>
         <module>mochu-infra</module>
+        <module>mochu-bpm</module>
     </modules>
 
     <properties>
@@ -64,6 +65,11 @@
             <dependency>
                 <groupId>com.mochu</groupId>
                 <artifactId>mochu-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mochu</groupId>
+                <artifactId>mochu-bpm</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

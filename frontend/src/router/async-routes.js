@@ -339,6 +339,39 @@ export default [
             meta: { title: '编辑生成配置', hidden: true, permission: 'infra:codegen' }
           }
         ]
+      },
+
+      // ========== 流程管理 ==========
+      {
+        path: 'bpm',
+        name: 'BpmManage',
+        component: () => import('@/layouts/PassThrough.vue'),
+        redirect: '/bpm/task/todo',
+        meta: {
+          title: '流程管理',
+          icon: 'Stamp',
+          permission: ['bpm:process-manage', 'bpm:task-operate', 'bpm:instance-view', 'bpm:rule-manage']
+        },
+        children: [
+          {
+            path: 'task/todo',
+            name: 'BpmTodoTask',
+            component: () => import('@/views/bpm/task/todo.vue'),
+            meta: { title: '我的待办', icon: 'Bell', permission: 'bpm:task-operate' }
+          },
+          {
+            path: 'process-def',
+            name: 'BpmProcessDef',
+            component: () => import('@/views/bpm/process-def/index.vue'),
+            meta: { title: '流程定义', icon: 'Share', permission: 'bpm:process-manage' }
+          },
+          {
+            path: 'instance',
+            name: 'BpmInstance',
+            component: () => import('@/views/bpm/instance/index.vue'),
+            meta: { title: '流程监控', icon: 'DataAnalysis', permission: 'bpm:instance-view' }
+          }
+        ]
       }
     ]
   }

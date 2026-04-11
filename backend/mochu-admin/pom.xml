@@ -23,6 +23,10 @@
             <groupId>com.mochu</groupId>
             <artifactId>mochu-infra</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mochu</groupId>
+            <artifactId>mochu-bpm</artifactId>
+        </dependency>
 
         <!-- Knife4j API文档 -->
         <dependency>

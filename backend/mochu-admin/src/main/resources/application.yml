@@ -81,3 +81,9 @@ logging:
   level:
     com.mochu: debug
     org.springframework.security: info
+
+# Flowable
+flowable:
+  database-schema-update: true   # 自动创建/更新 ACT_* 表
+  async-executor-activate: false # 异步执行器（生产环境开启）
+  history-level: audit           # 审计级别历史记录
