@@ -90,22 +90,9 @@ public class ReportTemplateService {
      */
     public Map<String, Object> executeTemplate(Integer id, Map<String, Object> params) {
         SysReportTemplate tpl = getTemplate(id);
-        String sql = tpl.getSqlText();
+        QuerySpec querySpec = buildQuerySpec(tpl.getSqlText(), params);
 
-        // 将 :paramName 替换为 ? 并按顺序收集参数值
-        List<Object> argList = new ArrayList<>();
-        Matcher matcher = PARAM_PATTERN.matcher(sql);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String paramName = matcher.group(1);
-            Object val = params != null ? params.get(paramName) : null;
-            argList.add(val != null ? val : "");
-            matcher.appendReplacement(sb, "?");
-        }
-        matcher.appendTail(sb);
-        String finalSql = sb.toString();
-
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(finalSql, argList.toArray());
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("templateId", tpl.getId());
@@ -130,20 +117,28 @@ public class ReportTemplateService {
                     inv.material_id,
                     inv.material_name,
                     inv.unit,
-                    COALESCE(SUM(io.quantity), 0)   AS inbound_qty,
-                    COALESCE(SUM(oo.quantity), 0)   AS outbound_qty,
+                    COALESCE(io.inbound_qty, 0)      AS inbound_qty,
+                    COALESCE(oo.outbound_qty, 0)     AS outbound_qty,
                     inv.current_quantity             AS stock_qty,
                     inv.avg_price,
                     inv.total_amount
                 FROM biz_inventory inv
-                LEFT JOIN biz_inbound_order io
-                    ON io.project_id = inv.project_id AND io.material_id = inv.material_id AND io.deleted = 0
-                LEFT JOIN biz_outbound_order oo
-                    ON oo.project_id = inv.project_id AND oo.material_id = inv.material_id AND oo.deleted = 0
+                LEFT JOIN (
+                    SELECT item.project_id, item.material_id, SUM(item.quantity) AS inbound_qty
+                    FROM biz_inbound_order_item item
+                    WHERE item.deleted = 0
+                    GROUP BY item.project_id, item.material_id
+                ) io ON io.project_id = inv.project_id AND io.material_id = inv.material_id
+                LEFT JOIN (
+                    SELECT item.project_id, item.material_id, SUM(item.quantity) AS outbound_qty
+                    FROM biz_outbound_order_item item
+                    WHERE item.deleted = 0
+                    GROUP BY item.project_id, item.material_id
+                ) oo ON oo.project_id = inv.project_id AND oo.material_id = inv.material_id
                 WHERE inv.deleted = 0
-                """ + (projectId != null ? " AND inv.project_id = " + projectId : "") +
-                " GROUP BY inv.project_id, inv.material_id, inv.material_name, inv.unit, inv.current_quantity, inv.avg_price, inv.total_amount";
-        return jdbcTemplate.queryForList(sql);
+                """;
+        QuerySpec querySpec = appendEqualityFilter(sql, "inv.project_id", projectId);
+        return jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
     }
 
     /**
@@ -178,8 +173,9 @@ public class ReportTemplateService {
                     END AS age_range
                 FROM biz_inventory inv
                 WHERE inv.deleted = 0 AND inv.current_quantity > 0
-                """ + (projectId != null ? " AND inv.project_id = " + projectId : "");
-        return jdbcTemplate.queryForList(sql);
+                """;
+        QuerySpec querySpec = appendEqualityFilter(sql, "inv.project_id", projectId);
+        return jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
     }
 
     /**
@@ -191,20 +187,47 @@ public class ReportTemplateService {
                     item.material_id,
                     item.material_name,
                     item.unit,
-                    s.supplier_name,
-                    item.unit_price_with_tax AS unit_price,
-                    pl.created_at           AS purchase_date,
+                    item.estimated_price AS unit_price,
+                    item.created_at      AS purchase_date,
                     pl.project_id
                 FROM biz_purchase_list_item item
                 JOIN biz_purchase_list pl ON pl.id = item.list_id AND pl.deleted = 0
-                JOIN biz_supplier s ON s.id = item.supplier_id AND s.deleted = 0
                 WHERE item.deleted = 0
-                """ + (materialId != null ? " AND item.material_id = " + materialId : "") +
-                " ORDER BY item.material_id, pl.created_at DESC";
-        return jdbcTemplate.queryForList(sql);
+                """;
+        QuerySpec querySpec = appendEqualityFilter(sql, "item.material_id", materialId, " ORDER BY item.material_id, item.created_at DESC");
+        return jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
     }
 
     // ==================== 内部校验 ====================
+
+    private QuerySpec buildQuerySpec(String sql, Map<String, Object> params) {
+        List<Object> argList = new ArrayList<>();
+        Matcher matcher = PARAM_PATTERN.matcher(sql);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String paramName = matcher.group(1);
+            Object val = params != null ? params.get(paramName) : null;
+            argList.add(val);
+            matcher.appendReplacement(sb, "?");
+        }
+        matcher.appendTail(sb);
+        return new QuerySpec(sb.toString(), argList);
+    }
+
+    private QuerySpec appendEqualityFilter(String sql, String column, Object value) {
+        return appendEqualityFilter(sql, column, value, "");
+    }
+
+    private QuerySpec appendEqualityFilter(String sql, String column, Object value, String suffix) {
+        List<Object> args = new ArrayList<>();
+        String finalSql = sql;
+        if (value != null) {
+            finalSql += " AND " + column + " = ?";
+            args.add(value);
+        }
+        finalSql += suffix;
+        return new QuerySpec(finalSql, args);
+    }
 
     private void validateSql(String sql) {
         if (sql == null || sql.isBlank()) throw new BusinessException("SQL不能为空");
@@ -216,4 +239,6 @@ public class ReportTemplateService {
             if (upper.contains(keyword)) throw new BusinessException("SQL 中包含禁止的操作: " + keyword);
         }
     }
+
+    private record QuerySpec(String sql, List<Object> args) {}
 }

@@ -162,6 +162,17 @@ const handleCheckAccount = async () => {
   }
 }
 
+const getSafeRedirect = () => {
+  const redirect = Array.isArray(route.query.redirect)
+    ? route.query.redirect[0]
+    : route.query.redirect
+
+  if (typeof redirect !== 'string' || !redirect.startsWith('/')) return '/home'
+  if (redirect.startsWith('//') || redirect.includes('://')) return '/home'
+
+  return redirect
+}
+
 const handlePasswordLogin = async () => {
   const valid = await passwordFormRef.value.validate().catch(() => false)
   if (!valid) return
@@ -172,8 +183,7 @@ const handlePasswordLogin = async () => {
       username: accountForm.username,
       password: passwordForm.password
     })
-    const redirect = route.query.redirect || '/home'
-    router.push(redirect)
+    router.push(getSafeRedirect())
   } catch (e) {
     // error handled by interceptor
   } finally {
@@ -209,8 +219,7 @@ const handleSmsLogin = async () => {
       phone: smsForm.phone,
       smsCode: smsForm.smsCode
     })
-    const redirect = route.query.redirect || '/home'
-    router.push(redirect)
+    router.push(getSafeRedirect())
   } catch (e) {
     // error handled by interceptor
   } finally {
