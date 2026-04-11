@@ -90,6 +90,7 @@ public class ReportTemplateService {
      */
     public Map<String, Object> executeTemplate(Integer id, Map<String, Object> params) {
         SysReportTemplate tpl = getTemplate(id);
+        validateSql(tpl.getSqlText());
         QuerySpec querySpec = buildQuerySpec(tpl.getSqlText(), params);
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
@@ -231,12 +232,14 @@ public class ReportTemplateService {
 
     private void validateSql(String sql) {
         if (sql == null || sql.isBlank()) throw new BusinessException("SQL不能为空");
-        String upper = sql.trim().toUpperCase();
+        // 去除注释后再检查
+        String stripped = sql.replaceAll("/\\*.*?\\*/", " ").replaceAll("--[^\n]*", " ");
+        String upper = stripped.trim().toUpperCase();
         // 只允许 SELECT
         if (!upper.startsWith("SELECT")) throw new BusinessException("只允许 SELECT 查询语句");
-        // 禁止危险关键词
-        for (String keyword : List.of("DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER", "CREATE")) {
-            if (upper.contains(keyword)) throw new BusinessException("SQL 中包含禁止的操作: " + keyword);
+        // 禁止危险关键词（使用单词边界避免误伤列名如 UPDATED_AT）
+        for (String keyword : List.of("DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER", "CREATE", "CALL", "EXEC", "GRANT", "REVOKE")) {
+            if (upper.matches(".*\\b" + keyword + "\\b.*")) throw new BusinessException("SQL 中包含禁止的操作: " + keyword);
         }
     }
 

@@ -53,7 +53,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick, watch } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import { getProjectOverview, getFinanceReport, getInventoryReport, getContractReport, getCostAnalysis } from '@/api/report'
 
@@ -76,7 +77,7 @@ async function fetchProjectData() {
     const d = res.data || {}
     Object.assign(projectStats, { total: d.total || 0, active: d.active || 0, completed: d.completed || 0, overdue: d.overdue || 0 })
     renderProjectChart(d)
-  } catch { /* API 可能尚未实现 */ }
+  } catch { ElMessage.error('获取项目概览失败') }
 }
 
 function renderProjectChart(data) {
@@ -115,7 +116,7 @@ async function fetchFinanceData() {
     const d = res.data || {}
     Object.assign(finStats, d)
     renderFinanceChart(d)
-  } catch { /* API 可能尚未实现 */ }
+  } catch { ElMessage.error('获取财务报表失败') }
 }
 
 function renderFinanceChart(data) {
@@ -144,7 +145,7 @@ async function fetchInventoryData() {
   try {
     const res = await getInventoryReport()
     renderInventoryChart(res.data)
-  } catch { /* API 可能尚未实现 */ }
+  } catch { ElMessage.error('获取库存报表失败') }
 }
 
 function renderInventoryChart(data) {
@@ -168,7 +169,7 @@ async function fetchContractData() {
   try {
     const res = await getContractReport()
     renderContractChart(res.data)
-  } catch { /* API 可能尚未实现 */ }
+  } catch { ElMessage.error('获取合同报表失败') }
 }
 
 function renderContractChart(data) {
@@ -200,7 +201,7 @@ async function fetchCostData() {
     if (costProjectId.value) params.project_id = costProjectId.value
     const res = await getCostAnalysis(params)
     renderCostChart(res.data)
-  } catch { /* API 可能尚未实现 */ }
+  } catch { ElMessage.error('获取成本分析失败') }
 }
 
 function renderCostChart(data) {
@@ -230,7 +231,25 @@ watch(activeTab, async (tab) => {
 onMounted(() => {
   fetchProjectData()
   fetchFinanceData()
+  window.addEventListener('resize', handleResize)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  projectChart?.dispose()
+  financeChart?.dispose()
+  inventoryChart?.dispose()
+  contractChart?.dispose()
+  costChart?.dispose()
+})
+
+function handleResize() {
+  projectChart?.resize()
+  financeChart?.resize()
+  inventoryChart?.resize()
+  contractChart?.resize()
+  costChart?.resize()
+}
 </script>
 
 <style scoped lang="scss">

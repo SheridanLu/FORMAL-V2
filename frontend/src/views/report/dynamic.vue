@@ -43,8 +43,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import {
   getReportTemplate, executeReportTemplate,
   getStockFlowReport, getStockAgingReport, getPurchasePriceComparison
@@ -67,8 +68,9 @@ let chartInstance = null
 
 async function loadTemplate() {
   if (!templateId.value) return
-  const res = await getReportTemplate(templateId.value)
-  const t = res.data
+  try {
+    const res = await getReportTemplate(templateId.value)
+    const t = res.data
   templateName.value = t.report_name
   chartType.value = t.chart_type || 'table'
   xField.value = t.x_field || ''
@@ -84,6 +86,9 @@ async function loadTemplate() {
     }
   }
   execute()
+  } catch (e) {
+    ElMessage.error('加载报表模板失败')
+  }
 }
 
 async function execute() {
@@ -109,6 +114,10 @@ async function execute() {
       await nextTick()
       await renderChart(rows)
     }
+  } catch (e) {
+    ElMessage.error(e?.response?.data?.message || '报表执行失败')
+    tableRows.value = []
+    tableColumns.value = []
   } finally {
     loading.value = false
   }
@@ -126,6 +135,10 @@ async function loadBuiltin(type) {
     const rows = res?.data || []
     tableColumns.value = rows.length ? Object.keys(rows[0]) : []
     tableRows.value = rows
+  } catch (e) {
+    ElMessage.error('加载内置报表失败')
+    tableRows.value = []
+    tableColumns.value = []
   } finally {
     loading.value = false
   }
@@ -175,9 +188,12 @@ async function renderChart(rows) {
     }
     chartInstance.setOption(option)
   } catch {
+    ElMessage.warning('图表渲染失败，请检查字段配置')
     chartVisible.value = false
   }
 }
+
+onBeforeUnmount(() => { chartInstance?.dispose() })
 
 onMounted(() => {
   if (templateId.value) loadTemplate()

@@ -98,7 +98,13 @@ const form = reactive({
 
 async function fetchList() {
   loading.value = true
-  try { tableData.value = (await getReportTemplateList()).data || [] } finally { loading.value = false }
+  try {
+    tableData.value = (await getReportTemplateList()).data || []
+  } catch {
+    ElMessage.error('加载模板列表失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 function openCreate() {
@@ -130,16 +136,22 @@ async function handleSubmit() {
     ElMessage.success('保存成功')
     formVisible.value = false
     fetchList()
+  } catch {
+    ElMessage.error('保存失败，请检查表单内容')
   } finally {
     submitting.value = false
   }
 }
 
 async function handleDelete(row) {
-  await ElMessageBox.confirm(`确定删除报表「${row.report_name}」？`, '提示', { type: 'warning' })
-  await deleteReportTemplate(row.id)
-  ElMessage.success('删除成功')
-  fetchList()
+  try {
+    await ElMessageBox.confirm(`确定删除报表「${row.report_name}」？`, '提示', { type: 'warning' })
+    await deleteReportTemplate(row.id)
+    ElMessage.success('删除成功')
+    fetchList()
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error('删除失败')
+  }
 }
 
 function handlePreview(row) {

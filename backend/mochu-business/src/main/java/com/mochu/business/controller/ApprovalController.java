@@ -1,6 +1,9 @@
 package com.mochu.business.controller;
 
 import com.mochu.business.dto.ApprovalActionDTO;
+import com.mochu.business.dto.ApprovalCcDTO;
+import com.mochu.business.dto.ApprovalOpinionDTO;
+import com.mochu.business.dto.ApprovalTransferDTO;
 import com.mochu.business.dto.FlowDefDTO;
 import com.mochu.business.entity.SysFlowDef;
 import com.mochu.business.service.ApprovalService;
@@ -12,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,17 +80,17 @@ public class ApprovalController {
 
     @PostMapping("/{instanceId}/approve")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> approve(@PathVariable Integer instanceId, @RequestBody Map<String, String> body) {
+    public R<Void> approve(@PathVariable Integer instanceId, @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        approvalService.approve(instanceId, userId, body.get("opinion"));
+        approvalService.approve(instanceId, userId, dto.getOpinion());
         return R.ok();
     }
 
     @PostMapping("/{instanceId}/reject")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> reject(@PathVariable Integer instanceId, @RequestBody Map<String, String> body) {
+    public R<Void> reject(@PathVariable Integer instanceId, @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        approvalService.reject(instanceId, userId, body.get("opinion"));
+        approvalService.reject(instanceId, userId, dto.getOpinion());
         return R.ok();
     }
 
@@ -102,47 +104,41 @@ public class ApprovalController {
 
     @PostMapping("/{instanceId}/transfer")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> transfer(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+    public R<Void> transfer(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        Integer targetUserId = (Integer) body.get("target_user_id");
-        String opinion = (String) body.get("opinion");
-        approvalService.transfer(instanceId, userId, targetUserId, opinion);
+        approvalService.transfer(instanceId, userId, dto.getTargetUserId(), dto.getOpinion());
         return R.ok();
     }
 
     @PostMapping("/{instanceId}/cosign")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> addCosigner(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+    public R<Void> addCosigner(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        Integer cosignerId = (Integer) body.get("cosigner_id");
-        String opinion = (String) body.get("opinion");
-        approvalService.addCosigner(instanceId, userId, cosignerId, opinion);
+        approvalService.addCosigner(instanceId, userId, dto.getTargetUserId(), dto.getOpinion());
         return R.ok();
     }
 
     @PostMapping("/cosign/{cosignId}/approve")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> approveCosign(@PathVariable Integer cosignId, @RequestBody Map<String, String> body) {
+    public R<Void> approveCosign(@PathVariable Integer cosignId, @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        approvalService.approveCosign(cosignId, userId, body.get("opinion"));
+        approvalService.approveCosign(cosignId, userId, dto.getOpinion());
         return R.ok();
     }
 
     @PostMapping("/{instanceId}/read-handle")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> sendReadHandle(@PathVariable Integer instanceId, @RequestBody Map<String, Integer> body) {
+    public R<Void> sendReadHandle(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        approvalService.sendReadHandle(instanceId, userId, body.get("target_user_id"));
+        approvalService.sendReadHandle(instanceId, userId, dto.getTargetUserId());
         return R.ok();
     }
 
-    @SuppressWarnings("unchecked")
     @PostMapping("/{instanceId}/cc")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> sendCc(@PathVariable Integer instanceId, @RequestBody Map<String, Object> body) {
+    public R<Void> sendCc(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalCcDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        List<Integer> userIds = (List<Integer>) body.get("user_ids");
-        approvalService.sendCc(instanceId, userId, userIds);
+        approvalService.sendCc(instanceId, userId, dto.getUserIds());
         return R.ok();
     }
 
