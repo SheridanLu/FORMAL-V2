@@ -8,6 +8,24 @@ export function getAllSuppliers() {
   return request.get('/api/v1/suppliers/all')
 }
 
+// ==================== 供应商评价 ====================
+
+export function getSupplierRatingList(params) {
+  return request({ url: '/api/v1/supplier/rating', method: 'get', params })
+}
+
+export function getSupplierRatingSummary() {
+  return request({ url: '/api/v1/supplier/rating/summary', method: 'get' })
+}
+
+export function createSupplierRating(data) {
+  return request({ url: '/api/v1/supplier/rating', method: 'post', data })
+}
+
+export function deleteSupplierRating(id) {
+  return request({ url: `/api/v1/supplier/rating/${id}`, method: 'delete' })
+}
+
 export function getSupplierById(id) {
   return request.get(`/api/v1/suppliers/${id}`)
 }

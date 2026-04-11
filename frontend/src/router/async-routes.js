@@ -64,6 +64,16 @@ export default [
           permission: ['supplier:view', 'supplier:edit']
         }
       },
+      {
+        path: 'supplier/rating',
+        name: 'SupplierRating',
+        component: () => import('@/views/supplier/rating.vue'),
+        meta: {
+          title: '供应商评价',
+          icon: 'Star',
+          permission: 'supplier:rating'
+        }
+      },
 
       // ========== 材料管理 ==========
       {
@@ -128,6 +138,16 @@ export default [
             'inventory:inbound', 'inventory:outbound', 'inventory:return',
             'inventory:stock-view', 'inventory:check', 'inventory:check-approve'
           ]
+        }
+      },
+      {
+        path: 'inventory/enhance',
+        name: 'InventoryEnhance',
+        component: () => import('@/views/inventory/enhance.vue'),
+        meta: {
+          title: '库存增强',
+          icon: 'SetUp',
+          permission: ['inventory:alert-manage', 'inventory:transfer']
         }
       },
 
@@ -211,6 +231,22 @@ export default [
           icon: 'TrendCharts',
           permission: ['report:view']
         }
+      },
+      {
+        path: 'report/template',
+        name: 'ReportTemplate',
+        component: () => import('@/views/report/template.vue'),
+        meta: {
+          title: '报表模板',
+          icon: 'DocumentCopy',
+          permission: 'report:template-manage'
+        }
+      },
+      {
+        path: 'report/dynamic',
+        name: 'ReportDynamic',
+        component: () => import('@/views/report/dynamic.vue'),
+        meta: { title: '动态报表', hidden: true }
       },
 
       // ========== 通讯录 ==========

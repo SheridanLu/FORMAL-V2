@@ -42,6 +42,7 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
+      external: ['bpmn-js/lib/Modeler', 'bpmn-js/lib/NavigatedViewer'],
       output: {
         manualChunks: {
           'vendor-vue': ['vue', 'vue-router', 'pinia'],

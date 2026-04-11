@@ -168,6 +168,16 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('bpm:instance-view', '流程实例查看', 'bpm', 1),
 ('bpm:rule-manage', '流程规则管理', 'bpm', 1);
 
+-- ERP 增强 (3)
+INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+('supplier:rating', '供应商评价', 'supplier', 1),
+('inventory:transfer', '库存调拨', 'inventory', 1),
+('inventory:alert-manage', '库存预警管理', 'inventory', 1);
+
+-- Report 增强 (1)
+INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+('report:template-manage', '报表模板管理', 'report', 1);
+
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)
 -- ============================================================

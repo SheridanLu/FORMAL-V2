@@ -1664,3 +1664,102 @@ CREATE TABLE IF NOT EXISTS bpm_oa_rule (
 ALTER TABLE bpm_process_definition_ext CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE bpm_task_ext CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE bpm_oa_rule CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- ============================================================
+-- Phase 4: ERP 增强
+-- ============================================================
+
+-- 76. biz_supplier_rating — 供应商评价
+-- ============================================================
+CREATE TABLE IF NOT EXISTS biz_supplier_rating (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_id     INT           NOT NULL COMMENT '供应商ID',
+    purchase_id     INT           COMMENT '关联采购单ID',
+    project_id      INT           COMMENT '所属项目',
+    quality_score   TINYINT       DEFAULT 5 COMMENT '质量评分 1-5',
+    delivery_score  TINYINT       DEFAULT 5 COMMENT '交货评分 1-5',
+    service_score   TINYINT       DEFAULT 5 COMMENT '服务评分 1-5',
+    price_score     TINYINT       DEFAULT 5 COMMENT '价格评分 1-5',
+    total_score     DECIMAL(4,2)  COMMENT '综合评分',
+    comment_text    TEXT          COMMENT '评价内容',
+    creator_id      INT,
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted         TINYINT       DEFAULT 0,
+    KEY idx_supplier_id (supplier_id),
+    KEY idx_project_id (project_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- 77. biz_inventory_alert — 库存预警配置
+-- ============================================================
+CREATE TABLE IF NOT EXISTS biz_inventory_alert (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    project_id      INT           NOT NULL COMMENT '项目ID',
+    material_id     INT           NOT NULL COMMENT '物料ID',
+    material_name   VARCHAR(200)  DEFAULT '' COMMENT '物料名称',
+    unit            VARCHAR(20)   DEFAULT '' COMMENT '单位',
+    safety_qty      DECIMAL(18,2) DEFAULT 0 COMMENT '安全库存量',
+    min_qty         DECIMAL(18,2) DEFAULT 0 COMMENT '最低库存量',
+    alert_enabled   TINYINT       DEFAULT 1 COMMENT '预警开关',
+    creator_id      INT,
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted         TINYINT       DEFAULT 0,
+    UNIQUE KEY uk_project_material (project_id, material_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- 78. biz_inventory_transfer — 库存调拨单
+-- ============================================================
+CREATE TABLE IF NOT EXISTS biz_inventory_transfer (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    transfer_no     VARCHAR(50)   NOT NULL COMMENT '调拨单号',
+    from_project_id INT           NOT NULL COMMENT '源项目',
+    to_project_id   INT           NOT NULL COMMENT '目标项目',
+    material_id     INT           NOT NULL COMMENT '物料ID',
+    material_name   VARCHAR(200)  DEFAULT '',
+    unit            VARCHAR(20)   DEFAULT '',
+    qty             DECIMAL(18,2) NOT NULL COMMENT '调拨数量',
+    avg_price       DECIMAL(18,2) DEFAULT 0 COMMENT '调拨单价（加权均价）',
+    total_amount    DECIMAL(18,2) DEFAULT 0 COMMENT '调拨金额',
+    status          VARCHAR(20)   DEFAULT 'draft' COMMENT 'draft/confirmed/cancelled',
+    remark          TEXT,
+    confirm_time    DATETIME      COMMENT '确认时间',
+    creator_id      INT,
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted         TINYINT       DEFAULT 0,
+    KEY idx_from_project (from_project_id),
+    KEY idx_to_project (to_project_id),
+    KEY idx_transfer_no (transfer_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- Phase 5: 报表引擎增强
+-- ============================================================
+
+-- 79. sys_report_template — 可配置报表模板
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_report_template (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    report_name     VARCHAR(200)  NOT NULL COMMENT '报表名称',
+    category        VARCHAR(50)   DEFAULT 'custom' COMMENT '分类',
+    chart_type      VARCHAR(20)   DEFAULT 'table' COMMENT 'table/line/bar/pie/radar',
+    sql_text        TEXT          NOT NULL COMMENT '参数化SQL（:param_name 占位）',
+    params_json     TEXT          COMMENT '参数定义JSON [{"name":"startDate","label":"开始日期","type":"date"}]',
+    x_field         VARCHAR(100)  DEFAULT '' COMMENT '图表X轴字段名',
+    y_fields        VARCHAR(500)  DEFAULT '' COMMENT '图表Y轴字段名（逗号分隔）',
+    description     TEXT          COMMENT '说明',
+    status          TINYINT       DEFAULT 1,
+    creator_id      INT,
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted         TINYINT       DEFAULT 0,
+    KEY idx_category (category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE biz_supplier_rating CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE biz_inventory_alert CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE biz_inventory_transfer CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE sys_report_template CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

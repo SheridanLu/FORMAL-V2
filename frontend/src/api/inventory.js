@@ -89,3 +89,39 @@ export function submitCheck(id) {
 export function getCheckById(id) {
   return request.get(`/api/v1/inventory/check/${id}`)
 }
+
+// ==================== 库存预警 ====================
+
+export function getInventoryAlerts(params) {
+  return request({ url: '/api/v1/inventory/alerts', method: 'get', params })
+}
+
+export function getTriggeredAlerts(params) {
+  return request({ url: '/api/v1/inventory/alerts/triggered', method: 'get', params })
+}
+
+export function saveInventoryAlert(data) {
+  return request({ url: '/api/v1/inventory/alerts', method: 'post', data })
+}
+
+export function deleteInventoryAlert(id) {
+  return request({ url: `/api/v1/inventory/alerts/${id}`, method: 'delete' })
+}
+
+// ==================== 库存调拨 ====================
+
+export function getInventoryTransfers(params) {
+  return request({ url: '/api/v1/inventory/transfers', method: 'get', params })
+}
+
+export function createInventoryTransfer(data) {
+  return request({ url: '/api/v1/inventory/transfers', method: 'post', data })
+}
+
+export function confirmInventoryTransfer(id) {
+  return request({ url: `/api/v1/inventory/transfers/${id}/confirm`, method: 'put' })
+}
+
+export function cancelInventoryTransfer(id) {
+  return request({ url: `/api/v1/inventory/transfers/${id}/cancel`, method: 'put' })
+}

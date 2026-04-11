@@ -17,3 +17,42 @@ export function getHrReport(params) { return request.get('/api/v1/reports/hr', {
 
 // 成本分析报表
 export function getCostAnalysis(params) { return request.get('/api/v1/reports/cost', { params }) }
+
+// ==================== 报表模板（Phase 5）====================
+
+export function getReportTemplateList(params) {
+  return request({ url: '/api/v1/report/templates', method: 'get', params })
+}
+
+export function getReportTemplate(id) {
+  return request({ url: `/api/v1/report/templates/${id}`, method: 'get' })
+}
+
+export function createReportTemplate(data) {
+  return request({ url: '/api/v1/report/templates', method: 'post', data })
+}
+
+export function updateReportTemplate(id, data) {
+  return request({ url: `/api/v1/report/templates/${id}`, method: 'put', data })
+}
+
+export function deleteReportTemplate(id) {
+  return request({ url: `/api/v1/report/templates/${id}`, method: 'delete' })
+}
+
+export function executeReportTemplate(id, params) {
+  return request({ url: `/api/v1/report/templates/${id}/execute`, method: 'post', data: params })
+}
+
+// 内置报表
+export function getStockFlowReport(params) {
+  return request({ url: '/api/v1/report/stock-flow', method: 'get', params })
+}
+
+export function getStockAgingReport(params) {
+  return request({ url: '/api/v1/report/stock-aging', method: 'get', params })
+}
+
+export function getPurchasePriceComparison(params) {
+  return request({ url: '/api/v1/report/purchase-price', method: 'get', params })
+}

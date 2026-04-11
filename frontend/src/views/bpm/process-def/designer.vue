@@ -78,7 +78,7 @@ async function initModeler() {
   }
   try {
     // 动态导入 bpmn-js（需要 npm install bpmn-js）
-    const BpmnModeler = (await import('bpmn-js/lib/Modeler')).default
+    const BpmnModeler = (await import(/* @vite-ignore */ 'bpmn-js/lib/Modeler')).default
     bpmnModeler = new BpmnModeler({
       container: bpmnContainer.value,
       keyboard: { bindTo: window }
@@ -86,7 +86,7 @@ async function initModeler() {
     if (isView.value) {
       // 只读模式：替换为 Viewer
       bpmnModeler.destroy()
-      const BpmnViewer = (await import('bpmn-js/lib/NavigatedViewer')).default
+      const BpmnViewer = (await import(/* @vite-ignore */ 'bpmn-js/lib/NavigatedViewer')).default
       bpmnModeler = new BpmnViewer({ container: bpmnContainer.value })
     }
   } catch (e) {
