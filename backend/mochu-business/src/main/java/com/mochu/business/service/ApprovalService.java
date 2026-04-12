@@ -514,9 +514,13 @@ public class ApprovalService {
                         .eq(BizApprovalInstance::getStatus, "pending")
                         .orderByDesc(BizApprovalInstance::getCreatedAt));
 
+        // 缓存 FlowDef 避免 N+1 查询（同一个流程定义只查一次数据库）
+        Map<Integer, SysFlowDef> flowDefCache = new HashMap<>();
+
         List<Map<String, Object>> matched = new ArrayList<>();
         for (BizApprovalInstance inst : allPending) {
-            SysFlowDef flowDef = flowDefMapper.selectById(inst.getFlowDefId());
+            SysFlowDef flowDef = flowDefCache.computeIfAbsent(inst.getFlowDefId(),
+                    id -> flowDefMapper.selectById(id));
             if (flowDef == null) continue;
             List<FlowNode> nodes = parseNodes(flowDef.getNodesJson());
             int idx = inst.getCurrentNode() - 1;

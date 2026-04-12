@@ -4,8 +4,10 @@ import com.mochu.business.dto.ChangeOrderDTO;
 import com.mochu.business.dto.GanttTaskDTO;
 import com.mochu.business.dto.IncomeSplitDTO;
 import com.mochu.business.dto.MilestoneDTO;
+import com.mochu.business.dto.ProgressCorrectDTO;
 import com.mochu.business.dto.ProgressReportDTO;
 import com.mochu.business.dto.ProgressStatementDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.BizChangeDetail;
 import com.mochu.business.entity.BizChangeOrder;
 import com.mochu.business.entity.BizGanttTask;
@@ -73,8 +75,8 @@ public class ProgressController {
 
     @PatchMapping("/gantt/{id}/status")
     @PreAuthorize("hasAuthority('progress:gantt-manage')")
-    public R<Void> updateGanttTaskStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateGanttTaskStatus(id, body.get("status"));
+    public R<Void> updateGanttTaskStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateGanttTaskStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -126,8 +128,8 @@ public class ProgressController {
 
     @PatchMapping("/milestones/{id}/status")
     @PreAuthorize("hasAuthority('progress:milestone-manage')")
-    public R<Void> updateMilestoneStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateMilestoneStatus(id, body.get("status"));
+    public R<Void> updateMilestoneStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateMilestoneStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -182,8 +184,8 @@ public class ProgressController {
 
     @PatchMapping("/changes/{id}/status")
     @PreAuthorize("hasAuthority('progress:change-manage')")
-    public R<Void> updateChangeOrderStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateChangeOrderStatus(id, body.get("status"));
+    public R<Void> updateChangeOrderStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateChangeOrderStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -232,8 +234,8 @@ public class ProgressController {
 
     @PatchMapping("/statements/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
-    public R<Void> updateStatementStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateStatementStatus(id, body.get("status"));
+    public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateStatementStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -282,8 +284,8 @@ public class ProgressController {
 
     @PatchMapping("/income-split/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
-    public R<Void> updateIncomeSplitStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateIncomeSplitStatus(id, body.get("status"));
+    public R<Void> updateIncomeSplitStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateIncomeSplitStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -331,8 +333,8 @@ public class ProgressController {
 
     @PatchMapping("/reports/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
-    public R<Void> updateReportStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        progressService.updateReportStatus(id, body.get("status"));
+    public R<Void> updateReportStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        progressService.updateReportStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -347,11 +349,8 @@ public class ProgressController {
 
     @PostMapping("/correct")
     @PreAuthorize("hasAuthority('progress:report')")
-    public R<Void> correctProgress(@RequestBody Map<String, Object> body) {
-        Integer projectId = (Integer) body.get("projectId");
-        BigDecimal actualRate = new BigDecimal(body.get("actualRate").toString());
-        String remark = (String) body.get("remark");
-        progressService.correctProgress(projectId, actualRate, remark);
+    public R<Void> correctProgress(@Valid @RequestBody ProgressCorrectDTO dto) {
+        progressService.correctProgress(dto.getProjectId(), dto.getActualRate(), dto.getRemark());
         return R.ok();
     }
 }

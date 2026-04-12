@@ -137,11 +137,13 @@ public class ContractTplController {
     }
 
     @GetMapping("/versions/{versionId}/preview")
+    @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<String> preview(@PathVariable Integer versionId) {
         return R.ok(tplService.getPreviewHtml(versionId));
     }
 
     @GetMapping("/versions/{versionId}/download")
+    @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<String> download(@PathVariable Integer versionId) {
         return R.ok(tplService.getDownloadUrl(versionId));
     }
@@ -149,6 +151,7 @@ public class ContractTplController {
     // ===================== 字段管理 =====================
 
     @GetMapping("/versions/{versionId}/fields")
+    @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<List<SysContractTplField>> listFields(@PathVariable Integer versionId) {
         return R.ok(tplService.listFields(versionId));
     }
@@ -175,6 +178,7 @@ public class ContractTplController {
     // ===================== 公开查询（供合同创建选择模板用） =====================
 
     @GetMapping("/active")
+    @PreAuthorize("hasAnyAuthority('system:tpl-manage','contract:create')")
     public R<SysContractTplVersion> getActiveVersion(@RequestParam String contractType) {
         SysContractTplVersion version = tplService.getActiveVersion(contractType);
         if (version == null) return R.fail(404, "该合同类型尚未配置模板");

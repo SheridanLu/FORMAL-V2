@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 /**
  * 人力资源管理接口
  */
@@ -56,8 +54,8 @@ public class HrController {
 
     @PatchMapping("/salaries/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-manage')")
-    public R<Void> updateSalaryStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateSalaryStatus(id, body.get("status"));
+    public R<Void> updateSalaryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateSalaryStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -102,8 +100,8 @@ public class HrController {
 
     @PatchMapping("/contracts/{id}/status")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
-    public R<Void> updateContractStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateContractStatus(id, body.get("status"));
+    public R<Void> updateContractStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateContractStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -148,8 +146,8 @@ public class HrController {
 
     @PatchMapping("/certificates/{id}/status")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
-    public R<Void> updateCertificateStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateCertificateStatus(id, body.get("status"));
+    public R<Void> updateCertificateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateCertificateStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -194,8 +192,8 @@ public class HrController {
 
     @PatchMapping("/entries/{id}/status")
     @PreAuthorize("hasAuthority('hr:entry-manage')")
-    public R<Void> updateEntryStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateEntryStatus(id, body.get("status"));
+    public R<Void> updateEntryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateEntryStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -240,8 +238,8 @@ public class HrController {
 
     @PatchMapping("/resigns/{id}/status")
     @PreAuthorize("hasAuthority('hr:resign-manage')")
-    public R<Void> updateResignStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateResignStatus(id, body.get("status"));
+    public R<Void> updateResignStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateResignStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -286,8 +284,8 @@ public class HrController {
 
     @PatchMapping("/salary-config/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-config')")
-    public R<Void> updateSalaryConfigStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateSalaryConfigStatus(id, body.get("status"));
+    public R<Void> updateSalaryConfigStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateSalaryConfigStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -332,8 +330,8 @@ public class HrController {
 
     @PatchMapping("/social-insurance/{id}/status")
     @PreAuthorize("hasAuthority('hr:social-insurance')")
-    public R<Void> updateSocialInsuranceStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateSocialInsuranceStatus(id, body.get("status"));
+    public R<Void> updateSocialInsuranceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateSocialInsuranceStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -417,8 +415,8 @@ public class HrController {
 
     @PatchMapping("/asset-transfer/{id}/status")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
-    public R<Void> updateAssetTransferStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        hrService.updateAssetTransferStatus(id, body.get("status"));
+    public R<Void> updateAssetTransferStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        hrService.updateAssetTransferStatus(id, dto.getStatus());
         return R.ok();
     }
 

@@ -132,7 +132,7 @@ public class InventoryEnhanceService {
         if (transfer == null) throw new BusinessException("调拨单不存在");
         if (!"draft".equals(transfer.getStatus())) throw new BusinessException("当前状态不可确认");
 
-        // 扣减源库存
+        // 扣减源库存 — 使用乐观更新防止并发超扣
         BizInventory fromInv = inventoryMapper.selectOne(
                 new LambdaQueryWrapper<BizInventory>()
                         .eq(BizInventory::getProjectId, transfer.getFromProjectId())
@@ -140,10 +140,18 @@ public class InventoryEnhanceService {
         if (fromInv == null || fromInv.getCurrentQuantity().compareTo(transfer.getQty()) < 0) {
             throw new BusinessException("源库存不足，无法确认调拨");
         }
-        fromInv.setCurrentQuantity(fromInv.getCurrentQuantity().subtract(transfer.getQty()));
-        fromInv.setTotalAmount(fromInv.getCurrentQuantity().multiply(
-                fromInv.getAvgPrice() != null ? fromInv.getAvgPrice() : BigDecimal.ZERO));
-        inventoryMapper.updateById(fromInv);
+        BigDecimal newFromQty = fromInv.getCurrentQuantity().subtract(transfer.getQty());
+        BigDecimal fromAvgPrice = fromInv.getAvgPrice() != null ? fromInv.getAvgPrice() : BigDecimal.ZERO;
+        fromInv.setCurrentQuantity(newFromQty);
+        fromInv.setTotalAmount(newFromQty.multiply(fromAvgPrice));
+        // 乐观锁检查：只有当数量仍然足够时才扣减成功
+        int affected = inventoryMapper.update(fromInv,
+                new LambdaQueryWrapper<BizInventory>()
+                        .eq(BizInventory::getId, fromInv.getId())
+                        .ge(BizInventory::getCurrentQuantity, transfer.getQty()));
+        if (affected == 0) {
+            throw new BusinessException("库存已被其他操作修改，请刷新后重试");
+        }
 
         // 增加目标库存（加权平均法）
         BizInventory toInv = inventoryMapper.selectOne(

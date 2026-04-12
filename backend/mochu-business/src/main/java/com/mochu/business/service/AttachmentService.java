@@ -144,6 +144,7 @@ public class AttachmentService {
             case "project" -> hasProjectAccess(bizId, currentUserId);
             case "contract" -> hasContractAccess(bizId, currentUserId);
             case "purchase", "purchase_list" -> hasPurchaseAccess(bizId, currentUserId);
+            case "document" -> true; // 文档管理附件对所有登录用户开放
             default -> false;
         };
         if (!allowed) {

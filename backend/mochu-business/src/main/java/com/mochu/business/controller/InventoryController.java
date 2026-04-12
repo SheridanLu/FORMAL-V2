@@ -4,6 +4,7 @@ import com.mochu.business.dto.InboundOrderDTO;
 import com.mochu.business.dto.InventoryCheckDTO;
 import com.mochu.business.dto.OutboundOrderDTO;
 import com.mochu.business.dto.ReturnOrderDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.BizInboundOrder;
 import com.mochu.business.entity.BizInventory;
 import com.mochu.business.entity.BizInventoryCheck;
@@ -67,8 +68,8 @@ public class InventoryController {
 
     @PatchMapping("/inbound/{id}/status")
     @PreAuthorize("hasAuthority('inventory:inbound')")
-    public R<Void> updateInboundStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        inventoryService.updateInboundStatus(id, body.get("status"));
+    public R<Void> updateInboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        inventoryService.updateInboundStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -117,8 +118,8 @@ public class InventoryController {
 
     @PatchMapping("/outbound/{id}/status")
     @PreAuthorize("hasAuthority('inventory:outbound')")
-    public R<Void> updateOutboundStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        inventoryService.updateOutboundStatus(id, body.get("status"));
+    public R<Void> updateOutboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        inventoryService.updateOutboundStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -167,8 +168,8 @@ public class InventoryController {
 
     @PatchMapping("/return/{id}/status")
     @PreAuthorize("hasAuthority('inventory:return')")
-    public R<Void> updateReturnStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        inventoryService.updateReturnStatus(id, body.get("status"));
+    public R<Void> updateReturnStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        inventoryService.updateReturnStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -217,8 +218,8 @@ public class InventoryController {
 
     @PatchMapping("/check/{id}/status")
     @PreAuthorize("hasAuthority('inventory:check')")
-    public R<Void> updateCheckStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        inventoryService.updateCheckStatus(id, body.get("status"));
+    public R<Void> updateCheckStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        inventoryService.updateCheckStatus(id, dto.getStatus());
         return R.ok();
     }
 

@@ -3,6 +3,7 @@ package com.mochu.business.controller;
 import com.mochu.business.dto.ProjectDTO;
 import com.mochu.business.dto.ProjectMemberDTO;
 import com.mochu.business.dto.ProjectQueryDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.BizProject;
 import com.mochu.business.entity.BizProjectMember;
 import com.mochu.business.service.ProjectService;
@@ -34,6 +35,7 @@ public class ProjectController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('project:view-all','project:view-own')")
     public R<List<BizProject>> listAll() {
         return R.ok(projectService.listAll());
     }
@@ -65,8 +67,8 @@ public class ProjectController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('project:edit')")
-    public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        projectService.updateStatus(id, body.get("status"));
+    public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        projectService.updateStatus(id, dto.getStatus());
         return R.ok();
     }
 

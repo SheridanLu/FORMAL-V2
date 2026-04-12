@@ -2,6 +2,7 @@ package com.mochu.business.controller;
 
 import com.mochu.business.dto.PurchaseListDTO;
 import com.mochu.business.dto.SpotPurchaseDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.BizPurchaseList;
 import com.mochu.business.entity.BizPurchaseListItem;
 import com.mochu.business.entity.BizSpotPurchase;
@@ -64,8 +65,8 @@ public class PurchaseController {
 
     @PatchMapping("/api/v1/purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:edit')")
-    public R<Void> updatePurchaseListStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        purchaseService.updatePurchaseListStatus(id, body.get("status"));
+    public R<Void> updatePurchaseListStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        purchaseService.updatePurchaseListStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -112,8 +113,8 @@ public class PurchaseController {
 
     @PatchMapping("/api/v1/spot-purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:edit')")
-    public R<Void> updateSpotPurchaseStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        purchaseService.updateSpotPurchaseStatus(id, body.get("status"));
+    public R<Void> updateSpotPurchaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        purchaseService.updateSpotPurchaseStatus(id, dto.getStatus());
         return R.ok();
     }
 

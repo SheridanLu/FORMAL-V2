@@ -4,6 +4,7 @@ import com.mochu.business.dto.ReportTemplateDTO;
 import com.mochu.business.entity.SysReportTemplate;
 import com.mochu.business.service.ReportTemplateService;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,14 +35,14 @@ public class ReportTemplateController {
 
     @PostMapping("/templates")
     @PreAuthorize("hasAuthority('report:template-manage')")
-    public R<Void> createTemplate(@RequestBody ReportTemplateDTO dto) {
+    public R<Void> createTemplate(@Valid @RequestBody ReportTemplateDTO dto) {
         reportTemplateService.createTemplate(dto);
         return R.ok();
     }
 
     @PutMapping("/templates/{id}")
     @PreAuthorize("hasAuthority('report:template-manage')")
-    public R<Void> updateTemplate(@PathVariable Integer id, @RequestBody ReportTemplateDTO dto) {
+    public R<Void> updateTemplate(@PathVariable Integer id, @Valid @RequestBody ReportTemplateDTO dto) {
         reportTemplateService.updateTemplate(id, dto);
         return R.ok();
     }

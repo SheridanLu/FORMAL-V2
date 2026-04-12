@@ -115,13 +115,17 @@ async function handlePreview(row) {
 }
 
 async function handleDownload(row) {
-  const res = await downloadCode(row.id)
-  const url = window.URL.createObjectURL(new Blob([res.data]))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${row.table_name}_codegen.zip`
-  a.click()
-  window.URL.revokeObjectURL(url)
+  try {
+    const res = await downloadCode(row.id)
+    const url = window.URL.createObjectURL(new Blob([res.data]))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${row.table_name}_codegen.zip`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error('下载失败：' + (e.message || '未知错误'))
+  }
 }
 
 async function handleDelete(row) {

@@ -1,6 +1,7 @@
 package com.mochu.business.controller;
 
 import com.mochu.business.dto.ContractDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.BizContract;
 import com.mochu.business.entity.BizInvoice;
 import com.mochu.business.entity.BizPaymentApply;
@@ -58,8 +59,8 @@ public class ContractController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('contract:edit')")
-    public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        contractService.updateStatus(id, body.get("status"));
+    public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        contractService.updateStatus(id, dto.getStatus());
         return R.ok();
     }
 

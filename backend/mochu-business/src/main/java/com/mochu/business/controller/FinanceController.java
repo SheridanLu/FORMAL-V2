@@ -5,6 +5,7 @@ import com.mochu.business.dto.PaymentApplyDTO;
 import com.mochu.business.dto.ReceiptDTO;
 import com.mochu.business.dto.ReimburseDTO;
 import com.mochu.business.dto.StatementDTO;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.entity.*;
 import com.mochu.business.service.FinanceService;
 import com.mochu.common.result.PageResult;
@@ -67,8 +68,8 @@ public class FinanceController {
 
     @PatchMapping("/statements/{id}/status")
     @PreAuthorize("hasAuthority('finance:statement-manage')")
-    public R<Void> updateStatementStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        financeService.updateStatementStatus(id, body.get("status"));
+    public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        financeService.updateStatementStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -119,8 +120,8 @@ public class FinanceController {
 
     @PatchMapping("/payments/{id}/status")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
-    public R<Void> updatePaymentStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        financeService.updatePaymentStatus(id, body.get("status"));
+    public R<Void> updatePaymentStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        financeService.updatePaymentStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -171,8 +172,8 @@ public class FinanceController {
 
     @PatchMapping("/invoices/{id}/status")
     @PreAuthorize("hasAuthority('finance:invoice-manage')")
-    public R<Void> updateInvoiceStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        financeService.updateInvoiceStatus(id, body.get("status"));
+    public R<Void> updateInvoiceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        financeService.updateInvoiceStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -223,8 +224,8 @@ public class FinanceController {
 
     @PatchMapping("/reimburses/{id}/status")
     @PreAuthorize("hasAuthority('finance:reimburse-manage')")
-    public R<Void> updateReimburseStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        financeService.updateReimburseStatus(id, body.get("status"));
+    public R<Void> updateReimburseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        financeService.updateReimburseStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -303,8 +304,8 @@ public class FinanceController {
 
     @PatchMapping("/receipts/{id}/status")
     @PreAuthorize("hasAuthority('finance:receipt-create')")
-    public R<Void> updateReceiptStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        financeService.updateReceiptStatus(id, body.get("status"));
+    public R<Void> updateReceiptStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        financeService.updateReceiptStatus(id, dto.getStatus());
         return R.ok();
     }
 

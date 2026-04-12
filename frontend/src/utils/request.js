@@ -67,12 +67,14 @@ request.interceptors.request.use(
       config.headers['X-Idempotency-Key'] = uuid()
     }
     // HMAC-SHA256 签名 — V3.2 §3.2 敏感接口安全
+    // 注意: sign_secret 存储在 sessionStorage 中（关闭标签页即清除），
+    // 降低 XSS 持久化攻击风险。后续应改为登录时由后端下发临时密钥。
     if (config.sign) {
       const timestamp = String(Date.now())
       const nonce = uuid()
       const body = config.data ? JSON.stringify(config.data) : ''
       const signPayload = `${method}\n${config.url}\n${timestamp}\n${nonce}\n${body}`
-      const secret = localStorage.getItem('sign_secret') || ''
+      const secret = sessionStorage.getItem('sign_secret') || ''
       const sign = CryptoJS.HmacSHA256(signPayload, secret).toString(CryptoJS.enc.Hex)
       config.headers['X-Timestamp'] = timestamp
       config.headers['X-Nonce'] = nonce

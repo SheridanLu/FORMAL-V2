@@ -12,6 +12,7 @@ import com.mochu.business.entity.BizCompletionFinish;
 import com.mochu.business.entity.BizDrawing;
 import com.mochu.business.entity.BizExceptionTask;
 import com.mochu.business.entity.BizLaborSettlement;
+import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.service.CompletionService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
@@ -70,8 +71,8 @@ public class CompletionController {
 
     @PatchMapping("/finish/{id}/status")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
-    public R<Void> updateFinishStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.updateFinishStatus(id, body.get("status"));
+    public R<Void> updateFinishStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        completionService.updateFinishStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -120,8 +121,8 @@ public class CompletionController {
 
     @PatchMapping("/labor/{id}/status")
     @PreAuthorize("hasAuthority('completion:labor-manage')")
-    public R<Void> updateLaborStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.updateLaborStatus(id, body.get("status"));
+    public R<Void> updateLaborStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        completionService.updateLaborStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -170,8 +171,8 @@ public class CompletionController {
 
     @PatchMapping("/cases/{id}/status")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
-    public R<Void> updateCaseStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.updateCaseStatus(id, body.get("status"));
+    public R<Void> updateCaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        completionService.updateCaseStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -270,8 +271,8 @@ public class CompletionController {
 
     @PatchMapping("/drawings/{id}/status")
     @PreAuthorize("hasAuthority('completion:drawing-manage')")
-    public R<Void> updateDrawingStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.updateDrawingStatus(id, body.get("status"));
+    public R<Void> updateDrawingStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        completionService.updateDrawingStatus(id, dto.getStatus());
         return R.ok();
     }
 
@@ -320,8 +321,8 @@ public class CompletionController {
 
     @PatchMapping("/docs/{id}/status")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
-    public R<Void> updateDocStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.updateDocStatus(id, body.get("status"));
+    public R<Void> updateDocStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
+        completionService.updateDocStatus(id, dto.getStatus());
         return R.ok();
     }
 

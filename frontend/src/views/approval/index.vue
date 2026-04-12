@@ -63,7 +63,7 @@
         <!-- ==================== 流程定义 ==================== -->
         <el-tab-pane label="流程定义" name="flows">
           <div style="margin-bottom: 12px">
-            <el-button type="primary" @click="handleAddFlow">新建流程</el-button>
+            <el-button type="primary" v-permission="'approval:flow-manage'" @click="handleAddFlow">新建流程</el-button>
           </div>
           <el-table :data="flowData" v-loading="loading" stripe border>
             <el-table-column prop="id" label="ID" width="60" />
