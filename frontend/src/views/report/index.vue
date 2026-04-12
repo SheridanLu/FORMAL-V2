@@ -55,8 +55,13 @@
 <script setup>
 import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
 import { getProjectOverview, getFinanceReport, getInventoryReport, getContractReport, getCostAnalysis } from '@/api/report'
+
+let echarts = null
+async function ensureEcharts() {
+  if (!echarts) echarts = await import('echarts')
+  return echarts
+}
 
 const activeTab = ref('project')
 
@@ -80,9 +85,10 @@ async function fetchProjectData() {
   } catch { ElMessage.error('获取项目概览失败') }
 }
 
-function renderProjectChart(data) {
+async function renderProjectChart(data) {
   if (!projectChartRef.value) return
-  if (!projectChart) projectChart = echarts.init(projectChartRef.value)
+  const ec = await ensureEcharts()
+  if (!projectChart) projectChart = ec.init(projectChartRef.value)
   projectChart.setOption({
     title: { text: '项目状态分布', left: 'center' },
     tooltip: { trigger: 'item' },
@@ -119,9 +125,10 @@ async function fetchFinanceData() {
   } catch { ElMessage.error('获取财务报表失败') }
 }
 
-function renderFinanceChart(data) {
+async function renderFinanceChart(data) {
   if (!financeChartRef.value) return
-  if (!financeChart) financeChart = echarts.init(financeChartRef.value)
+  const ec = await ensureEcharts()
+  if (!financeChart) financeChart = ec.init(financeChartRef.value)
   const months = data?.months || []
   financeChart.setOption({
     title: { text: '月度收支趋势', left: 'center' },
@@ -148,9 +155,10 @@ async function fetchInventoryData() {
   } catch { ElMessage.error('获取库存报表失败') }
 }
 
-function renderInventoryChart(data) {
+async function renderInventoryChart(data) {
   if (!inventoryChartRef.value) return
-  if (!inventoryChart) inventoryChart = echarts.init(inventoryChartRef.value)
+  const ec = await ensureEcharts()
+  if (!inventoryChart) inventoryChart = ec.init(inventoryChartRef.value)
   const items = data?.items || []
   inventoryChart.setOption({
     title: { text: '库存分布', left: 'center' },
@@ -172,9 +180,10 @@ async function fetchContractData() {
   } catch { ElMessage.error('获取合同报表失败') }
 }
 
-function renderContractChart(data) {
+async function renderContractChart(data) {
   if (!contractChartRef.value) return
-  if (!contractChart) contractChart = echarts.init(contractChartRef.value)
+  const ec = await ensureEcharts()
+  if (!contractChart) contractChart = ec.init(contractChartRef.value)
   contractChart.setOption({
     title: { text: '合同执行概况', left: 'center' },
     tooltip: { trigger: 'item' },
@@ -204,9 +213,10 @@ async function fetchCostData() {
   } catch { ElMessage.error('获取成本分析失败') }
 }
 
-function renderCostChart(data) {
+async function renderCostChart(data) {
   if (!costChartRef.value) return
-  if (!costChart) costChart = echarts.init(costChartRef.value)
+  const ec = await ensureEcharts()
+  if (!costChart) costChart = ec.init(costChartRef.value)
   const items = data?.items || []
   costChart.setOption({
     title: { text: '成本构成', left: 'center' },

@@ -125,16 +125,16 @@ public class ReportTemplateService {
                     inv.total_amount
                 FROM biz_inventory inv
                 LEFT JOIN (
-                    SELECT item.project_id, item.material_id, SUM(item.quantity) AS inbound_qty
+                    SELECT o.project_id, item.material_id, SUM(item.quantity) AS inbound_qty
                     FROM biz_inbound_order_item item
-                    WHERE item.deleted = 0
-                    GROUP BY item.project_id, item.material_id
+                    JOIN biz_inbound_order o ON o.id = item.inbound_id AND o.deleted = 0
+                    GROUP BY o.project_id, item.material_id
                 ) io ON io.project_id = inv.project_id AND io.material_id = inv.material_id
                 LEFT JOIN (
-                    SELECT item.project_id, item.material_id, SUM(item.quantity) AS outbound_qty
+                    SELECT o.project_id, item.material_id, SUM(item.quantity) AS outbound_qty
                     FROM biz_outbound_order_item item
-                    WHERE item.deleted = 0
-                    GROUP BY item.project_id, item.material_id
+                    JOIN biz_outbound_order o ON o.id = item.outbound_id AND o.deleted = 0
+                    GROUP BY o.project_id, item.material_id
                 ) oo ON oo.project_id = inv.project_id AND oo.material_id = inv.material_id
                 WHERE inv.deleted = 0
                 """;
@@ -154,21 +154,25 @@ public class ReportTemplateService {
                     inv.current_quantity,
                     inv.unit,
                     DATEDIFF(NOW(), (
-                        SELECT MIN(io2.created_at)
-                        FROM biz_inbound_order io2
-                        WHERE io2.project_id = inv.project_id
-                          AND io2.material_id = inv.material_id
-                          AND io2.deleted = 0
+                        SELECT MIN(o2.created_at)
+                        FROM biz_inbound_order o2
+                        JOIN biz_inbound_order_item i2 ON i2.inbound_id = o2.id
+                        WHERE o2.project_id = inv.project_id
+                          AND i2.material_id = inv.material_id
+                          AND o2.deleted = 0
                     )) AS age_days,
                     CASE
-                        WHEN DATEDIFF(NOW(), (SELECT MIN(io3.created_at) FROM biz_inbound_order io3
-                            WHERE io3.project_id=inv.project_id AND io3.material_id=inv.material_id AND io3.deleted=0)) <= 30
+                        WHEN DATEDIFF(NOW(), (SELECT MIN(o3.created_at) FROM biz_inbound_order o3
+                            JOIN biz_inbound_order_item i3 ON i3.inbound_id = o3.id
+                            WHERE o3.project_id=inv.project_id AND i3.material_id=inv.material_id AND o3.deleted=0)) <= 30
                             THEN '30天以内'
-                        WHEN DATEDIFF(NOW(), (SELECT MIN(io3.created_at) FROM biz_inbound_order io3
-                            WHERE io3.project_id=inv.project_id AND io3.material_id=inv.material_id AND io3.deleted=0)) <= 90
+                        WHEN DATEDIFF(NOW(), (SELECT MIN(o3.created_at) FROM biz_inbound_order o3
+                            JOIN biz_inbound_order_item i3 ON i3.inbound_id = o3.id
+                            WHERE o3.project_id=inv.project_id AND i3.material_id=inv.material_id AND o3.deleted=0)) <= 90
                             THEN '30-90天'
-                        WHEN DATEDIFF(NOW(), (SELECT MIN(io3.created_at) FROM biz_inbound_order io3
-                            WHERE io3.project_id=inv.project_id AND io3.material_id=inv.material_id AND io3.deleted=0)) <= 180
+                        WHEN DATEDIFF(NOW(), (SELECT MIN(o3.created_at) FROM biz_inbound_order o3
+                            JOIN biz_inbound_order_item i3 ON i3.inbound_id = o3.id
+                            WHERE o3.project_id=inv.project_id AND i3.material_id=inv.material_id AND o3.deleted=0)) <= 180
                             THEN '90-180天'
                         ELSE '180天以上'
                     END AS age_range
@@ -193,7 +197,6 @@ public class ReportTemplateService {
                     pl.project_id
                 FROM biz_purchase_list_item item
                 JOIN biz_purchase_list pl ON pl.id = item.list_id AND pl.deleted = 0
-                WHERE item.deleted = 0
                 """;
         QuerySpec querySpec = appendEqualityFilter(sql, "item.material_id", materialId, " ORDER BY item.material_id, item.created_at DESC");
         return jdbcTemplate.queryForList(querySpec.sql(), querySpec.args().toArray());
@@ -232,13 +235,16 @@ public class ReportTemplateService {
 
     private void validateSql(String sql) {
         if (sql == null || sql.isBlank()) throw new BusinessException("SQL不能为空");
+        // 禁止分号（阻止多语句注入）
+        if (sql.contains(";")) throw new BusinessException("SQL 中不允许包含分号");
         // 去除注释后再检查
         String stripped = sql.replaceAll("/\\*.*?\\*/", " ").replaceAll("--[^\n]*", " ");
         String upper = stripped.trim().toUpperCase();
         // 只允许 SELECT
         if (!upper.startsWith("SELECT")) throw new BusinessException("只允许 SELECT 查询语句");
         // 禁止危险关键词（使用单词边界避免误伤列名如 UPDATED_AT）
-        for (String keyword : List.of("DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER", "CREATE", "CALL", "EXEC", "GRANT", "REVOKE")) {
+        for (String keyword : List.of("DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER",
+                "CREATE", "CALL", "EXEC", "GRANT", "REVOKE", "OUTFILE", "DUMPFILE", "LOAD_FILE")) {
             if (upper.matches(".*\\b" + keyword + "\\b.*")) throw new BusinessException("SQL 中包含禁止的操作: " + keyword);
         }
     }
