@@ -18,12 +18,21 @@ spring:
     username: root
     password: mochu@2026
 
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
-      encoding: UTF-8
+  #sql:
+  #  init:
+  #    mode: always
+  #    schema-locations: classpath:schema.sql
+  #    data-locations: classpath:data.sql
+  #    encoding: UTF-8
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true      # 已有数据库时自动基线
+    baseline-version: 3.1.0        # 基线版本（当前已发布版本）
+    locations: classpath:db/migration
+    table: flyway_schema_history
+    validate-on-migrate: true
+    out-of-order: false
 
   data:
     redis:
@@ -95,3 +104,12 @@ flowable:
   database-schema-update: true   # 自动创建/更新 ACT_* 表
   async-executor-activate: false # 异步执行器（生产环境开启）
   history-level: audit           # 审计级别历史记录
+
+# 消息集成配置
+message:
+  sms:
+    provider: mock    # mock / aliyun / tencent
+  email:
+    provider: mock    # mock / smtp
+  wechat:
+    enabled: false    # true时启用真实企业微信SDK

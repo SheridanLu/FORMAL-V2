@@ -168,7 +168,8 @@ request.interceptors.response.use(
       } else if (status === 423) {
         ElMessage.error(data?.message || '账号已锁定')
       } else if (status === 429) {
-        ElMessage.error(data?.message || '请求过于频繁')
+        ElMessage.warning(data?.message || '操作过于频繁，请稍后再试')
+        return Promise.reject(error)
       } else if (status === 500) {
         ElMessage.error('系统繁忙，请稍后重试')
       } else if (status === 502) {
