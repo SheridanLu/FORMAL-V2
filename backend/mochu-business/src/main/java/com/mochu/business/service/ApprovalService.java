@@ -1027,4 +1027,16 @@ public class ApprovalService {
             throw new BusinessException("存在进行中的审批，不可删除");
         }
     }
+
+    /**
+     * 检查指定业务单据是否已审批通过（§7.8 附件保护）
+     */
+    public boolean isApproved(String bizType, Integer bizId) {
+        Long count = instanceMapper.selectCount(
+                new LambdaQueryWrapper<BizApprovalInstance>()
+                        .eq(BizApprovalInstance::getBizType, bizType)
+                        .eq(BizApprovalInstance::getBizId, bizId)
+                        .eq(BizApprovalInstance::getStatus, "approved"));
+        return count > 0;
+    }
 }

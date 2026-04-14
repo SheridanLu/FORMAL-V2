@@ -55,16 +55,15 @@ public class CostCollectionService {
             String[] categories = COST_CATEGORY_MAP.getOrDefault(
                     contractType, new String[]{"其他费", "其他"});
 
-            // 写入成本台账
+            // 写入成本台账 — 对照 DDL: biz_cost_ledger
             BizCostLedger ledger = new BizCostLedger();
             ledger.setProjectId(payment.getProjectId());
             ledger.setBizType("payment");
             ledger.setBizId(paymentId);
-            ledger.setCategoryL1(categories[0]);
-            ledger.setCategoryL2(categories[1]);
+            ledger.setCostType(categories[0]);
+            ledger.setCostSubtype(categories[1]);
             ledger.setAmount(payment.getAmount());
-            ledger.setOccurDate(payment.getCreatedAt().toLocalDate());
-            ledger.setRemark("付款确认自动归集");
+            ledger.setCollectTime(payment.getCreatedAt());
             ledger.setCreatorId(operatorId);
             costLedgerMapper.insert(ledger);
 
@@ -91,12 +90,10 @@ public class CostCollectionService {
      */
     private void createExceptionTask(BizPaymentApply payment, String errorMsg) {
         BizExceptionTask task = new BizExceptionTask();
-        task.setProjectId(payment.getProjectId());
         task.setBizType("payment");
         task.setBizId(payment.getId());
-        task.setTitle("成本归集失败 - 付款编号: " + payment.getPaymentNo());
-        task.setDescription("归集异常: " + errorMsg);
-        task.setStatus(0); // 待处理
+        task.setFailReason("成本归集失败 - 付款编号: " + payment.getPaymentNo() + "，归集异常: " + errorMsg);
+        task.setStatus(1); // 1=待处理
         exceptionTaskMapper.insert(task);
 
         log.warn("异常工单已创建: paymentId={}, error={}", payment.getId(), errorMsg);
