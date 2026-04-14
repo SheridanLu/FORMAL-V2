@@ -51,6 +51,17 @@ public class GlobalExceptionHandler {
                 .body(R.fail(HttpStatus.FORBIDDEN.value(), "无权限访问"));
     }
 
+    /**
+     * P5: MyBatis-Plus 乐观锁冲突 -> 409 Conflict
+     */
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<R<Void>> handleOptimisticLock(
+            org.springframework.dao.OptimisticLockingFailureException e) {
+        log.warn("乐观锁冲突: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(R.fail(409, "数据已被他人修改，请刷新后重试"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<R<Void>> handleGeneric(Exception e) {
         log.error("系统异常", e);

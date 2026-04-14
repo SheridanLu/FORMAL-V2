@@ -8,8 +8,10 @@ import com.mochu.common.result.PageResult;
 import com.mochu.system.dto.RoleDTO;
 import com.mochu.system.entity.SysRole;
 import com.mochu.system.entity.SysRolePermission;
+import com.mochu.system.entity.SysUserRole;
 import com.mochu.system.mapper.SysRoleMapper;
 import com.mochu.system.mapper.SysRolePermissionMapper;
+import com.mochu.system.mapper.SysUserRoleMapper;
 import com.mochu.system.vo.RoleVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +31,7 @@ public class RoleService {
 
     private final SysRoleMapper sysRoleMapper;
     private final SysRolePermissionMapper sysRolePermissionMapper;
+    private final SysUserRoleMapper sysUserRoleMapper;
 
     // Hardcoded V3.2 mutual exclusion pairs (can be made configurable later)
     private static final List<List<String>> MUTUAL_EXCLUSION_PAIRS = List.of(
@@ -167,6 +171,32 @@ public class RoleService {
         if (role == null) throw new BusinessException("角色不存在");
         role.setDataScope(dataScope);
         sysRoleMapper.updateById(role);
+    }
+
+    /**
+     * P5: 分配角色给用户 — 含互斥校验
+     */
+    @Transactional
+    public void assignRolesToUser(Integer userId, List<Integer> roleIds) {
+        // 查询角色编码
+        List<SysRole> roles = sysRoleMapper.selectBatchIds(roleIds);
+        Set<String> roleCodes = roles.stream()
+                .map(SysRole::getRoleCode).collect(Collectors.toSet());
+
+        // 互斥校验
+        RoleMutexValidator.validateAll(roleCodes);
+
+        // 先删除旧关联
+        sysUserRoleMapper.delete(
+                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
+
+        // 写入新关联
+        for (Integer roleId : roleIds) {
+            SysUserRole ur = new SysUserRole();
+            ur.setUserId(userId);
+            ur.setRoleId(roleId);
+            sysUserRoleMapper.insertUserRole(ur);
+        }
     }
 
     private void saveRolePermissions(Integer roleId, List<Integer> permissionIds) {

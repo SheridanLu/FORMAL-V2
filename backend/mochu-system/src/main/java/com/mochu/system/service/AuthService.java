@@ -42,16 +42,25 @@ public class AuthService {
 
     /**
      * 检查账号 — V3.2 §4.1 check-account
+     * P5 增强: 返回 loginType(password/sms) 和 maskedPhone
      * 账号不存在返回 404
      */
     public CheckAccountVO checkAccount(CheckAccountDTO dto) {
-        SysUser user = findByUsernameOrPhone(dto.getUsername());
+        String account = dto.getUsername();
+        boolean isPhone = account != null && account.matches("^1[3-9]\\d{9}$");
+
+        SysUser user = findByUsernameOrPhone(account);
         if (user == null) {
             throw new BusinessException(404, "账号不存在");
         }
         CheckAccountVO vo = new CheckAccountVO();
         vo.setExists(true);
         vo.setLocked(user.getLockUntil() != null && user.getLockUntil().isAfter(LocalDateTime.now()));
+        vo.setLoginType(isPhone ? "sms" : "password");
+        if (user.getPhone() != null && user.getPhone().length() >= 7) {
+            vo.setMaskedPhone(user.getPhone().substring(0, 3) + "****"
+                    + user.getPhone().substring(7));
+        }
         return vo;
     }
 
