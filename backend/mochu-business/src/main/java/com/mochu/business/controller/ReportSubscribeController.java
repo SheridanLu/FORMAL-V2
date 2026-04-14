@@ -14,7 +14,7 @@ import java.util.Map;
  * 报表订阅接口 — 对照 V3.2 报表订阅模块
  */
 @RestController
-@RequestMapping("/api/v1/report/subscribe")
+@RequestMapping("/api/v1/reports/subscribe")
 @RequiredArgsConstructor
 public class ReportSubscribeController {
 

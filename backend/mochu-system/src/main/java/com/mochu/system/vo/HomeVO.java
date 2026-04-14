@@ -3,6 +3,7 @@ package com.mochu.system.vo;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 首页数据 VO — 对照 V3.2 §4.2
@@ -18,6 +19,9 @@ public class HomeVO {
 
     /** 快捷入口 */
     private List<ShortcutVO> shortcuts;
+
+    /** 工作台统计数据 */
+    private Map<String, Object> stats;
 
     @Data
     public static class AnnouncementVO {

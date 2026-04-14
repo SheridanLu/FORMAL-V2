@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/supplier/rating")
+@RequestMapping("/api/v1/suppliers/rating")
 @RequiredArgsConstructor
 public class SupplierRatingController {
 

@@ -48,6 +48,15 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
+  mail:
+    host: ${MAIL_HOST:smtp.example.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:noreply@mochu-oa.com}
+    password: ${MAIL_PASSWORD:changeme}
+    properties:
+      mail.smtp.ssl.enable: true
+      mail.smtp.auth: true
+
 # MyBatis-Plus
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
@@ -110,6 +119,7 @@ message:
   sms:
     provider: mock    # mock / aliyun / tencent
   email:
-    provider: mock    # mock / smtp
+    provider: mock    # mock / spring-mail
+  # message.email.provider: mock (default) or spring-mail
   wechat:
     enabled: false    # true时启用真实企业微信SDK

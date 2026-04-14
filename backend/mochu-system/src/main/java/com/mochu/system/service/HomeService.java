@@ -7,10 +7,12 @@ import com.mochu.system.vo.HomeVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,7 @@ public class HomeService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final AnnouncementService announcementService;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * 获取首页数据
@@ -54,10 +57,72 @@ public class HomeService {
             vo.setAnnouncements(new ArrayList<>());
         }
 
-        // 快捷入口暂返回空列表
-        vo.setShortcuts(new ArrayList<>());
+        // 快捷入口 — 暂返回默认列表
+        List<HomeVO.ShortcutVO> shortcuts = new ArrayList<>();
+        if (shortcuts.isEmpty()) {
+            shortcuts = buildDefaultShortcuts();
+        }
+        vo.setShortcuts(shortcuts);
+
+        // 工作台统计数据
+        vo.setStats(buildStats(userId));
 
         return vo;
+    }
+
+    /**
+     * 构建默认快捷入口
+     */
+    private List<HomeVO.ShortcutVO> buildDefaultShortcuts() {
+        List<HomeVO.ShortcutVO> list = new ArrayList<>();
+        list.add(createShortcut("project", "项目管理", "Folder", 1));
+        list.add(createShortcut("contract", "合同管理", "Document", 2));
+        list.add(createShortcut("approval", "审批中心", "Stamp", 3));
+        list.add(createShortcut("finance", "财务管理", "Money", 4));
+        list.add(createShortcut("inventory", "库存管理", "Box", 5));
+        list.add(createShortcut("hr", "人事管理", "User", 6));
+        return list;
+    }
+
+    private HomeVO.ShortcutVO createShortcut(String code, String name, String icon, int order) {
+        HomeVO.ShortcutVO s = new HomeVO.ShortcutVO();
+        s.setFuncCode(code);
+        s.setFuncName(name);
+        s.setFuncIcon(icon);
+        s.setSortOrder(order);
+        return s;
+    }
+
+    /**
+     * 构建工作台统计数据 — V3.2 §4.2
+     */
+    private Map<String, Object> buildStats(Integer userId) {
+        Map<String, Object> stats = new HashMap<>();
+        try {
+            // 我的项目数
+            Integer projectCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM biz_project_member WHERE user_id = ?",
+                Integer.class, userId);
+            stats.put("projectCount", projectCount != null ? projectCount : 0);
+
+            // 待审批数
+            Integer pendingApprovalCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM biz_approval_node WHERE handler_id = ? AND status = 'pending'",
+                Integer.class, userId);
+            stats.put("pendingApprovalCount", pendingApprovalCount != null ? pendingApprovalCount : 0);
+
+            // 本月合同数
+            Integer contractCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM biz_contract WHERE MONTH(created_at) = MONTH(NOW()) AND YEAR(created_at) = YEAR(NOW())",
+                Integer.class);
+            stats.put("contractCount", contractCount != null ? contractCount : 0);
+
+            // 待办总数 (from Redis)
+            stats.put("todoCount", getTodoCount());
+        } catch (Exception e) {
+            log.warn("统计数据查询失败: {}", e.getMessage());
+        }
+        return stats;
     }
 
     /**

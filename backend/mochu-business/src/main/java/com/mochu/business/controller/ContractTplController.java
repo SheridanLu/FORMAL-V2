@@ -24,7 +24,7 @@ import java.util.List;
  * 合同模板管理接口
  */
 @RestController
-@RequestMapping("/api/v1/contract-tpl")
+@RequestMapping("/api/v1/contract-tpls")
 @RequiredArgsConstructor
 public class ContractTplController {
 

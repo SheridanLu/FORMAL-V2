@@ -11,19 +11,19 @@ export function getAllSuppliers() {
 // ==================== 供应商评价 ====================
 
 export function getSupplierRatingList(params) {
-  return request({ url: '/api/v1/supplier/rating', method: 'get', params })
+  return request({ url: '/api/v1/suppliers/rating', method: 'get', params })
 }
 
 export function getSupplierRatingSummary() {
-  return request({ url: '/api/v1/supplier/rating/summary', method: 'get' })
+  return request({ url: '/api/v1/suppliers/rating/summary', method: 'get' })
 }
 
 export function createSupplierRating(data) {
-  return request({ url: '/api/v1/supplier/rating', method: 'post', data })
+  return request({ url: '/api/v1/suppliers/rating', method: 'post', data })
 }
 
 export function deleteSupplierRating(id) {
-  return request({ url: `/api/v1/supplier/rating/${id}`, method: 'delete' })
+  return request({ url: `/api/v1/suppliers/rating/${id}`, method: 'delete' })
 }
 
 export function getSupplierById(id) {

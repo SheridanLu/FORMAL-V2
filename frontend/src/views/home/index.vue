@@ -15,6 +15,34 @@
       </div>
     </el-card>
 
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" v-if="homeData.stats" class="stat-row">
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-value">{{ homeData.stats.projectCount || 0 }}</div>
+          <div class="stat-label">我的项目</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-value">{{ homeData.stats.pendingApprovalCount || 0 }}</div>
+          <div class="stat-label">待审批</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-value">{{ homeData.stats.contractCount || 0 }}</div>
+          <div class="stat-label">本月合同</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-value">{{ homeData.stats.todoCount || 0 }}</div>
+          <div class="stat-label">待办事项</div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <!-- 快捷入口 -->
     <el-card class="shortcut-card" v-if="homeData.shortcuts && homeData.shortcuts.length">
       <template #header>
@@ -65,7 +93,8 @@ const userStore = useUserStore()
 const homeData = reactive({
   todo_count: 0,
   announcements: [],
-  shortcuts: []
+  shortcuts: [],
+  stats: null
 })
 
 const currentDate = computed(() => dayjs().format('YYYY年MM月DD日 dddd'))
@@ -177,5 +206,29 @@ onUnmounted(() => {
 .announcement-time {
   color: #909399;
   font-size: 13px;
+}
+
+.stat-row {
+  margin-bottom: 0;
+}
+
+.stat-card {
+  text-align: center;
+
+  :deep(.el-card__body) {
+    padding: 20px 0;
+  }
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #409eff;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #909399;
+  margin-top: 8px;
 }
 </style>

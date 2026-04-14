@@ -21,8 +21,20 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * MyBatis 数据权限拦截器
+ * MyBatis 数据权限拦截器 (V3.2)
  * 根据当前用户 dataScope 自动在 SQL 中拼接 WHERE 条件
+ *
+ * <p>dataScope 值含义 (V3.2 规范):
+ * <ul>
+ *   <li>1 = 全部数据 — 不拼接任何条件</li>
+ *   <li>2 = 本部门及子部门 — 递归包含所有下级部门 (MySQL 8 CTE)</li>
+ *   <li>3 = 仅本部门 — dept_id = 当前用户部门</li>
+ *   <li>4 = 仅本人 — creator_id = 当前用户</li>
+ *   <li>5 = 自定义 — 通过 sys_role_data_scope 关联的部门列表</li>
+ * </ul>
+ *
+ * <p>项目过滤: 当 {@code @DataScope} 注解设置了 projectAlias 时,
+ * 无论 dataScope 值如何, 都会额外附加项目成员过滤条件 (正交于部门/用户维度).
  */
 @Slf4j
 @Component
@@ -71,7 +83,7 @@ public class DataPermissionInterceptor implements Interceptor {
         // 根据 dataScope 构建条件
         String sqlCondition = buildSqlCondition(loginUser, dataScope);
         if (sqlCondition == null || sqlCondition.isEmpty()) {
-            // dataScope=1 全部数据，不拼接
+            // 无需拼接条件（全部数据 且 无项目过滤）
             return invocation.proceed();
         }
 
@@ -90,7 +102,12 @@ public class DataPermissionInterceptor implements Interceptor {
     }
 
     /**
-     * 根据用户数据范围构建 SQL 条件
+     * 根据用户数据范围构建 SQL 条件 (V3.2)
+     *
+     * <p>部门/用户维度 (由 dataScope 控制):
+     * 1=全部数据, 2=本部门及子部门, 3=仅本部门, 4=仅本人, 5=自定义
+     *
+     * <p>项目维度 (正交): 当 projectAlias 非空时始终附加项目成员过滤
      */
     private String buildSqlCondition(LoginUser loginUser, DataScope ds) {
         // #1 fix: 校验别名格式，防止 SQL 注入
@@ -99,68 +116,68 @@ public class DataPermissionInterceptor implements Interceptor {
         validateAlias(ds.projectAlias());
 
         Integer scope = loginUser.getDataScope();
-        if (scope == null || scope == 1) {
-            // 全部数据，不拼接
-            return null;
-        }
-
         StringBuilder condition = new StringBuilder();
 
-        switch (scope) {
-            case 2: // 本部门
-                if (!ds.deptAlias().isEmpty()) {
-                    condition.append(String.format(" AND %s.dept_id = %d",
-                            ds.deptAlias(), loginUser.getDeptId()));
-                } else {
-                    condition.append(String.format(" AND dept_id = %d", loginUser.getDeptId()));
-                }
-                break;
+        // ── 部门/用户维度过滤 ──
+        if (scope != null && scope != 1) {
+            String deptAlias = ds.deptAlias();
+            String deptCol = deptAlias.isEmpty() ? "dept_id" : deptAlias + ".dept_id";
 
-            case 3: // 本项目
-                List<Integer> projectIds = getUserProjectIds(loginUser.getUserId());
-                if (projectIds.isEmpty()) {
-                    // 无项目权限，返回空结果条件
-                    condition.append(" AND 1 = 0");
-                } else {
-                    String ids = projectIds.stream().map(String::valueOf)
-                            .collect(Collectors.joining(","));
-                    if (!ds.projectAlias().isEmpty()) {
-                        condition.append(String.format(" AND %s.project_id IN (%s)",
-                                ds.projectAlias(), ids));
+            switch (scope) {
+                case 2: // 本部门及子部门 — MySQL 8 递归 CTE
+                    long deptId = loginUser.getDeptId();
+                    condition.append(String.format(
+                            " AND %s IN (WITH RECURSIVE dept_tree AS (" +
+                            "SELECT id FROM sys_dept WHERE id = %d " +
+                            "UNION ALL " +
+                            "SELECT d.id FROM sys_dept d JOIN dept_tree dt ON d.parent_id = dt.id" +
+                            ") SELECT id FROM dept_tree)",
+                            deptCol, deptId));
+                    break;
+
+                case 3: // 仅本部门
+                    condition.append(String.format(" AND %s = %d",
+                            deptCol, loginUser.getDeptId()));
+                    break;
+
+                case 4: // 仅本人
+                    if (!ds.userAlias().isEmpty()) {
+                        condition.append(String.format(" AND %s.creator_id = %d",
+                                ds.userAlias(), loginUser.getUserId()));
                     } else {
-                        condition.append(String.format(" AND project_id IN (%s)", ids));
+                        condition.append(String.format(" AND creator_id = %d",
+                                loginUser.getUserId()));
                     }
-                }
-                break;
+                    break;
 
-            case 4: // 仅本人
-                if (!ds.userAlias().isEmpty()) {
-                    condition.append(String.format(" AND %s.creator_id = %d",
-                            ds.userAlias(), loginUser.getUserId()));
-                } else {
-                    condition.append(String.format(" AND creator_id = %d",
-                            loginUser.getUserId()));
-                }
-                break;
-
-            case 5: // 自定义 — 通过 sys_role_data_scope 关联的部门
-                List<Integer> deptIds = getCustomDeptIds(loginUser.getUserId());
-                if (deptIds.isEmpty()) {
-                    condition.append(" AND 1 = 0");
-                } else {
-                    String dIds = deptIds.stream().map(String::valueOf)
-                            .collect(Collectors.joining(","));
-                    if (!ds.deptAlias().isEmpty()) {
-                        condition.append(String.format(" AND %s.dept_id IN (%s)",
-                                ds.deptAlias(), dIds));
+                case 5: // 自定义 — 通过 sys_role_data_scope 关联的部门
+                    List<Integer> deptIds = getCustomDeptIds(loginUser.getUserId());
+                    if (deptIds.isEmpty()) {
+                        condition.append(" AND 1 = 0");
                     } else {
-                        condition.append(String.format(" AND dept_id IN (%s)", dIds));
+                        String dIds = deptIds.stream().map(String::valueOf)
+                                .collect(Collectors.joining(","));
+                        condition.append(String.format(" AND %s IN (%s)", deptCol, dIds));
                     }
-                }
-                break;
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        }
+
+        // ── 项目维度过滤 (正交于 dataScope) ──
+        // 当 @DataScope 注解设置了 projectAlias，始终附加项目成员条件
+        if (!ds.projectAlias().isEmpty()) {
+            List<Integer> projectIds = getUserProjectIds(loginUser.getUserId());
+            if (projectIds.isEmpty()) {
+                condition.append(" AND 1 = 0");
+            } else {
+                String ids = projectIds.stream().map(String::valueOf)
+                        .collect(Collectors.joining(","));
+                condition.append(String.format(" AND %s.project_id IN (%s)",
+                        ds.projectAlias(), ids));
+            }
         }
 
         return condition.toString();
