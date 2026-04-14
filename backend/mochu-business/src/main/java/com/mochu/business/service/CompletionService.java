@@ -400,16 +400,47 @@ public class CompletionService {
 
     /**
      * P6 §4.14: 竣工文档归档 — 按类别自动归集
+     * BizAttachment 采用多态 bizType/bizId 设计，竣工归档需汇总该项目下所有业务类型的附件。
+     * bizType="project" 关联项目本体文档；其余 bizType 关联各子业务单据。
      */
     public Map<String, List<BizAttachment>> getArchiveByCategory(Integer projectId) {
-        // BizAttachment uses polymorphic bizType/bizId, no direct projectId field.
-        // Query all attachments whose bizType relates to this project's business entities.
-        List<BizAttachment> allDocs = attachmentMapper.selectList(
+        // 1. 查询项目本体附件（bizType=project）
+        List<BizAttachment> projectDocs = attachmentMapper.selectList(
                 new LambdaQueryWrapper<BizAttachment>()
                         .eq(BizAttachment::getBizType, "project")
                         .eq(BizAttachment::getBizId, projectId));
 
+        // 2. 查询项目关联的各业务单据附件
+        //    通过各业务表反查其 bizId 列表，再批量查附件
+        List<String> bizTypes = List.of("contract", "change", "change_order",
+                "progress", "progress_report",
+                "payment", "payment_apply", "invoice", "receipt", "statement",
+                "drawing", "completion_drawing");
+        List<BizAttachment> bizDocs = attachmentMapper.selectList(
+                new LambdaQueryWrapper<BizAttachment>()
+                        .in(BizAttachment::getBizType, bizTypes)
+                        .exists("SELECT 1 FROM biz_contract bc WHERE bc.project_id = " + projectId
+                                + " AND bc.id = biz_attachment.biz_id AND biz_attachment.biz_type LIKE 'contract%'"
+                                + " UNION ALL "
+                                + "SELECT 1 FROM biz_change_order co WHERE co.project_id = " + projectId
+                                + " AND co.id = biz_attachment.biz_id AND biz_attachment.biz_type LIKE 'change%'"
+                                + " UNION ALL "
+                                + "SELECT 1 FROM biz_gantt_task gt WHERE gt.project_id = " + projectId
+                                + " AND gt.id = biz_attachment.biz_id AND biz_attachment.biz_type LIKE 'progress%'"
+                                + " UNION ALL "
+                                + "SELECT 1 FROM biz_payment_apply pa WHERE pa.project_id = " + projectId
+                                + " AND pa.id = biz_attachment.biz_id AND biz_attachment.biz_type IN ('payment','payment_apply','invoice','receipt','statement')"
+                                + " UNION ALL "
+                                + "SELECT 1 FROM biz_drawing dw WHERE dw.project_id = " + projectId
+                                + " AND dw.id = biz_attachment.biz_id AND biz_attachment.biz_type IN ('drawing','completion_drawing')"
+                        ));
+
+        // 3. 合并所有附件
+        List<BizAttachment> allDocs = new ArrayList<>(projectDocs);
+        allDocs.addAll(bizDocs);
+
         Map<String, List<BizAttachment>> archive = new LinkedHashMap<>();
+        archive.put("项目文档", filterByBizType(allDocs, "project"));
         archive.put("合同文档", filterByBizType(allDocs, "contract"));
         archive.put("变更文档", filterByBizType(allDocs, "change", "change_order"));
         archive.put("进度文档", filterByBizType(allDocs, "progress", "progress_report"));

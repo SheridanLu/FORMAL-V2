@@ -19,6 +19,7 @@ import com.mochu.system.mapper.SysDeptMapper;
 import com.mochu.system.mapper.SysUserMapper;
 import com.mochu.system.mapper.SysUserRoleMapper;
 import com.mochu.system.service.TodoService;
+import com.mochu.system.util.UserHelper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -47,6 +48,7 @@ public class ApprovalService {
     private final SysUserRoleMapper sysUserRoleMapper;
     private final SysDeptMapper sysDeptMapper;
     private final TodoService todoService;
+    private final UserHelper userHelper;
     private final ApplicationEventPublisher eventPublisher;
     private final ObjectMapper objectMapper;
 
@@ -349,7 +351,7 @@ public class ApprovalService {
         // 标记旧待办、创建新待办
         todoService.markDoneByUserAndBiz(currentUserId, "approval_" + instance.getBizType(), instanceId);
         String title = "[转办] " + currentNode.getNodeName() + " - " + (flowDef.getFlowName());
-        todoService.createTodo(targetUserId, "approval_" + instance.getBizType(), instanceId, title, "由" + resolveUserName(currentUserId) + "转办");
+        todoService.createTodo(targetUserId, "approval_" + instance.getBizType(), instanceId, title, "由" + userHelper.resolveRealNameOrEmpty(currentUserId) + "转办");
     }
 
     /**
@@ -383,13 +385,13 @@ public class ApprovalService {
         record.setNodeName(currentNode.getNodeName());
         record.setApproverId(currentUserId);
         record.setAction("cosign_add");
-        record.setOpinion(opinion != null ? opinion : "加签给" + resolveUserName(cosignerId));
+        record.setOpinion(opinion != null ? opinion : "加签给" + userHelper.resolveRealNameOrEmpty(cosignerId));
         record.setCreatedAt(LocalDateTime.now());
         recordMapper.insert(record);
 
         // 创建待办
         String title = "[会签] " + currentNode.getNodeName() + " - " + flowDef.getFlowName();
-        todoService.createTodo(cosignerId, "approval_" + instance.getBizType(), instanceId, title, "由" + resolveUserName(currentUserId) + "发起会签");
+        todoService.createTodo(cosignerId, "approval_" + instance.getBizType(), instanceId, title, "由" + userHelper.resolveRealNameOrEmpty(currentUserId) + "发起会签");
     }
 
     /**
@@ -444,7 +446,7 @@ public class ApprovalService {
 
         SysFlowDef flowDef = flowDefMapper.selectById(instance.getFlowDefId());
         String title = "[阅办] " + (flowDef != null ? flowDef.getFlowName() : instance.getBizType());
-        todoService.createTodo(targetUserId, "approval_" + instance.getBizType(), instanceId, title, "由" + resolveUserName(currentUserId) + "发送阅办");
+        todoService.createTodo(targetUserId, "approval_" + instance.getBizType(), instanceId, title, "由" + userHelper.resolveRealNameOrEmpty(currentUserId) + "发送阅办");
 
         BizApprovalRecord record = new BizApprovalRecord();
         record.setInstanceId(instanceId);
@@ -452,7 +454,7 @@ public class ApprovalService {
         record.setNodeName("阅办");
         record.setApproverId(currentUserId);
         record.setAction("read");
-        record.setOpinion("发送阅办给" + resolveUserName(targetUserId));
+        record.setOpinion("发送阅办给" + userHelper.resolveRealNameOrEmpty(targetUserId));
         record.setCreatedAt(LocalDateTime.now());
         recordMapper.insert(record);
     }
@@ -478,7 +480,7 @@ public class ApprovalService {
             ccMapper.insert(cc);
 
             String title = "[阅知] " + (flowDef != null ? flowDef.getFlowName() : instance.getBizType());
-            todoService.createTodo(uid, "approval_" + instance.getBizType(), instanceId, title, "由" + resolveUserName(currentUserId) + "发送阅知");
+            todoService.createTodo(uid, "approval_" + instance.getBizType(), instanceId, title, "由" + userHelper.resolveRealNameOrEmpty(currentUserId) + "发送阅知");
         }
 
         BizApprovalRecord record = new BizApprovalRecord();
@@ -689,11 +691,11 @@ public class ApprovalService {
             rm.put("node_order", r.getNodeOrder());
             rm.put("node_name", r.getNodeName());
             rm.put("approver_id", r.getApproverId());
-            rm.put("approver_name", resolveUserName(r.getApproverId()));
+            rm.put("approver_name", userHelper.resolveRealNameOrEmpty(r.getApproverId()));
             rm.put("action", r.getAction());
             rm.put("opinion", r.getOpinion());
             rm.put("delegate_from_id", r.getDelegateFromId());
-            rm.put("delegate_from_name", r.getDelegateFromId() != null ? resolveUserName(r.getDelegateFromId()) : null);
+            rm.put("delegate_from_name", r.getDelegateFromId() != null ? userHelper.resolveRealNameOrEmpty(r.getDelegateFromId()) : null);
             rm.put("created_at", r.getCreatedAt());
             recordList.add(rm);
         }
@@ -722,7 +724,7 @@ public class ApprovalService {
             cm.put("id", c.getId());
             cm.put("node_order", c.getNodeOrder());
             cm.put("cosigner_id", c.getCosignerId());
-            cm.put("cosigner_name", resolveUserName(c.getCosignerId()));
+            cm.put("cosigner_name", userHelper.resolveRealNameOrEmpty(c.getCosignerId()));
             cm.put("status", c.getStatus());
             cm.put("opinion", c.getOpinion());
             cm.put("created_at", c.getCreatedAt());
@@ -741,7 +743,7 @@ public class ApprovalService {
             Map<String, Object> cm = new LinkedHashMap<>();
             cm.put("id", cc.getId());
             cm.put("user_id", cc.getUserId());
-            cm.put("user_name", resolveUserName(cc.getUserId()));
+            cm.put("user_name", userHelper.resolveRealNameOrEmpty(cc.getUserId()));
             cm.put("cc_type", cc.getCcType());
             cm.put("is_read", cc.getIsRead());
             cm.put("is_handled", cc.getIsHandled());
@@ -766,16 +768,10 @@ public class ApprovalService {
         item.put("current_node_name", currentNode != null ? currentNode.getNodeName() : "");
         item.put("status", inst.getStatus());
         item.put("initiator_id", inst.getInitiatorId());
-        item.put("initiator_name", resolveUserName(inst.getInitiatorId()));
+        item.put("initiator_name", userHelper.resolveRealNameOrEmpty(inst.getInitiatorId()));
         item.put("created_at", inst.getCreatedAt());
         item.put("updated_at", inst.getUpdatedAt());
         return item;
-    }
-
-    private String resolveUserName(Integer userId) {
-        if (userId == null) return "";
-        SysUser user = sysUserMapper.selectById(userId);
-        return user != null ? user.getRealName() : "";
     }
 
     /**

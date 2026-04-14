@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -40,7 +41,7 @@ public class ContractVersionService {
             version.setContractId(contract.getId());
             version.setVersionNo(newVersionNo);
             version.setSnapshotJson(objectMapper.writeValueAsString(contract));
-            version.setChangeReason(summary != null ? summary : changeType);
+            version.setChangeReason(buildChangeReason(changeType, summary));
             version.setOperatorId(operatorId);
 
             versionMapper.insert(version);
@@ -72,5 +73,21 @@ public class ContractVersionService {
                         .orderByDesc(BizContractVersion::getVersionNo)
                         .last("LIMIT 1 FOR UPDATE"));
         return latest != null ? latest.getVersionNo() : null;
+    }
+
+    /** changeType 中文映射表 */
+    private static final Map<String, String> CHANGE_TYPE_LABELS = Map.of(
+            "supplement", "补充协议",
+            "terminate",  "合同终止",
+            "amend",      "合同变更",
+            "renew",      "合同续签"
+    );
+
+    /**
+     * 构建变更原因 — summary 优先；无 summary 时用 changeType 的中文标签兜底
+     */
+    private String buildChangeReason(String changeType, String summary) {
+        if (summary != null && !summary.isBlank()) return summary;
+        return CHANGE_TYPE_LABELS.getOrDefault(changeType, changeType);
     }
 }

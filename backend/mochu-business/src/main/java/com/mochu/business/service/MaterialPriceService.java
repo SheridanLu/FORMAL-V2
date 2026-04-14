@@ -72,6 +72,7 @@ public class MaterialPriceService {
         basePrice.setEffectiveDate(LocalDate.now());
         basePrice.setSource("contract");
         basePrice.setSourceId(contractId);
+        basePrice.setCreatorId(operatorId);
 
         if (current != null) {
             basePrice.setId(current.getId());

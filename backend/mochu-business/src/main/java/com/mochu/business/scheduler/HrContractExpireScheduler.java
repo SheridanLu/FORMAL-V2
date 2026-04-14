@@ -4,9 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.business.entity.BizHrContract;
 import com.mochu.business.mapper.BizHrContractMapper;
 import com.mochu.system.entity.SysTodo;
-import com.mochu.system.entity.SysUser;
 import com.mochu.system.mapper.SysTodoMapper;
-import com.mochu.system.mapper.SysUserMapper;
+import com.mochu.system.util.UserHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class HrContractExpireScheduler {
 
     private final BizHrContractMapper contractMapper;
     private final SysTodoMapper todoMapper;
-    private final SysUserMapper userMapper;
+    private final UserHelper userHelper;
     private final StringRedisTemplate redisTemplate;
 
     @XxlJob("hrContractExpireJob")
@@ -56,7 +55,7 @@ public class HrContractExpireScheduler {
                     SysTodo hrTodo = new SysTodo();
                     hrTodo.setUserId(1);
                     hrTodo.setTitle(String.format("【合同预警】员工%s的劳动合同还剩%d天到期",
-                            resolveEmployeeName(c.getUserId()), days));
+                            userHelper.resolveRealName(c.getUserId()), days));
                     hrTodo.setBizType("hr_contract_expire");
                     hrTodo.setBizId(c.getId());
                     hrTodo.setStatus(0);
@@ -78,11 +77,5 @@ public class HrContractExpireScheduler {
         } finally {
             redisTemplate.delete(lockKey);
         }
-    }
-
-    private String resolveEmployeeName(Integer userId) {
-        if (userId == null) return "未知";
-        SysUser user = userMapper.selectById(userId);
-        return user != null ? user.getRealName() : "用户" + userId;
     }
 }
