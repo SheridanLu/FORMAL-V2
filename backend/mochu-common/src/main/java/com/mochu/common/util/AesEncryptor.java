@@ -30,14 +30,20 @@ public class AesEncryptor {
             return plaintext;
         }
         try {
+            // #5 fix: 校验密钥长度，AES-256 要求 32 字节
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 32) {
+                throw new IllegalArgumentException(
+                        "AES-256 key must be exactly 32 bytes, got " + keyBytes.length);
+            }
+
             // 生成随机 IV
             byte[] iv = new byte[IV_LENGTH];
             new SecureRandom().nextBytes(iv);
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
             // 密钥
-            SecretKeySpec keySpec = new SecretKeySpec(
-                    key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, ALGORITHM);
 
             // 加密
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
@@ -69,9 +75,15 @@ public class AesEncryptor {
             byte[] iv = Base64.getDecoder().decode(parts[0]);
             byte[] encrypted = Base64.getDecoder().decode(parts[1]);
 
+            // #5 fix: 解密同样校验密钥长度
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 32) {
+                throw new IllegalArgumentException(
+                        "AES-256 key must be exactly 32 bytes, got " + keyBytes.length);
+            }
+
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(
-                    key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, ALGORITHM);
 
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);

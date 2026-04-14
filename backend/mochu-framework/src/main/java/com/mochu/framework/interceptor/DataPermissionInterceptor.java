@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +34,15 @@ import java.util.stream.Collectors;
 public class DataPermissionInterceptor implements Interceptor {
 
     private final StringRedisTemplate redisTemplate;
+
+    /** 别名白名单: 仅允许字母/下划线/数字，防止 SQL 注入 */
+    private static final Pattern SAFE_ALIAS = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]{0,30}$");
+
+    private void validateAlias(String alias) {
+        if (alias != null && !alias.isEmpty() && !SAFE_ALIAS.matcher(alias).matches()) {
+            throw new SecurityException("Invalid DataScope alias: " + alias);
+        }
+    }
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -83,6 +93,11 @@ public class DataPermissionInterceptor implements Interceptor {
      * 根据用户数据范围构建 SQL 条件
      */
     private String buildSqlCondition(LoginUser loginUser, DataScope ds) {
+        // #1 fix: 校验别名格式，防止 SQL 注入
+        validateAlias(ds.deptAlias());
+        validateAlias(ds.userAlias());
+        validateAlias(ds.projectAlias());
+
         Integer scope = loginUser.getDataScope();
         if (scope == null || scope == 1) {
             // 全部数据，不拼接

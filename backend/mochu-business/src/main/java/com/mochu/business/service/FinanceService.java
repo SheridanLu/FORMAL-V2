@@ -488,13 +488,13 @@ public class FinanceService {
     }
 
     /**
-     * 获取合同已付金额
+     * #11 fix: 获取合同已占用金额（含 pending/draft 状态，防止并发超额）
      */
     private BigDecimal getPaidAmount(Integer contractId) {
         List<BizPaymentApply> payments = paymentApplyMapper.selectList(
                 new LambdaQueryWrapper<BizPaymentApply>()
                         .eq(BizPaymentApply::getContractId, contractId)
-                        .in(BizPaymentApply::getStatus, "approved", "paid")
+                        .in(BizPaymentApply::getStatus, "draft", "pending", "approved", "paid")
                         .eq(BizPaymentApply::getDeleted, 0));
         return payments.stream()
                 .map(BizPaymentApply::getAmount)

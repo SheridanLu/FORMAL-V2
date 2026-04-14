@@ -73,14 +73,15 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
     }
 
     /**
-     * 使用 Hutool 清理 HTML 标签，防止 XSS
+     * XSS 清理 — 使用 HTML 实体编码代替标签剥离
+     * #2 fix: cleanHtmlTag 仅剥离标签，无法防御实体编码/事件处理器注入，
+     * 改用 escape() 做 HTML 实体编码，既防 XSS 又保留数据完整性
      */
     private String cleanXss(String value) {
         if (value == null || value.isEmpty()) {
             return value;
         }
-        // 清理所有 HTML 标签，保留纯文本
-        return HtmlUtil.cleanHtmlTag(value);
+        return HtmlUtil.escape(value);
     }
 
     private String readBody(ServletInputStream inputStream) throws IOException {

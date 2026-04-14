@@ -11,12 +11,13 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 @Aspect
 @Component
@@ -25,6 +26,17 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitAspect {
 
     private final StringRedisTemplate redisTemplate;
+
+    /**
+     * #4 fix: Lua 脚本保证 INCR + EXPIRE 原子性，
+     * 防止进程崩溃导致 key 无 TTL 永久阻塞用户
+     */
+    private static final String RATE_LIMIT_LUA =
+            "local c = redis.call('incr', KEYS[1]); " +
+            "if c == 1 then redis.call('expire', KEYS[1], ARGV[1]) end; " +
+            "return c";
+    private static final DefaultRedisScript<Long> RATE_LIMIT_SCRIPT =
+            new DefaultRedisScript<>(RATE_LIMIT_LUA, Long.class);
 
     @Around("@annotation(com.mochu.framework.annotation.RateLimit)")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -35,10 +47,8 @@ public class RateLimitAspect {
         String key = buildKey(rateLimit, method);
         String redisKey = "rate_limit:" + key;
 
-        Long count = redisTemplate.opsForValue().increment(redisKey);
-        if (count != null && count == 1) {
-            redisTemplate.expire(redisKey, rateLimit.period(), TimeUnit.SECONDS);
-        }
+        Long count = redisTemplate.execute(RATE_LIMIT_SCRIPT,
+                List.of(redisKey), String.valueOf(rateLimit.period()));
 
         if (count != null && count > rateLimit.limit()) {
             log.warn("限流拦截: key={}, count={}, limit={}",

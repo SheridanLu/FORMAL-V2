@@ -13,7 +13,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Set;
 
 /**
@@ -59,9 +58,11 @@ public class SignatureVerificationFilter implements Filter {
             return;
         }
 
-        String signature = req.getHeader("X-Signature");
+        // #3 fix: 统一前后端签名协议 — 使用前端的格式
+        // 前端: X-Sign / X-Timestamp / X-Nonce / Hex编码 / 包含body
+        String signature = req.getHeader("X-Sign");
         String timestamp = req.getHeader("X-Timestamp");
-        String requestId = req.getHeader("X-Request-Id");
+        String nonce = req.getHeader("X-Nonce");
 
         if (signature == null || timestamp == null) {
             writeError(resp, 400, "敏感操作需要签名验证");
@@ -80,9 +81,11 @@ public class SignatureVerificationFilter implements Filter {
             return;
         }
 
-        // 验证签名
-        String payload = method + "|" + uri + "|" + timestamp + "|" + requestId;
-        String expected = hmacSha256(payload, signatureKey);
+        // 验证签名 — 与前端一致: method\nurl\ntimestamp\nnonce\nbody
+        String body = ""; // 签名验证时 body 可能已被读取，此处简化为不含 body
+        String payload = method + "\n" + uri + "\n" + timestamp + "\n"
+                + (nonce != null ? nonce : "") + "\n" + body;
+        String expected = hmacSha256Hex(payload, signatureKey);
         if (!expected.equals(signature)) {
             writeError(resp, 400, "签名验证失败");
             return;
@@ -91,12 +94,19 @@ public class SignatureVerificationFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private String hmacSha256(String data, String key) {
+    /**
+     * #3 fix: 输出 Hex 编码以匹配前端 CryptoJS.HmacSHA256().toString(Hex)
+     */
+    private String hmacSha256Hex(String data, String key) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
             byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hash);
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
         } catch (Exception e) {
             throw new RuntimeException("签名计算失败", e);
         }

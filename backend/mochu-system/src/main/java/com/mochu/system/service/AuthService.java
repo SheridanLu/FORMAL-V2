@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,9 @@ public class AuthService {
     /**
      * 检查账号 — V3.2 §4.1 check-account
      * P5 增强: 返回 loginType(password/sms) 和 maskedPhone
-     * 账号不存在返回 404
+     * #15 注意: 该接口按 V3.2 规格设计，存在账号枚举风险，
+     * 已在 Controller 层添加 @RateLimit(key="checkAccount", limit=10, period=60)
+     * 限制同 IP 每分钟最多 10 次调用
      */
     public CheckAccountVO checkAccount(CheckAccountDTO dto) {
         String account = dto.getUsername();
@@ -76,9 +79,10 @@ public class AuthService {
             throw new BusinessException(429, "发送频率超限，请60秒后重试");
         }
 
-        // 生成 6 位验证码
-        String code = String.format("%06d", (int) (Math.random() * 1000000));
-        log.info("短信验证码 [{}]: {}", phone, code);
+        // #6 fix: 使用 SecureRandom 替代 Math.random()
+        String code = String.format("%06d", new SecureRandom().nextInt(1000000));
+        // #6 fix: 验证码不记录到日志，防止泄露
+        log.info("短信验证码已发送至 [{}]", phone);
 
         // 存入 Redis, TTL 5 分钟
         String smsKey = Constants.REDIS_SMS_PREFIX + phone;

@@ -49,10 +49,10 @@ public class IdempotentAspect {
         String idempotencyKey = request.getHeader(HEADER_NAME);
 
         if (idempotencyKey == null || idempotencyKey.isEmpty()) {
-            // 无幂等键，直接放行（向后兼容）
+            // #13 fix: 缺少幂等键时拒绝请求，而非静默放行
             log.warn("请求缺少 {} 头: {} {}",
                     HEADER_NAME, request.getMethod(), request.getRequestURI());
-            return joinPoint.proceed();
+            throw new BusinessException(400, "缺少 " + HEADER_NAME + " 请求头");
         }
 
         // Redis SETNX 尝试占位

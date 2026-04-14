@@ -143,11 +143,14 @@ request.interceptors.response.use(
   (error) => {
     const config = error.config
 
-    // P7: 超时自动重试 1 次
+    // P7: 超时自动重试 1 次 — #12 fix: 仅对 GET 请求重试，避免 POST/PUT/DELETE 重复操作
     if (error.code === 'ECONNABORTED' && config && !config._retried) {
-      config._retried = true
-      console.warn('[retry] 请求超时，自动重试:', config.url)
-      return request(config)
+      const method = (config.method || '').toUpperCase()
+      if (method === 'GET' || config.retryOnTimeout) {
+        config._retried = true
+        console.warn('[retry] GET请求超时，自动重试:', config.url)
+        return request(config)
+      }
     }
 
     if (error.response) {

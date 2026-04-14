@@ -43,6 +43,9 @@ export function useWatermark() {
 
     container.appendChild(watermarkDiv)
 
+    // #14 fix: 保存原始样式，防止 transform/z-index/background-image 等方式绕过
+    const originalCssText = watermarkDiv.style.cssText
+
     // MutationObserver 防删除
     observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -53,11 +56,9 @@ export function useWatermark() {
             container.appendChild(watermarkDiv)
           }
         }
-        // 水印属性被修改时恢复
+        // 水印属性被修改时恢复完整原始样式
         if (mutation.type === 'attributes' && mutation.target === watermarkDiv) {
-          watermarkDiv.style.display = ''
-          watermarkDiv.style.visibility = ''
-          watermarkDiv.style.opacity = ''
+          watermarkDiv.style.cssText = originalCssText
         }
       }
     })

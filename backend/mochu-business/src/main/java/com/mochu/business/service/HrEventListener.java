@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 /**
  * P6 §4.18: HR 入离职自动化事件监听
@@ -66,7 +67,8 @@ public class HrEventListener {
         user.setPhone(entry.getPhone());
         user.setDeptId(entry.getDeptId());
         String initPassword = generateInitPassword();
-        user.setPassword(passwordEncoder.encode(initPassword));
+        // #7 fix: SysUser 字段名是 passwordHash 而非 password
+        user.setPasswordHash(passwordEncoder.encode(initPassword));
         user.setForceChangePwd(1); // 首次登录强制改密
         user.setStatus(1);
         user.setFlagContact(1);
@@ -105,11 +107,14 @@ public class HrEventListener {
             userMapper.updateById(user);
         }
 
-        // 2. 清除 Redis Token
+        // 2. #8 fix: 清除所有客户端类型的 Redis Token（与 AuthService.clearAllTokens 一致）
         try {
-            redisTemplate.delete("auth:token:" + userId + ":pc");
-            redisTemplate.delete("auth:token:" + userId + ":mobile");
+            for (String clientType : List.of("pc", "h5", "wxapp")) {
+                redisTemplate.delete("auth:token:" + userId + ":" + clientType);
+            }
             redisTemplate.delete("user:permissions:" + userId);
+            // 同时清除用户信息缓存
+            redisTemplate.delete("auth:token:info:" + userId);
         } catch (Exception e) {
             log.warn("清除Token失败: {}", e.getMessage());
         }
