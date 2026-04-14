@@ -42,7 +42,6 @@ public class SalaryGenerateScheduler {
     private static final BigDecimal TAX_THRESHOLD = new BigDecimal("5000");
 
     @XxlJob("salaryGenerateJob")
-    @Transactional
     public void generateMonthlySalary() {
         String lockKey = "scheduler:lock:salary_generate";
         Boolean locked = redisTemplate.opsForValue()
@@ -81,8 +80,23 @@ public class SalaryGenerateScheduler {
         }
     }
 
-    private void generateForEmployee(SysUser emp, YearMonth month,
+    /**
+     * #N1 fix: 每位员工独立事务，单人失败不影响整批
+     * #N2 fix: 先检查当月是否已存在工资记录，防止重复生成
+     */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void generateForEmployee(SysUser emp, YearMonth month,
                                       List<BizTaxRate> taxRates) {
+        // #N2 fix: 重复检查 — 当月已存在则跳过
+        Long existCount = salaryMapper.selectCount(
+                new LambdaQueryWrapper<BizSalary>()
+                        .eq(BizSalary::getUserId, emp.getId())
+                        .eq(BizSalary::getYearMonth, month.toString()));
+        if (existCount != null && existCount > 0) {
+            log.info("员工{}当月工资已存在，跳过", emp.getUsername());
+            return;
+        }
+
         // 查询有效薪资配置
         BizSalaryConfig config = salaryConfigMapper.selectOne(
                 new LambdaQueryWrapper<BizSalaryConfig>()

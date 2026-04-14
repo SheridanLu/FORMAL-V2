@@ -127,7 +127,19 @@ async function handleDownload(row) {
   const res = await request.get(
     `/api/v1/attachments/${row.id}/url`)
   if (res.data?.url) {
-    window.open(res.data.url, '_blank')
+    // #N10 fix: 校验 URL 协议，防止 XSS (javascript:) 或协议混淆攻击
+    const url = res.data.url
+    try {
+      const parsed = new URL(url)
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        ElMessage.error('不安全的下载链接')
+        return
+      }
+    } catch {
+      ElMessage.error('无效的下载链接')
+      return
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 }
 

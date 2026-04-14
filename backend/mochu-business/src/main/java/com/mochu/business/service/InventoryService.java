@@ -25,6 +25,7 @@ import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -407,6 +408,7 @@ public class InventoryService {
 
     /**
      * #9 fix: 查询或创建库存记录 — 使用 FOR UPDATE 悲观锁
+     * #N8 fix: 处理并发 INSERT DuplicateKeyException，重新查询已有记录
      */
     private BizInventory getOrCreateInventoryForUpdate(Integer projectId, Integer materialId) {
         BizInventory inventory = inventoryMapper.selectOne(
@@ -421,7 +423,18 @@ public class InventoryService {
             inventory.setCurrentQuantity(BigDecimal.ZERO);
             inventory.setAvgPrice(BigDecimal.ZERO);
             inventory.setTotalAmount(BigDecimal.ZERO);
-            inventoryMapper.insert(inventory);
+            try {
+                inventoryMapper.insert(inventory);
+            } catch (DuplicateKeyException e) {
+                // 并发插入冲突，重新查询已有记录（加锁）
+                log.warn("库存记录并发插入冲突, 重新查询: projectId={}, materialId={}",
+                        projectId, materialId);
+                inventory = inventoryMapper.selectOne(
+                        new LambdaQueryWrapper<BizInventory>()
+                                .eq(BizInventory::getProjectId, projectId)
+                                .eq(BizInventory::getMaterialId, materialId)
+                                .last("FOR UPDATE"));
+            }
         }
         return inventory;
     }

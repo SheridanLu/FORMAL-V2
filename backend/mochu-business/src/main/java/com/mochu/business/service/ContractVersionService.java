@@ -8,6 +8,7 @@ import com.mochu.business.mapper.BizContractVersionMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,11 +22,13 @@ public class ContractVersionService {
 
     /**
      * 生成版本快照
+     * #N7 fix: 加 @Transactional 保证版本号查询与插入的原子性
      * @param contract    合同实体
      * @param changeType  变更类型: supplement/terminate/amend
      * @param summary     变更摘要
      * @param operatorId  操作人ID
      */
+    @Transactional
     public void createSnapshot(BizContract contract, String changeType,
                                 String summary, Integer operatorId) {
         try {
@@ -61,14 +64,14 @@ public class ContractVersionService {
     }
 
     /**
-     * 获取当前最大版本号
+     * #N7 fix: 获取当前最大版本号 — 使用 FOR UPDATE 防止并发版本号冲突
      */
     private Integer getMaxVersionNo(Integer contractId) {
         BizContractVersion latest = versionMapper.selectOne(
                 new LambdaQueryWrapper<BizContractVersion>()
                         .eq(BizContractVersion::getContractId, contractId)
                         .orderByDesc(BizContractVersion::getVersionNo)
-                        .last("LIMIT 1"));
+                        .last("LIMIT 1 FOR UPDATE"));
         return latest != null ? latest.getVersionNo() : null;
     }
 }

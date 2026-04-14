@@ -9,11 +9,12 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "message.sms.provider", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "message.sms.provider", havingValue = "mock", matchIfMissing = false)
 public class MockSmsSender implements SmsSender {
     @Override
     public void sendCode(String phone, String code) {
-        log.info("[Mock短信] 向{}发送验证码: {}", phone, code);
+        // #N6 fix: 不在日志中输出验证码内容，防止泄露
+        log.info("[Mock短信] 向{}发送验证码 (长度:{})", phone, code != null ? code.length() : 0);
     }
     @Override
     public void sendNotify(String phone, String template, Map<String, String> params) {
