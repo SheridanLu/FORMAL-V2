@@ -35,6 +35,9 @@ public class BizGanttTask extends BaseEntity {
 
     private BigDecimal progressPct;
 
+    /** 进度描述 — V3.2.0.09 新增 */
+    private String progressDesc;
+
     /** 依赖关系类型:FS/SS/FF/SF */
     private String dependencyType;
 

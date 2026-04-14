@@ -402,10 +402,12 @@ public class CompletionService {
      * P6 §4.14: 竣工文档归档 — 按类别自动归集
      */
     public Map<String, List<BizAttachment>> getArchiveByCategory(Integer projectId) {
+        // BizAttachment uses polymorphic bizType/bizId, no direct projectId field.
+        // Query all attachments whose bizType relates to this project's business entities.
         List<BizAttachment> allDocs = attachmentMapper.selectList(
                 new LambdaQueryWrapper<BizAttachment>()
-                        .eq(BizAttachment::getProjectId, projectId)
-                        .eq(BizAttachment::getDeleted, 0));
+                        .eq(BizAttachment::getBizType, "project")
+                        .eq(BizAttachment::getBizId, projectId));
 
         Map<String, List<BizAttachment>> archive = new LinkedHashMap<>();
         archive.put("合同文档", filterByBizType(allDocs, "contract"));

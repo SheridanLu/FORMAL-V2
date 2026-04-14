@@ -1017,4 +1017,18 @@ public class ApprovalService {
             // 不创建 SysTodo，仅记录，后续对接企业微信推送
         }
     }
+
+    /**
+     * 检查业务单据是否可删除（无进行中的审批）
+     */
+    public void checkDeletable(String bizType, Integer bizId, Integer userId) {
+        Long pendingCount = instanceMapper.selectCount(
+                new LambdaQueryWrapper<BizApprovalInstance>()
+                        .eq(BizApprovalInstance::getBizType, bizType)
+                        .eq(BizApprovalInstance::getBizId, bizId)
+                        .eq(BizApprovalInstance::getStatus, "pending"));
+        if (pendingCount > 0) {
+            throw new BusinessException("存在进行中的审批，不可删除");
+        }
+    }
 }

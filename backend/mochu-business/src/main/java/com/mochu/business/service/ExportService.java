@@ -3,6 +3,7 @@ package com.mochu.business.service;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.mochu.common.exception.BusinessException;
+import com.mochu.system.service.TodoService;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -126,8 +127,7 @@ public class ExportService {
             // 推送通知 — 通过待办系统
             todoService.createTodo(userId, "export_complete",
                     null, "导出完成",
-                    "文件【" + fileName + ".xlsx】已生成，请在7天内下载。",
-                    "/" + bucket + "/" + objectPath);
+                    "文件【" + fileName + ".xlsx】已生成，请在7天内下载。路径: /" + bucket + "/" + objectPath);
 
             log.info("异步导出完成: userId={}, path={}", userId, objectPath);
 
@@ -137,8 +137,7 @@ public class ExportService {
             // 推送失败通知
             todoService.createTodo(userId, "export_failed",
                     null, "导出失败",
-                    "文件【" + fileName + ".xlsx】导出失败，请重试。",
-                    null);
+                    "文件【" + fileName + ".xlsx】导出失败，请重试。");
         } finally {
             if (tempFile != null && tempFile.exists()) {
                 tempFile.delete();

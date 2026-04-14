@@ -23,6 +23,12 @@ public class SalaryConfigDTO {
     @NotNull(message = "基本工资不能为空")
     private BigDecimal baseSalary;
 
+    /** 岗位工资 */
+    private BigDecimal positionSalary;
+
+    /** 绩效 */
+    private BigDecimal performance;
+
     private BigDecimal allowance;
 
     /** P6: 生效日期 — 不早于当月 */

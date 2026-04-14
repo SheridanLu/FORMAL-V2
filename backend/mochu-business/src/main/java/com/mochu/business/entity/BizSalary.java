@@ -27,6 +27,9 @@ public class BizSalary extends BaseEntity {
 
     private BigDecimal allowance;
 
+    /** 应发工资(总工资) = baseSalary + positionSalary + performance + allowance + bonus */
+    private BigDecimal grossSalary;
+
     private BigDecimal bonus;
 
     private BigDecimal deduction;

@@ -53,15 +53,14 @@ public class MaterialPriceService {
                     .setScale(2, RoundingMode.HALF_UP);
         }
 
-        // 记录价格变动历史
+        // 记录价格变动历史 — 对照 V3.2.0.06 DDL: biz_material_price_history
         BizMaterialPriceHistory history = new BizMaterialPriceHistory();
         history.setMaterialId(materialId);
-        history.setOldPrice(oldPrice);
-        history.setNewPrice(newPrice);
-        history.setChangeRate(changeRate);
-        history.setChangeReason("支出合同审批通过自动更新");
+        history.setPrice(newPrice);
+        history.setPriceDate(LocalDate.now());
         history.setSource("contract");
-        history.setSourceId(contractId);
+        history.setRemark(String.format("支出合同审批自动更新，原价%.2f→新价%.2f，波动%.2f%%",
+                oldPrice, newPrice, changeRate));
         history.setCreatorId(operatorId);
         history.setCreatedAt(LocalDateTime.now());
         historyMapper.insert(history);
@@ -73,7 +72,6 @@ public class MaterialPriceService {
         basePrice.setEffectiveDate(LocalDate.now());
         basePrice.setSource("contract");
         basePrice.setSourceId(contractId);
-        basePrice.setCreatorId(operatorId);
 
         if (current != null) {
             basePrice.setId(current.getId());
@@ -134,7 +132,6 @@ public class MaterialPriceService {
         return basePriceMapper.selectOne(
                 new LambdaQueryWrapper<BizMaterialBasePrice>()
                         .eq(BizMaterialBasePrice::getMaterialId, materialId)
-                        .eq(BizMaterialBasePrice::getDeleted, 0)
                         .orderByDesc(BizMaterialBasePrice::getEffectiveDate)
                         .last("LIMIT 1"));
     }

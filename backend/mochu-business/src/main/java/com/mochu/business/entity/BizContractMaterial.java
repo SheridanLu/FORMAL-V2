@@ -1,12 +1,16 @@
 package com.mochu.business.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 合同物料清单表 — 对照 V3.2.0.05 DDL
+ */
 @Data
 @TableName("biz_contract_material")
 public class BizContractMaterial {
@@ -15,11 +19,13 @@ public class BizContractMaterial {
     private Integer contractId;
     private Integer materialId;
     private String materialName;
-    private String spec;
+    /** 规格型号 — DDL: spec_model */
+    private String specModel;
     private String unit;
     private BigDecimal quantity;
     private BigDecimal unitPrice;
     private BigDecimal subtotal;
     private String remark;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

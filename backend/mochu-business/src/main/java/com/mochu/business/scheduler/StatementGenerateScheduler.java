@@ -48,8 +48,7 @@ public class StatementGenerateScheduler {
 
             List<BizProject> projects = projectMapper.selectList(
                     new LambdaQueryWrapper<BizProject>()
-                            .eq(BizProject::getStatus, "active")
-                            .eq(BizProject::getDeleted, 0));
+                            .eq(BizProject::getStatus, "active"));
 
             int count = 0;
             for (BizProject project : projects) {
@@ -68,9 +67,9 @@ public class StatementGenerateScheduler {
                     BizStatement statement = new BizStatement();
                     statement.setProjectId(project.getId());
                     statement.setStatementNo(noGeneratorService.generate("DZ"));
-                    statement.setYearMonth(month.toString());
-                    statement.setMaterialAmount(materialAmount);
-                    statement.setTotalAmount(materialAmount);
+                    statement.setPeriod(month.toString());
+                    statement.setCurrentOutput(materialAmount);
+                    statement.setCumulativeOutput(materialAmount);
                     statement.setStatus("draft");
                     statementMapper.insert(statement);
                     count++;

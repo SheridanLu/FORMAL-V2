@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.business.entity.BizHrCertificate;
 import com.mochu.business.mapper.BizHrCertificateMapper;
 import com.mochu.system.entity.SysTodo;
+import com.mochu.system.entity.SysUser;
 import com.mochu.system.mapper.SysTodoMapper;
+import com.mochu.system.mapper.SysUserMapper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class CertificateExpireScheduler {
 
     private final BizHrCertificateMapper certMapper;
     private final SysTodoMapper todoMapper;
+    private final SysUserMapper userMapper;
     private final StringRedisTemplate redisTemplate;
 
     @XxlJob("certificateExpireJob")
@@ -45,8 +48,7 @@ public class CertificateExpireScheduler {
                     new LambdaQueryWrapper<BizHrCertificate>()
                             .le(BizHrCertificate::getExpireDate, today.plusDays(60))
                             .ge(BizHrCertificate::getExpireDate, today)
-                            .ne(BizHrCertificate::getStatus, "expired")
-                            .eq(BizHrCertificate::getDeleted, 0));
+                            .ne(BizHrCertificate::getStatus, "expired"));
 
             int count = 0;
             for (BizHrCertificate cert : certs) {
@@ -87,7 +89,7 @@ public class CertificateExpireScheduler {
         SysTodo todo = new SysTodo();
         todo.setUserId(resolveTargetUserId(cert, target));
         todo.setTitle(String.format("【资质预警】%s的%s还剩%d天到期",
-                cert.getUserName(), cert.getCertName(), remainDays));
+                resolveUserName(cert.getUserId()), cert.getCertName(), remainDays));
         todo.setBizType("cert_expire_warning");
         todo.setBizId(cert.getId());
         todo.setStatus(0);
@@ -99,5 +101,11 @@ public class CertificateExpireScheduler {
     private Integer resolveTargetUserId(BizHrCertificate cert, String target) {
         // 简化：HR通知管理员(ID=1)，employee通知证书持有人
         return "employee".equals(target) ? cert.getUserId() : 1;
+    }
+
+    private String resolveUserName(Integer userId) {
+        if (userId == null) return "未知";
+        SysUser user = userMapper.selectById(userId);
+        return user != null ? user.getRealName() : "用户" + userId;
     }
 }

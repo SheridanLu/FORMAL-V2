@@ -30,7 +30,7 @@ public class BatchApprovalService {
         for (int i = 0; i < instanceIds.size(); i++) {
             Integer instanceId = instanceIds.get(i);
             try {
-                approvalService.approve(instanceId, opinion, userId);
+                approvalService.approve(instanceId, userId, opinion);
             } catch (Exception e) {
                 log.error("批量审批第{}条失败: instanceId={}, error={}",
                         i + 1, instanceId, e.getMessage());

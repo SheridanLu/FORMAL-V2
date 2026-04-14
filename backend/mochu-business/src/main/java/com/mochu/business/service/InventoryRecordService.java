@@ -17,7 +17,7 @@ public class InventoryRecordService {
     private final BizInventoryRecordMapper recordMapper;
 
     /**
-     * 记录库存流水
+     * 记录库存流水 — 对照 V3.2.0.08 DDL: biz_inventory_record
      */
     public void record(Integer projectId, Integer materialId,
                        String bizType, Integer bizId, String bizNo,
@@ -27,15 +27,14 @@ public class InventoryRecordService {
         BizInventoryRecord record = new BizInventoryRecord();
         record.setProjectId(projectId);
         record.setMaterialId(materialId);
+        // DDL uses record_type for direction-based type (inbound/outbound/return/check/transfer)
+        record.setRecordType(direction > 0 ? "inbound" : "outbound");
+        record.setQuantity(direction > 0 ? quantity : quantity.negate());
+        record.setBeforeQty(beforeQty);
+        record.setAfterQty(afterQty);
         record.setBizType(bizType);
         record.setBizId(bizId);
-        record.setBizNo(bizNo);
-        record.setDirection(direction);
-        record.setQuantity(quantity);
-        record.setBeforeQuantity(beforeQty);
-        record.setAfterQuantity(afterQty);
-        record.setUnitPrice(unitPrice);
-        record.setAmount(quantity.multiply(unitPrice != null ? unitPrice : BigDecimal.ZERO));
+        record.setRemark(bizNo != null ? "单据: " + bizNo : null);
         record.setCreatedAt(LocalDateTime.now());
         recordMapper.insert(record);
 

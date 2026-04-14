@@ -44,6 +44,8 @@ public class UserVO {
 
     private Integer forceChangePwd;
 
+    private LocalDateTime passwordChangedAt;
+
     private String wxUserid;
 
     private Integer creatorId;

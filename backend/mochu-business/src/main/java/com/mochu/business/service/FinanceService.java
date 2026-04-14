@@ -454,7 +454,7 @@ public class FinanceService {
         if (contract == null) throw new BusinessException("合同不存在");
 
         BigDecimal totalSplit = items.stream()
-                .map(IncomeSplitItemDTO::getAmount)
+                .map(IncomeSplitItemDTO::getSplitAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         if (totalSplit.compareTo(contract.getAmountWithTax()) != 0) {
@@ -475,8 +475,10 @@ public class FinanceService {
         for (IncomeSplitItemDTO item : items) {
             BizIncomeSplitItem splitItem = new BizIncomeSplitItem();
             splitItem.setSplitId(split.getId());
-            splitItem.setTaskName(item.getTaskName());
-            splitItem.setAmount(item.getAmount());
+            splitItem.setDeptId(item.getDeptId());
+            splitItem.setUserId(item.getUserId());
+            splitItem.setSplitRatio(item.getSplitRatio());
+            splitItem.setSplitAmount(item.getSplitAmount());
             splitItem.setRemark(item.getRemark());
             incomeSplitItemMapper.insert(splitItem);
         }

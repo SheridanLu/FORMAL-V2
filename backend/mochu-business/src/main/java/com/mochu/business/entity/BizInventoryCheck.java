@@ -1,5 +1,6 @@
 package com.mochu.business.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mochu.common.entity.BaseEntity;
 import lombok.Data;
@@ -27,6 +28,8 @@ public class BizInventoryCheck extends BaseEntity {
 
     private String remark;
 
+    /** 计算字段，非DB列 */
+    @TableField(exist = false)
     private Integer isOverThreshold;
 
     private String status;

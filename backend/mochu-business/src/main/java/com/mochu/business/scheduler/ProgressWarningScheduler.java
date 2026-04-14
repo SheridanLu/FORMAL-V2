@@ -52,8 +52,7 @@ public class ProgressWarningScheduler {
                     new LambdaQueryWrapper<BizGanttTask>()
                             .le(BizGanttTask::getPlanEndDate, threshold)
                             .ge(BizGanttTask::getPlanEndDate, LocalDate.now())
-                            .ne(BizGanttTask::getStatus, "completed")
-                            .eq(BizGanttTask::getDeleted, 0));
+                            .ne(BizGanttTask::getStatus, "completed"));
 
             int warned = 0;
             for (BizGanttTask task : tasks) {
@@ -72,7 +71,7 @@ public class ProgressWarningScheduler {
                 todo.setTitle(String.format("【进度预警】任务\"%s\"还剩%d天到期",
                         task.getTaskName(), remainDays));
                 todo.setContent(String.format("计划结束日期: %s，当前进度: %s%%",
-                        task.getPlanEndDate(), task.getProgress()));
+                        task.getPlanEndDate(), task.getProgressPct()));
                 todo.setBizType("progress_warning");
                 todo.setBizId(task.getId());
                 todo.setStatus(0);

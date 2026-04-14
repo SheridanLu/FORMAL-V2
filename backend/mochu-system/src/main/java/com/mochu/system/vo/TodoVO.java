@@ -22,6 +22,9 @@ public class TodoVO {
     /** 0待处理/1已处理 */
     private Integer status;
 
+    /** 已读时间 */
+    private LocalDateTime readAt;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

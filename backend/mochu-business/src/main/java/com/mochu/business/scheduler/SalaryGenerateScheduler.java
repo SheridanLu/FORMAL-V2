@@ -55,8 +55,7 @@ public class SalaryGenerateScheduler {
             // 查询所有在职员工
             List<SysUser> employees = userMapper.selectList(
                     new LambdaQueryWrapper<SysUser>()
-                            .eq(SysUser::getStatus, 1)
-                            .eq(SysUser::getDeleted, 0));
+                            .eq(SysUser::getStatus, 1));
 
             // 加载税率表
             List<BizTaxRate> taxRates = taxRateMapper.selectList(
@@ -91,7 +90,7 @@ public class SalaryGenerateScheduler {
         Long existCount = salaryMapper.selectCount(
                 new LambdaQueryWrapper<BizSalary>()
                         .eq(BizSalary::getUserId, emp.getId())
-                        .eq(BizSalary::getYearMonth, month.toString()));
+                        .eq(BizSalary::getSalaryMonth, month.toString()));
         if (existCount != null && existCount > 0) {
             log.info("员工{}当月工资已存在，跳过", emp.getUsername());
             return;
@@ -132,7 +131,7 @@ public class SalaryGenerateScheduler {
         // 生成工资记录
         BizSalary salary = new BizSalary();
         salary.setUserId(emp.getId());
-        salary.setYearMonth(month.toString());
+        salary.setSalaryMonth(month.toString());
         salary.setBaseSalary(config.getBaseSalary());
         salary.setPositionSalary(config.getPositionSalary());
         salary.setPerformance(config.getPerformance());
@@ -157,8 +156,8 @@ public class SalaryGenerateScheduler {
         List<BizSalary> prevSalaries = salaryMapper.selectList(
                 new LambdaQueryWrapper<BizSalary>()
                         .eq(BizSalary::getUserId, userId)
-                        .ge(BizSalary::getYearMonth, yearStart)
-                        .lt(BizSalary::getYearMonth, currentMonth.toString())
+                        .ge(BizSalary::getSalaryMonth, yearStart)
+                        .lt(BizSalary::getSalaryMonth, currentMonth.toString())
                         .ne(BizSalary::getStatus, "cancelled"));
 
         // 已累计扣税
@@ -168,7 +167,7 @@ public class SalaryGenerateScheduler {
 
         // 累计应纳税所得额 = 累计工资总额 - 累计社保 - 累计起征点
         BigDecimal cumulativeGross = prevSalaries.stream()
-                .map(s -> nvl(s.getGrossSalary()))
+                .map(s -> nvl(s.getGrossSalary()))  // grossSalary field added to BizSalary
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .add(gross);
         BigDecimal cumulativeSocial = prevSalaries.stream()
@@ -190,7 +189,7 @@ public class SalaryGenerateScheduler {
         BigDecimal rate = BigDecimal.ZERO;
         BigDecimal deduction = BigDecimal.ZERO;
         for (BizTaxRate tr : taxRates) {
-            if (taxableIncome.compareTo(tr.getMinAmount()) > 0) {
+            if (taxableIncome.compareTo(tr.getMinIncome()) > 0) {
                 rate = tr.getRate().divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
                 deduction = tr.getDeduction();
             }

@@ -40,9 +40,8 @@ public class ContractVersionService {
             version.setContractId(contract.getId());
             version.setVersionNo(newVersionNo);
             version.setSnapshotJson(objectMapper.writeValueAsString(contract));
-            version.setChangeSummary(summary);
-            version.setChangeType(changeType);
-            version.setCreatorId(operatorId);
+            version.setChangeReason(summary != null ? summary : changeType);
+            version.setOperatorId(operatorId);
 
             versionMapper.insert(version);
             log.info("合同版本快照已创建: contractId={}, version={}, type={}",

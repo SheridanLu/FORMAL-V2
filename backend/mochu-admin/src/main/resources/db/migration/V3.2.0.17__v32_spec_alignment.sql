@@ -156,7 +156,7 @@ CREATE UNIQUE INDEX `uk_inventory_project_material` ON `biz_inventory` (`project
 -- 5-e. biz_salary: uk_salary_user_month
 CALL `_tmp_drop_index_if_exists`('biz_salary', 'idx_salary_user_month');
 CALL `_tmp_drop_index_if_exists`('biz_salary', 'uk_salary_user_month');
-CREATE UNIQUE INDEX `uk_salary_user_month` ON `biz_salary` (`user_id`, `year_month`);
+CREATE UNIQUE INDEX `uk_salary_user_month` ON `biz_salary` (`user_id`, `salary_month`);
 
 -- 清理辅助过程
 DROP PROCEDURE IF EXISTS `_tmp_drop_index_if_exists`;
