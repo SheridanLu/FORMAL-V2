@@ -95,7 +95,7 @@ public class DataPermissionInterceptor implements Interceptor {
         // 替换 MappedStatement
         BoundSql newBoundSql = new BoundSql(ms.getConfiguration(), newSql,
                 boundSql.getParameterMappings(), parameter);
-        MappedStatement newMs = copyMappedStatement(ms, () -> newBoundSql);
+        MappedStatement newMs = copyMappedStatement(ms, paramObj -> newBoundSql);
         invocation.getArgs()[0] = newMs;
 
         return invocation.proceed();
