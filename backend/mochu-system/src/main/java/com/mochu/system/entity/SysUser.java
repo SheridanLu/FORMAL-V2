@@ -57,6 +57,9 @@ public class SysUser extends BaseEntity {
     /** 锁定到期时间 */
     private LocalDateTime lockUntil;
 
+    /** 密码最后修改时间 */
+    private LocalDateTime passwordChangedAt;
+
     /** 首次登录是否强制改密 */
     private Integer forceChangePwd;
 

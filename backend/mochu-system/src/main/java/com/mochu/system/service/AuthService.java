@@ -38,6 +38,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final PasswordPolicyService passwordPolicyService;
 
     /**
      * 检查账号 — V3.2 §4.1 check-account
@@ -81,6 +82,7 @@ public class AuthService {
     /**
      * 密码登录 — V3.2 §4.1.2
      * 锁定规则: 5 次失败锁 30 分钟
+     * 集成密码策略: 复杂度校验、过期检查、失败锁定
      */
     public LoginVO loginByPassword(LoginByPasswordDTO dto, String clientType) {
         SysUser user = findByUsernameOrPhone(dto.getUsername());
@@ -91,15 +93,39 @@ public class AuthService {
         // 检查账号状态
         checkUserStatus(user);
 
+        // P0: 通过 PasswordPolicyService 检查锁定状态
+        passwordPolicyService.checkLocked(dto.getUsername(), user.getLockUntil());
+
         // 校验密码
         if (!passwordEncoder.matches(dto.getPassword(), user.getPasswordHash())) {
-            log.warn("登录失败: 用户={}, 密码不匹配, passwordHash={}", dto.getUsername(), user.getPasswordHash().substring(0, 10) + "...");
-            handleLoginFail(user);
-            throw new BusinessException(401, "密码错误");
+            log.warn("登录失败: 用户={}, 密码不匹配", dto.getUsername());
+            // P0: 通过 PasswordPolicyService 记录失败
+            int failCount = passwordPolicyService.recordFailure(dto.getUsername());
+            int remaining = passwordPolicyService.getRemainingAttempts(dto.getUsername());
+
+            if (passwordPolicyService.shouldLock(dto.getUsername())) {
+                user.setLockUntil(passwordPolicyService.calculateLockUntil());
+                sysUserMapper.updateById(user);
+                throw new BusinessException(423, "登录失败次数过多，账号已锁定30分钟");
+            }
+
+            throw new BusinessException(401,
+                    String.format("密码错误，还剩%d次机会", remaining));
         }
 
+        // P0: 登录成功 → 重置失败计数
+        passwordPolicyService.resetFailureCount(dto.getUsername());
+
         // 登录成功
-        return doLogin(user, clientType);
+        LoginVO vo = doLogin(user, clientType);
+
+        // P0: 检查密码是否过期（超过90天）
+        boolean passwordExpired = passwordPolicyService.isPasswordExpired(user.getPasswordChangedAt());
+        vo.setForceChangePwd(
+                (user.getForceChangePwd() != null && user.getForceChangePwd() == 1)
+                || passwordExpired);
+
+        return vo;
     }
 
     /**
@@ -152,14 +178,19 @@ public class AuthService {
             throw new BusinessException(404, "该手机号未注册");
         }
 
-        // 密码规则: 最少 8 位，包含字母和数字
-        validatePassword(dto.getNewPassword());
+        // P0: 通过 PasswordPolicyService 校验密码复杂度
+        passwordPolicyService.validateComplexity(dto.getNewPassword());
 
         // 更新密码
         user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
         user.setLoginAttempts(0);
         user.setLockUntil(null);
+        user.setPasswordChangedAt(LocalDateTime.now()); // P0: 更新密码修改时间
+        user.setForceChangePwd(0); // 重置后不再强制改密
         sysUserMapper.updateById(user);
+
+        // P0: 重置 Redis 失败计数
+        passwordPolicyService.resetFailureCount(user.getUsername());
 
         // 清除所有设备 Token，强制重新登录
         clearAllTokens(user.getId());

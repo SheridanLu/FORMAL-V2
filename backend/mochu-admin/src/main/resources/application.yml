@@ -69,6 +69,10 @@ xxl:
       port: 9999
       logpath: /tmp/xxl-job/logs
 
+# 数据加密配置
+encryption:
+  aes-key: MochuOA_AES256_Key_32Bytes_2026!  # 生产环境通过环境变量注入
+
 # Knife4j
 springdoc:
   api-docs:
