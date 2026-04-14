@@ -12,7 +12,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./docs/sql/V3.2_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/mochu-admin/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/mochu-admin/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pmochu@2026"]
@@ -73,7 +74,7 @@ services:
       retries: 30
       start_period: 60s
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mochu_oa?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mochu_oa?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_general_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: mochu@2026
       SPRING_DATA_REDIS_HOST: redis

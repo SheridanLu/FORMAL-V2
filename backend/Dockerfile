@@ -6,6 +6,8 @@ COPY mochu-common/pom.xml mochu-common/pom.xml
 COPY mochu-framework/pom.xml mochu-framework/pom.xml
 COPY mochu-system/pom.xml mochu-system/pom.xml
 COPY mochu-business/pom.xml mochu-business/pom.xml
+COPY mochu-bpm/pom.xml mochu-bpm/pom.xml
+COPY mochu-infra/pom.xml mochu-infra/pom.xml
 COPY mochu-admin/pom.xml mochu-admin/pom.xml
 RUN mvn dependency:go-offline -B
 COPY . .
