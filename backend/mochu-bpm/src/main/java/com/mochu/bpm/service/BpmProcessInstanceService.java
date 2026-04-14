@@ -18,6 +18,7 @@ import com.mochu.system.mapper.SysUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -36,6 +37,7 @@ public class BpmProcessInstanceService {
 
     private final RuntimeService runtimeService;
     private final HistoryService historyService;
+    private final TaskService taskService;
     private final BpmTaskExtMapper taskExtMapper;
     private final BpmOaRuleMapper oaRuleMapper;
     private final SysUserMapper sysUserMapper;
@@ -150,7 +152,7 @@ public class BpmProcessInstanceService {
             r.setEndTime(t.getEndTime() != null ?
                     t.getEndTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime() : null);
             // 审批意见
-            var comments = historyService.getTaskComments(t.getId());
+            var comments = taskService.getTaskComments(t.getId());
             if (!comments.isEmpty()) {
                 r.setComment(comments.get(comments.size() - 1).getFullMessage());
             }
