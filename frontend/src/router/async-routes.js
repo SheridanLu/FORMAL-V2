@@ -61,7 +61,7 @@ export default [
         meta: {
           title: '供应商管理',
           icon: 'Van',
-          permission: ['supplier:view', 'supplier:edit']
+          permission: ['contract:sign-expense']
         }
       },
       {
@@ -71,7 +71,7 @@ export default [
         meta: {
           title: '供应商评价',
           icon: 'Star',
-          permission: 'supplier:rating'
+          permission: ['contract:sign-expense']
         }
       },
 
@@ -83,7 +83,7 @@ export default [
         meta: {
           title: '材料管理',
           icon: 'Box',
-          permission: ['material:inbound', 'material:outbound', 'material:view']
+          permission: ['material:inbound', 'material:outbound']
         }
       },
 
@@ -97,7 +97,7 @@ export default [
           icon: 'Tickets',
           permission: [
             'contract:create', 'contract:view-all', 'contract:view-own',
-            'contract:edit', 'system:tpl-manage'
+            'contract:edit', 'contract:template-manage'
           ]
         }
       },
@@ -122,7 +122,7 @@ export default [
         meta: {
           title: '采购管理',
           icon: 'ShoppingCart',
-          permission: ['purchase:create', 'purchase:view', 'purchase:edit']
+          permission: ['purchase:list-manage']
         }
       },
 
@@ -135,8 +135,8 @@ export default [
           title: '库存管理',
           icon: 'House',
           permission: [
-            'inventory:inbound', 'inventory:outbound', 'inventory:return',
-            'inventory:stock-view', 'inventory:check', 'inventory:check-approve'
+            'material:inbound', 'material:outbound', 'material:return',
+            'inventory:check-approve'
           ]
         }
       },
@@ -175,9 +175,9 @@ export default [
           title: '财务管理',
           icon: 'Money',
           permission: [
-            'finance:statement-manage', 'finance:payment-create', 'finance:payment-confirm',
-            'finance:invoice-manage', 'finance:reimburse-manage',
-            'finance:cost-view', 'finance:cost-summary', 'finance:receipt-create'
+            'finance:payment-apply', 'finance:payment-confirm',
+            'statement:apply', 'statement:approve',
+            'finance:report-view'
           ]
         }
       },
@@ -218,7 +218,7 @@ export default [
         path: 'approval',
         name: 'ApprovalManage',
         component: () => import('@/views/approval/index.vue'),
-        meta: { title: '流程审批', icon: 'Stamp', permission: ['approval:flow-manage', 'approval:operate', 'approval:view'] }
+        meta: { title: '流程审批', icon: 'Stamp' }
       },
 
       // ========== 报表分析 ==========
@@ -229,7 +229,7 @@ export default [
         meta: {
           title: '报表分析',
           icon: 'TrendCharts',
-          permission: ['report:view']
+          permission: ['report:view-all', 'report:view-project']
         }
       },
       {
@@ -246,7 +246,7 @@ export default [
         path: 'report/dynamic',
         name: 'ReportDynamic',
         component: () => import('@/views/report/dynamic.vue'),
-        meta: { title: '动态报表', hidden: true, permission: 'report:view' }
+        meta: { title: '动态报表', hidden: true, permission: ['report:view-all', 'report:view-project'] }
       },
 
       // ========== 通讯录 ==========
@@ -280,10 +280,8 @@ export default [
           icon: 'Setting',
           permission: [
             'system:user-manage', 'system:role-manage', 'system:dept-manage',
-            'system:announcement-manage', 'system:audit-log',
-            'system:config', 'system:config:edit',
-            'system:delegation', 'system:delegation:edit',
-            'system:tpl-manage', 'system:dict-manage'
+            'system:announcement-manage', 'system:log-view',
+            'contract:template-manage', 'system:dict-manage'
           ]
         },
         children: [
@@ -315,25 +313,25 @@ export default [
             path: 'audit-logs',
             name: 'AuditLogManage',
             component: () => import('@/views/system/audit-log/index.vue'),
-            meta: { title: '审计日志', icon: 'Document', permission: 'system:audit-log' }
+            meta: { title: '审计日志', icon: 'Document', permission: 'system:log-view' }
           },
           {
             path: 'configs',
             name: 'ConfigManage',
             component: () => import('@/views/system/config/index.vue'),
-            meta: { title: '系统配置', icon: 'Tools', permission: ['system:config', 'system:config:edit'] }
+            meta: { title: '系统配置', icon: 'Tools', permission: ['system:user-manage'] }
           },
           {
             path: 'delegations',
             name: 'DelegationManage',
             component: () => import('@/views/system/delegation/index.vue'),
-            meta: { title: '委托代理', icon: 'Switch', permission: ['system:delegation', 'system:delegation:edit'] }
+            meta: { title: '委托代理', icon: 'Switch' }
           },
           {
             path: 'contract-tpl',
             name: 'ContractTplManage',
             component: () => import('@/views/system/contract-tpl/index.vue'),
-            meta: { title: '合同模板', icon: 'Tickets', permission: 'system:tpl-manage' }
+            meta: { title: '合同模板', icon: 'Tickets', permission: 'contract:template-manage' }
           },
           {
             path: 'dict',

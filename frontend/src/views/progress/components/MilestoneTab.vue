@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button v-permission="'progress:milestone-manage'" type="primary" @click="handleAdd">新建里程碑</el-button>
+      <el-button v-permission="'progress:report'" type="primary" @click="handleAdd">新建里程碑</el-button>
     </div>
 
     <!-- 里程碑时间线可视化 -->
@@ -43,8 +43,8 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template #default="{ row }">
-          <el-button v-permission="'progress:milestone-manage'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-dropdown v-permission="'progress:milestone-manage'" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 4px">
+          <el-button v-permission="'progress:report'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-dropdown v-permission="'progress:report'" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 4px">
             <el-button type="warning" link size="small">状态<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -54,7 +54,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button v-permission="'progress:milestone-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'progress:report'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <el-button type="primary" v-permission="'completion:drawing-manage'" @click="openCreate">上传竣工图纸</el-button>
+      <el-button type="primary" v-permission="['doc:upload','doc:download','doc:manage']" @click="openCreate">上传竣工图纸</el-button>
     </div>
 
     <el-table :data="tableData" v-loading="loading" stripe border>
@@ -16,7 +16,7 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button type="danger" link size="small" v-permission="'completion:drawing-manage'" @click="handleDelete(row)">删除</el-button>
+          <el-button type="danger" link size="small" v-permission="['doc:upload','doc:download','doc:manage']" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

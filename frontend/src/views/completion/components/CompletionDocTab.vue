@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <el-button type="primary" v-permission="'completion:doc-manage'" @click="openCreate">上传竣工资料</el-button>
+      <el-button type="primary" v-permission="['doc:upload','doc:download','doc:manage']" @click="openCreate">上传竣工资料</el-button>
     </div>
 
     <el-table :data="tableData" v-loading="loading" stripe border>

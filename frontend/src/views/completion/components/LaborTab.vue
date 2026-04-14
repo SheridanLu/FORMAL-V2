@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <el-button type="primary" v-permission="'completion:labor-manage'" @click="openCreate">新建劳务结算</el-button>
+      <el-button type="primary" v-permission="['finance:payment-apply','finance:payment-confirm']" @click="openCreate">新建劳务结算</el-button>
     </div>
 
     <el-table :data="tableData" v-loading="loading" stripe border>
@@ -19,8 +19,8 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button type="primary" link size="small" v-permission="'completion:labor-manage'" @click="openEdit(row)">编辑</el-button>
-          <el-button type="danger" link size="small" v-permission="'completion:labor-manage'" @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link size="small" v-permission="['finance:payment-apply','finance:payment-confirm']" @click="openEdit(row)">编辑</el-button>
+          <el-button type="danger" link size="small" v-permission="['finance:payment-apply','finance:payment-confirm']" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

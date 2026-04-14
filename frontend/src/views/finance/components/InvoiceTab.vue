@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button v-permission="'finance:invoice-manage'" type="primary" @click="openCreate">新建发票</el-button>
+      <el-button v-permission="['finance:payment-apply','finance:payment-confirm']" type="primary" @click="openCreate">新建发票</el-button>
     </div>
     <el-table :data="tableData" v-loading="loading" stripe border>
       <el-table-column prop="invoice_no" label="发票编号" width="160" />
@@ -18,8 +18,8 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button v-permission="'finance:invoice-manage'" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button v-permission="'finance:invoice-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="['finance:payment-apply','finance:payment-confirm']" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
+          <el-button v-permission="['finance:payment-apply','finance:payment-confirm']" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

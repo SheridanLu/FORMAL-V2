@@ -1,5 +1,5 @@
 <template>
-  <div v-permission="'hr:social-insurance'" v-loading="loading">
+  <div v-permission="'hr:social-insurance-config'" v-loading="loading">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" style="max-width: 700px">
       <el-form-item label="员工ID" prop="userId">
         <el-input-number v-model="form.userId" :min="1" controls-position="right" style="width: 100%" />

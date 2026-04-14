@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button v-permission="'finance:statement-manage'" type="primary" @click="openCreate">新建结算单</el-button>
+      <el-button v-permission="['statement:apply','statement:approve']" type="primary" @click="openCreate">新建结算单</el-button>
     </div>
     <el-table :data="tableData" v-loading="loading" stripe border>
       <el-table-column prop="statement_no" label="结算编号" width="140" />
@@ -16,8 +16,8 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button v-permission="'finance:statement-manage'" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button v-permission="'finance:statement-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="['statement:apply','statement:approve']" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
+          <el-button v-permission="['statement:apply','statement:approve']" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

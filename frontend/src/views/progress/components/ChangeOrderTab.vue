@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button v-permission="'progress:change-manage'" type="primary" @click="handleAdd">新建变更单</el-button>
+      <el-button v-permission="'change:apply'" type="primary" @click="handleAdd">新建变更单</el-button>
     </div>
 
     <el-table :data="tableData" v-loading="loading" stripe border>
@@ -22,8 +22,8 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="220">
         <template #default="{ row }">
-          <el-button v-permission="'progress:change-manage'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-dropdown v-permission="'progress:change-manage'" @command="(cmd) => handleStatusUpdate(row, cmd)" style="margin-left: 4px">
+          <el-button v-permission="'change:apply'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-dropdown v-permission="'change:apply'" @command="(cmd) => handleStatusUpdate(row, cmd)" style="margin-left: 4px">
             <el-button type="warning" link size="small">状态<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -33,7 +33,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button v-permission="'progress:change-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'change:apply'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

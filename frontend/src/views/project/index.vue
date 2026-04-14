@@ -71,8 +71,8 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleEdit(row)" :disabled="row.status === 'pending'" v-permission="'project:edit'">编辑</el-button>
-            <el-dropdown v-if="['active','suspended','completion_accepted','final_accepted','audit_done','completed'].includes(row.status)" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px" v-permission="'project:edit'">
+            <el-button type="primary" link size="small" @click="handleEdit(row)" :disabled="row.status === 'pending'" v-permission="'project:create'">编辑</el-button>
+            <el-dropdown v-if="['active','suspended','completion_accepted','final_accepted','audit_done','completed'].includes(row.status)" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px" v-permission="'project:create'">
               <el-button type="warning" link size="small">状态<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -87,7 +87,7 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-button v-if="row.status !== 'pending'" type="danger" link size="small" @click="handleDelete(row)" v-permission="'project:delete'">删除</el-button>
+            <el-button v-if="row.status !== 'pending'" type="danger" link size="small" @click="handleDelete(row)" v-permission="'project:create'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

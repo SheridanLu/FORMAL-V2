@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <page-header title="供应商评价">
-      <el-button v-permission="'supplier:rating'" type="primary" @click="openCreate">新增评价</el-button>
+      <el-button v-permission="'contract:sign-expense'" type="primary" @click="openCreate">新增评价</el-button>
     </page-header>
 
     <el-tabs v-model="activeTab">
@@ -29,7 +29,7 @@
           <el-table-column prop="created_at" label="评价时间" width="160" />
           <el-table-column label="操作" width="80" align="center">
             <template #default="{ row }">
-              <el-button v-permission="'supplier:rating'" link type="danger" @click="handleDelete(row)">删除</el-button>
+              <el-button v-permission="'contract:sign-expense'" link type="danger" @click="handleDelete(row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

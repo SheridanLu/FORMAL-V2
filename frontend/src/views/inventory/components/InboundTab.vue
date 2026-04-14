@@ -4,7 +4,7 @@
       <project-select v-model="query.projectId" placeholder="按项目筛选" clearable style="width: 200px; margin-right: 8px" />
       <el-button type="primary" @click="handleSearch">搜索</el-button>
       <el-button @click="handleReset">重置</el-button>
-      <el-button v-permission="'inventory:inbound'" type="primary" @click="openCreate" style="margin-left: auto">新建入库单</el-button>
+      <el-button v-permission="'material:inbound'" type="primary" @click="openCreate" style="margin-left: auto">新建入库单</el-button>
     </div>
     <el-table :data="tableData" v-loading="loading" stripe border>
       <el-table-column prop="inbound_no" label="入库单号" width="140" />
@@ -18,9 +18,9 @@
       <el-table-column prop="created_at" label="创建时间" width="170" />
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-          <el-button v-permission="'inventory:inbound'" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button v-if="row.status === 'draft'" v-permission="'inventory:inbound'" type="success" link size="small" @click="handleSubmitInbound(row)">提交</el-button>
-          <el-button v-permission="'inventory:inbound'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'material:inbound'" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
+          <el-button v-if="row.status === 'draft'" v-permission="'material:inbound'" type="success" link size="small" @click="handleSubmitInbound(row)">提交</el-button>
+          <el-button v-permission="'material:inbound'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

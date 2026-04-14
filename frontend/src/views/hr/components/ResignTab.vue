@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <el-button v-permission="'hr:resign-manage'" type="primary" @click="openCreate">新建离职</el-button>
+      <el-button v-permission="'hr:resign-process'" type="primary" @click="openCreate">新建离职</el-button>
     </div>
 
     <el-table :data="tableData" v-loading="loading" stripe border>
@@ -16,8 +16,8 @@
       </el-table-column>
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button v-permission="'hr:resign-manage'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button v-permission="'hr:resign-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'hr:resign-process'" type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button v-permission="'hr:resign-process'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
