@@ -1,6 +1,7 @@
 package com.mochu.business.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.mochu.common.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,4 +40,8 @@ public class BizSalaryConfig extends BaseEntity {
     private String remark;
 
     private String status;
+
+    /** 乐观锁版本号 */
+    @Version
+    private Integer version;
 }

@@ -34,6 +34,9 @@ public class SysDept extends BaseEntity {
     /** 部门电话 */
     private String phone;
 
+    /** 部门邮箱 */
+    private String email;
+
     /** 备注 */
     private String remark;
 

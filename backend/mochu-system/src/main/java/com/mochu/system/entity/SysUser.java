@@ -27,6 +27,9 @@ public class SysUser extends BaseEntity {
     /** 邮箱 */
     private String email;
 
+    /** 公司邮箱 */
+    private String companyEmail;
+
     /** 部门ID */
     private Integer deptId;
 
