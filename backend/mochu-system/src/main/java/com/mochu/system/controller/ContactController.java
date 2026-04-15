@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 通讯录接口 — P5 §2
  */
-@RestController
+@RestController("systemContactController")
 @RequestMapping("/api/v1/contact")
 @RequiredArgsConstructor
 public class ContactController {

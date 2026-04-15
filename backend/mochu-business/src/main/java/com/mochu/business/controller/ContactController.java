@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("externalContactController")
 @RequestMapping("/api/v1/contacts")
 @RequiredArgsConstructor
 public class ContactController {
