@@ -9,6 +9,7 @@ import router from './router'
 import i18n from './i18n'
 import { permissionDirective } from './directives/permission'
 import './styles/global.scss'
+import './styles/responsive.css'
 
 // 高频全局组件（同步加载）
 import StatusTag from './components/StatusTag.vue'
@@ -27,7 +28,8 @@ const usedIcons = [
   'Cpu', 'MagicStick', 'Share', 'DataAnalysis', 'ArrowLeft', 'Lock',
   'Plus', 'Edit', 'Delete', 'Search', 'Refresh', 'Close', 'Check',
   'Upload', 'Download', 'Warning', 'InfoFilled', 'SuccessFilled', 'CircleClose',
-  'ArrowRight', 'ArrowDown', 'ArrowUp', 'More', 'View', 'Hide'
+  'ArrowRight', 'ArrowDown', 'ArrowUp', 'More', 'View', 'Hide',
+  'Notebook', 'PieChart'
 ]
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   if (usedIcons.includes(key)) {

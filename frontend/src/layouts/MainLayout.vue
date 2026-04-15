@@ -89,10 +89,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { usePermissionStore } from '@/stores/permission'
+import { useWatermark } from '@/composables/useWatermark'
+import { isMobile } from '@/config/mobile-features'
 import SidebarMenu from './components/SidebarMenu.vue'
 import { Fold, Expand, FullScreen } from '@element-plus/icons-vue'
 
@@ -165,6 +167,17 @@ function toggleFullscreen() {
     document.documentElement.requestFullscreen()
   }
 }
+
+// ===== 全局水印 =====
+const { setWatermark } = useWatermark()
+onMounted(() => {
+  const name = userStore.realName || userStore.username || '用户'
+  setWatermark(name)
+  // 移动端自动折叠侧边栏
+  if (isMobile()) {
+    isCollapse.value = true
+  }
+})
 
 // ===== 用户操作 =====
 const handleCommand = (command) => {
@@ -294,5 +307,36 @@ const handleCommand = (command) => {
 .main-content {
   background-color: #f5f7fa;
   padding: 20px;
+}
+
+// ===== 移动端适配 =====
+@media screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1000;
+    height: 100%;
+    transition: transform 0.3s;
+  }
+
+  .header {
+    padding: 0 12px;
+    height: 50px;
+  }
+
+  .breadcrumb {
+    display: none;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .tags-view {
+    display: none;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
 }
 </style>

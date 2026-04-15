@@ -1,0 +1,26 @@
+-- V3.2.0.25: 暗项管理表
+CREATE TABLE IF NOT EXISTS `biz_hidden_item` (
+    `id`            INT          NOT NULL AUTO_INCREMENT,
+    `project_id`    INT          NOT NULL             COMMENT '关联项目ID',
+    `contract_id`   INT          NULL                 COMMENT '关联合同ID',
+    `item_name`     VARCHAR(200) NOT NULL             COMMENT '暗项名称',
+    `item_type`     VARCHAR(50)  NULL DEFAULT 'other' COMMENT '类型:material/labor/equipment/other',
+    `quantity`      DECIMAL(14,4) NULL                COMMENT '数量',
+    `unit`          VARCHAR(20)  NULL                 COMMENT '单位',
+    `unit_price`    DECIMAL(14,4) NULL                COMMENT '单价',
+    `total_amount`  DECIMAL(14,2) NULL                COMMENT '总金额',
+    `estimated_cost` DECIMAL(14,2) NULL               COMMENT '预估成本',
+    `status`        VARCHAR(20)  NOT NULL DEFAULT 'identified' COMMENT 'identified/quoted/approved/settled',
+    `discovery_date` DATE        NULL                 COMMENT '发现日期',
+    `description`   TEXT         NULL                 COMMENT '详细描述',
+    `handler_id`    INT          NULL                 COMMENT '负责人ID',
+    `remark`        VARCHAR(500) NULL                 COMMENT '备注',
+    `creator_id`    INT          NULL,
+    `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted`       TINYINT(1)   NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    INDEX `idx_hidden_project` (`project_id`),
+    INDEX `idx_hidden_contract` (`contract_id`),
+    INDEX `idx_hidden_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='暗项管理';

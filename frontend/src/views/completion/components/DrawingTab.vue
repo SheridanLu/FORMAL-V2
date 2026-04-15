@@ -14,8 +14,9 @@
         <template #default="{ row }"><status-tag :status="row.status" /></template>
       </el-table-column>
       <el-table-column prop="created_at" label="创建时间" width="170" />
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="160">
         <template #default="{ row }">
+          <el-button type="primary" link size="small" @click="handlePreview(row)">预览</el-button>
           <el-button type="danger" link size="small" v-permission="['doc:upload','doc:download','doc:manage']" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
@@ -70,12 +71,28 @@
         <el-button type="primary" :loading="submitting" @click="handleSubmit(fetchData)">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- DWG/图纸预览弹窗 -->
+    <el-dialog v-model="previewVisible" :title="'图纸预览 - ' + previewTitle" width="90%" top="2vh" destroy-on-close>
+      <div v-if="previewUrl" style="height: 75vh">
+        <iframe v-if="isImageOrPdf" :src="previewUrl" style="width: 100%; height: 100%; border: none" />
+        <div v-else style="text-align: center; padding: 60px">
+          <el-icon :size="64" color="#909399"><Document /></el-icon>
+          <p style="margin-top: 16px; color: #909399">
+            DWG/CAD 文件需要转换后才能在线预览。
+          </p>
+          <p style="color: #909399; font-size: 13px">支持格式：PDF、PNG、JPG 可直接预览</p>
+          <el-button type="primary" style="margin-top: 16px" @click="downloadFile">下载原始文件</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { Document } from '@element-plus/icons-vue'
 import { getDrawingList, uploadDrawing, deleteDrawing } from '@/api/completion'
 import { useTable } from '@/composables/useTable'
 import { useForm } from '@/composables/useForm'
@@ -99,6 +116,30 @@ const rules = {
   drawingName: [{ required: true, message: '请输入图纸名称', trigger: 'blur' }],
   drawingType: [{ required: true, message: '请输入图纸类型', trigger: 'blur' }],
   fileUrl: [{ required: true, message: '请上传文件', trigger: 'blur' }]
+}
+
+// ===== DWG/图纸预览 =====
+const previewVisible = ref(false)
+const previewUrl = ref('')
+const previewTitle = ref('')
+const previewFileUrl = ref('')
+
+const isImageOrPdf = computed(() => {
+  const url = previewUrl.value.toLowerCase()
+  return url.endsWith('.pdf') || url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg')
+})
+
+function handlePreview(row) {
+  previewTitle.value = row.drawing_name || '图纸'
+  previewFileUrl.value = row.file_url || ''
+  previewUrl.value = row.file_url || ''
+  previewVisible.value = true
+}
+
+function downloadFile() {
+  if (previewFileUrl.value) {
+    window.open(previewFileUrl.value, '_blank')
+  }
 }
 
 async function handleDelete(row) {

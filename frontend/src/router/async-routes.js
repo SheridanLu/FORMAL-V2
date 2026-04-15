@@ -87,6 +87,18 @@ export default [
         }
       },
 
+      // ========== 广联达导入 ==========
+      {
+        path: 'glodon',
+        name: 'GlodonImport',
+        component: () => import('@/views/glodon/index.vue'),
+        meta: {
+          title: '广联达导入',
+          icon: 'Upload',
+          permission: ['project:view-all']
+        }
+      },
+
       // ========== 合同管理 ==========
       {
         path: 'contracts',
@@ -111,6 +123,16 @@ export default [
           permission: [
             'contract:view-all', 'contract:view-own'
           ]
+        }
+      },
+      {
+        path: 'contract-ledger',
+        name: 'ContractLedger',
+        component: () => import('@/views/contract/ledger.vue'),
+        meta: {
+          title: '合同台账',
+          icon: 'Notebook',
+          permission: ['contract:view-all', 'contract:view-own']
         }
       },
 
@@ -148,6 +170,18 @@ export default [
           title: '库存增强',
           icon: 'SetUp',
           permission: ['inventory:alert-manage', 'inventory:transfer']
+        }
+      },
+
+      // ========== 暗项管理 ==========
+      {
+        path: 'hidden-items',
+        name: 'HiddenItemManage',
+        component: () => import('@/views/hidden-item/index.vue'),
+        meta: {
+          title: '暗项管理',
+          icon: 'Hide',
+          permission: ['project:view-all', 'project:view-own']
         }
       },
 
@@ -203,6 +237,16 @@ export default [
             'statement:apply', 'statement:approve',
             'finance:report-view'
           ]
+        }
+      },
+      {
+        path: 'cost-dashboard',
+        name: 'CostDashboard',
+        component: () => import('@/views/finance/cost-dashboard.vue'),
+        meta: {
+          title: '成本看板',
+          icon: 'PieChart',
+          permission: ['finance:report-view', 'finance:payment-apply']
         }
       },
 

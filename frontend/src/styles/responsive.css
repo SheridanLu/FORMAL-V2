@@ -1,0 +1,89 @@
+/**
+ * 全局移动端响应式样式
+ * V3.0: 移动端适配基础CSS
+ */
+
+/* 移动端表格横向滚动 */
+@media screen and (max-width: 768px) {
+  /* 表格自适应 */
+  .el-table {
+    font-size: 13px;
+  }
+
+  .el-table .cell {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  /* 搜索表单竖排 */
+  .el-form--inline .el-form-item {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .el-form--inline .el-form-item .el-input,
+  .el-form--inline .el-form-item .el-select {
+    width: 100% !important;
+  }
+
+  /* 弹窗全屏 */
+  .el-dialog {
+    width: 95% !important;
+    margin: 5vh auto !important;
+  }
+
+  /* 分页简化 */
+  .el-pagination .el-pagination__sizes,
+  .el-pagination .el-pagination__jump {
+    display: none;
+  }
+
+  /* 卡片间距缩小 */
+  .el-card {
+    margin-bottom: 8px;
+  }
+
+  .el-card__body {
+    padding: 12px;
+  }
+
+  /* 统计卡片 */
+  .el-row .el-col {
+    margin-bottom: 8px;
+  }
+
+  .el-statistic__head {
+    font-size: 12px !important;
+  }
+
+  .el-statistic__content {
+    font-size: 18px !important;
+  }
+
+  /* 按钮组间距 */
+  .el-button + .el-button {
+    margin-left: 4px;
+  }
+
+  /* 标签页 */
+  .el-tabs__nav {
+    flex-wrap: wrap;
+  }
+
+  /* 面包屑隐藏 */
+  .el-breadcrumb {
+    display: none;
+  }
+}
+
+/* 平板适配 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .el-dialog {
+    width: 80% !important;
+  }
+
+  .el-form--inline .el-form-item {
+    margin-bottom: 8px;
+  }
+}
