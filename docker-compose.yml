@@ -68,7 +68,7 @@ services:
         condition: service_started
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- --post-data='{\"username\":\"ping\"}' --header='Content-Type: application/json' http://localhost:9090/api/v1/auth/check-account || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/api/v1/auth/check-account --post-data='{\"username\":\"ping\"}' --header='Content-Type: application/json' 2>&1 | grep -q '\"code\"' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * V3.2 §4.2: Redis 缓存 TTL 30 分钟，人事变动时主动清除
  */
 @Slf4j
-@Service
+@Service("systemContactService")
 @RequiredArgsConstructor
 public class ContactService {
 

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("externalContactService")
 @RequiredArgsConstructor
 public class ContactService {
 
