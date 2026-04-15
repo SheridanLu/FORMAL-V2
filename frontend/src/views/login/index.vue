@@ -206,10 +206,16 @@ const handlePasswordLogin = async () => {
 
   loading.value = true
   try {
-    await userStore.loginByPassword({
+    const res = await userStore.loginByPassword({
       username: accountForm.username,
       password: passwordForm.password
     })
+    // 强制修改密码：密码过期或首次登录标记
+    if (res.data.force_change_pwd) {
+      ElMessage.warning('您的密码已过期或需要修改，请先修改密码')
+      router.push('/profile?tab=password&force=1')
+      return
+    }
     router.push(getSafeRedirect())
   } catch (e) {
     // error handled by interceptor
@@ -242,10 +248,15 @@ const handleSmsLogin = async () => {
 
   loading.value = true
   try {
-    await userStore.loginBySms({
+    const res = await userStore.loginBySms({
       phone: smsForm.phone,
       smsCode: smsForm.smsCode
     })
+    if (res.data.force_change_pwd) {
+      ElMessage.warning('您的密码已过期或需要修改，请先修改密码')
+      router.push('/profile?tab=password&force=1')
+      return
+    }
     router.push(getSafeRedirect())
   } catch (e) {
     // error handled by interceptor
@@ -274,7 +285,12 @@ const forgotRules = {
   smsCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 8, message: '密码长度不能少于8位', trigger: 'blur' }
+    { min: 8, message: '密码长度不能少于8位', trigger: 'blur' },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
+      message: '密码需包含大小写字母、数字和特殊字符',
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },

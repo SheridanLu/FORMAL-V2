@@ -43,6 +43,14 @@
 
       <!-- 修改密码 -->
       <el-tab-pane label="修改密码" name="password">
+        <el-alert
+          v-if="route.query.force === '1'"
+          title="您的密码已过期或需要修改，请设置新密码后继续使用系统"
+          type="warning"
+          :closable="false"
+          show-icon
+          style="margin-bottom: 16px"
+        />
         <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" label-width="100px" style="max-width:500px;margin:20px auto 0">
           <el-form-item label="当前密码" prop="old_password">
             <el-input v-model="pwdForm.old_password" type="password" show-password />
@@ -141,7 +149,12 @@ const pwdRules = {
   old_password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
   new_password: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 8, message: '密码至少8位', trigger: 'blur' }
+    { min: 8, message: '密码至少8位', trigger: 'blur' },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
+      message: '密码需包含大小写字母、数字和特殊字符',
+      trigger: 'blur'
+    }
   ],
   confirm_password: [
     { required: true, message: '请确认密码', trigger: 'blur' },

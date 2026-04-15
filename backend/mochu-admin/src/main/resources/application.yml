@@ -99,6 +99,7 @@ encryption:
 security:
   signature-key: ${SIGNATURE_KEY:MochuOA_Signature_Key_2026}
   signature-enabled: false  # 开启后，SIGNED_PATHS 中的 POST/PUT/PATCH 请求必须携带 X-Sign 签名头
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:80,http://43.153.149.71}
 
 # Knife4j
 springdoc:

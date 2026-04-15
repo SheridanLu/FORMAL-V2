@@ -50,7 +50,6 @@ function convertKeysToSnakeCase(obj) {
  */
 const SIGNED_PATHS = [
   '/api/v1/contracts',
-  '/api/v1/payment/apply',
   '/api/v1/admin/users/reset-password',
   '/api/v1/finance/payments',
   '/api/v1/finance/receipts',

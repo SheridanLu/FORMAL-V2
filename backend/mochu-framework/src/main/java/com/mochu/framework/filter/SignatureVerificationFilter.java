@@ -53,7 +53,6 @@ public class SignatureVerificationFilter implements Filter {
      */
     private static final Set<String> SIGNED_PATHS = Set.of(
             "/api/v1/contracts",
-            "/api/v1/payment/apply",
             "/api/v1/admin/users/reset-password",
             "/api/v1/finance/payments",
             "/api/v1/finance/receipts",
