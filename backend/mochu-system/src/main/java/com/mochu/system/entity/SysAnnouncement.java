@@ -30,6 +30,9 @@ public class SysAnnouncement extends BaseEntity {
     /** 过期时间 */
     private LocalDateTime expireTime;
 
+    /** 定时发布时间（null=手动发布） */
+    private LocalDateTime scheduledPublishTime;
+
     /** 发布人ID */
     private Integer publisherId;
 

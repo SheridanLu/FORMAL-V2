@@ -16,8 +16,10 @@
         <el-form-item label="状态">
           <el-select v-model="queryForm.status" placeholder="全部" clearable>
             <el-option label="草稿" value="draft" />
+            <el-option label="定时发布" value="scheduled" />
             <el-option label="已发布" value="published" />
             <el-option label="已下线" value="offline" />
+            <el-option label="已过期" value="expired" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -52,11 +54,17 @@
         </el-table-column>
         <el-table-column prop="publisher_name" label="发布人" width="100" />
         <el-table-column prop="publish_time" label="发布时间" width="170" />
+        <el-table-column prop="scheduled_publish_time" label="定时发布" width="170">
+          <template #default="{ row }">
+            <span v-if="row.scheduled_publish_time">{{ row.scheduled_publish_time }}</span>
+            <span v-else style="color: #999">-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" fixed="right" width="280">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleEdit(row)" v-permission="'system:announcement-manage'">编辑</el-button>
-            <el-button link type="success" v-if="row.status === 'draft'" @click="handlePublish(row)" v-permission="'system:announcement-manage'">发布</el-button>
+            <el-button link type="success" v-if="row.status === 'draft' || row.status === 'scheduled'" @click="handlePublish(row)" v-permission="'system:announcement-manage'">立即发布</el-button>
             <el-button link type="warning" v-if="row.status === 'published'" @click="handleOffline(row)" v-permission="'system:announcement-manage'">下线</el-button>
             <el-button link :type="row.is_top === 1 ? 'info' : 'primary'" @click="handleToggleTop(row)" v-permission="'system:announcement-manage'">
               {{ row.is_top === 1 ? '取消置顶' : '置顶' }}
@@ -93,6 +101,9 @@
         </el-form-item>
         <el-form-item label="过期时间">
           <el-date-picker v-model="form.expire_time" type="datetime" placeholder="选择过期时间" value-format="YYYY-MM-DDTHH:mm:ss" />
+        </el-form-item>
+        <el-form-item label="定时发布">
+          <el-date-picker v-model="form.scheduled_publish_time" type="datetime" placeholder="留空则手动发布" value-format="YYYY-MM-DDTHH:mm:ss" />
         </el-form-item>
         <el-form-item label="可见范围">
           <el-input v-model="form.scope" placeholder="all 或逗号分隔部门ID" />
@@ -161,8 +172,8 @@ onBeforeUnmount(() => {
 
 const typeNameMap = { notice: '通知', policy: '制度', activity: '活动' }
 const typeTagMap = { notice: '', policy: 'warning', activity: 'success' }
-const statusNameMap = { draft: '草稿', published: '已发布', offline: '已下线', expired: '已过期' }
-const statusTagMap = { draft: 'info', published: 'success', offline: 'warning', expired: 'danger' }
+const statusNameMap = { draft: '草稿', scheduled: '定时发布', published: '已发布', offline: '已下线', expired: '已过期' }
+const statusTagMap = { draft: 'info', scheduled: 'warning', published: 'success', offline: 'warning', expired: 'danger' }
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -173,7 +184,7 @@ const dialogTitle = ref('')
 const formRef = ref(null)
 
 const queryForm = reactive({ title: '', type: '', status: '', page: 1, size: 20 })
-const form = reactive({ id: null, title: '', content: '', type: 'notice', expire_time: null, is_top: 0, scope: 'all' })
+const form = reactive({ id: null, title: '', content: '', type: 'notice', expire_time: null, scheduled_publish_time: null, is_top: 0, scope: 'all' })
 
 const rules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -199,7 +210,7 @@ const handleReset = () => {
 }
 
 const handleAdd = () => {
-  Object.assign(form, { id: null, title: '', content: '', type: 'notice', expire_time: null, is_top: 0, scope: 'all' })
+  Object.assign(form, { id: null, title: '', content: '', type: 'notice', expire_time: null, scheduled_publish_time: null, is_top: 0, scope: 'all' })
   dialogTitle.value = '新增公告'
   dialogVisible.value = true
 }
@@ -207,7 +218,8 @@ const handleAdd = () => {
 const handleEdit = (row) => {
   Object.assign(form, {
     id: row.id, title: row.title, content: row.content, type: row.type,
-    expire_time: row.expire_time, is_top: row.is_top, scope: row.scope
+    expire_time: row.expire_time, scheduled_publish_time: row.scheduled_publish_time,
+    is_top: row.is_top, scope: row.scope
   })
   dialogTitle.value = '编辑公告'
   dialogVisible.value = true

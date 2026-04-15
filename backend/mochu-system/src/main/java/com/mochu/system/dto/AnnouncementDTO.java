@@ -24,6 +24,9 @@ public class AnnouncementDTO {
 
     private LocalDateTime expireTime;
 
+    /** 定时发布时间（为空则手动发布） */
+    private LocalDateTime scheduledPublishTime;
+
     private Integer isTop;
 
     /** 可见范围,all或逗号分隔部门ID */

@@ -1,0 +1,27 @@
+-- V3.0: 设备管理模块
+CREATE TABLE IF NOT EXISTS `biz_equipment` (
+    `id`              INT AUTO_INCREMENT PRIMARY KEY,
+    `equipment_no`    VARCHAR(50)  NOT NULL COMMENT '设备编号',
+    `equipment_name`  VARCHAR(200) NOT NULL COMMENT '设备名称',
+    `model`           VARCHAR(100) NULL COMMENT '规格型号',
+    `category`        VARCHAR(50)  NULL COMMENT '分类:owned/rented/subcontracted',
+    `brand`           VARCHAR(100) NULL COMMENT '品牌',
+    `serial_no`       VARCHAR(100) NULL COMMENT '出厂编号',
+    `unit`            VARCHAR(20)  NULL COMMENT '单位(台/套/辆等)',
+    `purchase_date`   DATE         NULL COMMENT '购置日期',
+    `purchase_price`  DECIMAL(16,2) NULL COMMENT '购置价格',
+    `supplier_id`     INT          NULL COMMENT '供应商ID',
+    `project_id`      INT          NULL COMMENT '当前所属项目ID',
+    `location`        VARCHAR(200) NULL COMMENT '当前存放位置',
+    `status`          VARCHAR(20)  DEFAULT 'idle' COMMENT '状态:idle/in_use/maintenance/scrapped',
+    `last_maintenance_date` DATE   NULL COMMENT '上次保养日期',
+    `next_maintenance_date` DATE   NULL COMMENT '下次保养日期',
+    `remark`          VARCHAR(500) NULL COMMENT '备注',
+    `creator_id`      INT          NULL COMMENT '创建人ID',
+    `created_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted`         TINYINT      DEFAULT 0 COMMENT '逻辑删除',
+    UNIQUE KEY `uk_equipment_no` (`equipment_no`, `deleted`),
+    INDEX `idx_equipment_project` (`project_id`),
+    INDEX `idx_equipment_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='设备管理';

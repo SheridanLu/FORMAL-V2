@@ -22,6 +22,9 @@ import com.mochu.business.mapper.BizIncomeSplitMapper;
 import com.mochu.business.mapper.BizMilestoneDepMapper;
 import com.mochu.business.mapper.BizProgressReportMapper;
 import com.mochu.business.mapper.BizProgressStatementMapper;
+import com.mochu.business.entity.BizProject;
+import com.mochu.business.mapper.BizProjectMapper;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.business.vo.MilestoneVO;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
@@ -53,6 +56,7 @@ public class ProgressService {
     private final BizProgressStatementMapper progressStatementMapper;
     private final BizIncomeSplitMapper incomeSplitMapper;
     private final BizProgressReportMapper progressReportMapper;
+    private final BizProjectMapper projectMapper;
     private final NoGeneratorService noGeneratorService;
 
     // ===================== 甘特图任务 =====================
@@ -563,6 +567,14 @@ public class ProgressService {
     }
 
     public void createReport(ProgressReportDTO dto) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "progress_report");
+            }
+        }
+
         BizProgressReport entity = new BizProgressReport();
         BeanUtils.copyProperties(dto, entity);
         entity.setReportNo(noGeneratorService.generate("PR"));

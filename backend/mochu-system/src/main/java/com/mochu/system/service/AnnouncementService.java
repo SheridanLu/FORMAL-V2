@@ -85,6 +85,11 @@ public class AnnouncementService {
         if (entity.getScope() == null || entity.getScope().isBlank()) {
             entity.setScope("all");
         }
+        // 定时发布：设置了scheduledPublishTime则标记为scheduled状态
+        if (dto.getScheduledPublishTime() != null) {
+            entity.setScheduledPublishTime(dto.getScheduledPublishTime());
+            entity.setStatus("scheduled");
+        }
         announcementMapper.insert(entity);
         return entity.getId();
     }
@@ -103,6 +108,11 @@ public class AnnouncementService {
         entity.setExpireTime(dto.getExpireTime());
         entity.setIsTop(dto.getIsTop());
         entity.setScope(dto.getScope());
+        // 定时发布处理
+        entity.setScheduledPublishTime(dto.getScheduledPublishTime());
+        if (dto.getScheduledPublishTime() != null && "draft".equals(entity.getStatus())) {
+            entity.setStatus("scheduled");
+        }
         announcementMapper.updateById(entity);
     }
 
@@ -207,5 +217,18 @@ public class AnnouncementService {
                 .le(SysAnnouncement::getExpireTime, LocalDateTime.now())
                 .isNotNull(SysAnnouncement::getExpireTime)
                 .set(SysAnnouncement::getStatus, "expired"));
+    }
+
+    /**
+     * V3.0: 定时发布 — 每分钟扫描 scheduled 状态的公告，到达发布时间则自动发布
+     */
+    @Scheduled(cron = "0 * * * * ?")
+    public void autoPublishScheduled() {
+        announcementMapper.update(null, new LambdaUpdateWrapper<SysAnnouncement>()
+                .eq(SysAnnouncement::getStatus, "scheduled")
+                .le(SysAnnouncement::getScheduledPublishTime, LocalDateTime.now())
+                .isNotNull(SysAnnouncement::getScheduledPublishTime)
+                .set(SysAnnouncement::getStatus, "published")
+                .set(SysAnnouncement::getPublishTime, LocalDateTime.now()));
     }
 }

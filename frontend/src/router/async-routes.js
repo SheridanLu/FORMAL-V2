@@ -151,6 +151,18 @@ export default [
         }
       },
 
+      // ========== 设备管理 ==========
+      {
+        path: 'equipment',
+        name: 'EquipmentManage',
+        component: () => import('@/views/equipment/index.vue'),
+        meta: {
+          title: '设备管理',
+          icon: 'Setting',
+          permission: ['equipment:manage']
+        }
+      },
+
       // ========== 进度变更 ==========
       {
         path: 'progress',

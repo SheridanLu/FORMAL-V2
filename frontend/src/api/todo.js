@@ -4,6 +4,10 @@ export function getTodoList(params) {
   return request.get('/api/v1/todos', { params })
 }
 
+export function getTodoDetail(id) {
+  return request.get(`/api/v1/todos/${id}`)
+}
+
 export function getTodoCount() {
   return request.get('/api/v1/todos/count')
 }

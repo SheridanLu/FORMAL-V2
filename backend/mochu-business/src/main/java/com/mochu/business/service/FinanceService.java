@@ -402,6 +402,14 @@ public class FinanceService {
     }
 
     public void createReceipt(ReceiptDTO dto) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "receipt");
+            }
+        }
+
         BizReceipt entity = new BizReceipt();
         BeanUtils.copyProperties(dto, entity);
         entity.setReceiptNo(noGeneratorService.generate("SK"));
@@ -560,6 +568,14 @@ public class FinanceService {
      * P6 §4.12: 收款登记 — FINANCE 录入，无需审批
      */
     public void createReceiptConfirmed(ReceiptDTO dto, Integer userId) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "receipt");
+            }
+        }
+
         BizReceipt receipt = new BizReceipt();
         BeanUtils.copyProperties(dto, receipt);
         receipt.setReceiptNo(noGeneratorService.generate("SK"));

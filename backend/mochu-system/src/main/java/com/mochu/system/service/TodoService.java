@@ -71,7 +71,23 @@ public class TodoService {
             throw new BusinessException(403, "只能处理自己的待办");
         }
         todo.setStatus(1);
+        todo.setReadAt(java.time.LocalDateTime.now());
         todoMapper.updateById(todo);
+    }
+
+    /**
+     * V3.0: 待办详情（含源单据跳转信息）
+     */
+    public TodoVO getById(Integer id) {
+        SysTodo todo = todoMapper.selectById(id);
+        if (todo == null) {
+            throw new BusinessException(404, "待办不存在");
+        }
+        Integer userId = SecurityUtils.getCurrentUserId();
+        if (!todo.getUserId().equals(userId)) {
+            throw new BusinessException(403, "只能查看自己的待办");
+        }
+        return toVO(todo);
     }
 
     /**

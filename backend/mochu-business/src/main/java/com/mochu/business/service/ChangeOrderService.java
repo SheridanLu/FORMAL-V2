@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mochu.business.dto.ChangeLedgerQueryDTO;
 import com.mochu.business.dto.ChangeOrderDTO;
 import com.mochu.business.entity.BizChangeOrder;
+import com.mochu.business.entity.BizProject;
 import com.mochu.business.mapper.BizChangeOrderMapper;
+import com.mochu.business.mapper.BizProjectMapper;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ import java.util.Map;
 public class ChangeOrderService {
 
     private final BizChangeOrderMapper changeOrderMapper;
+    private final BizProjectMapper projectMapper;
     private final NoGeneratorService noGeneratorService;
     private final ApprovalService approvalService;
 
@@ -50,6 +54,14 @@ public class ChangeOrderService {
      */
     @Transactional
     public void create(ChangeOrderDTO dto, Integer userId) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_change");
+            }
+        }
+
         BizChangeOrder order = new BizChangeOrder();
         BeanUtils.copyProperties(dto, order);
 

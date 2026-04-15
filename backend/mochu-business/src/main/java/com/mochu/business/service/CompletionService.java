@@ -25,6 +25,7 @@ import com.mochu.business.mapper.BizDrawingMapper;
 import com.mochu.business.mapper.BizExceptionTaskMapper;
 import com.mochu.business.mapper.BizLaborSettlementMapper;
 import com.mochu.business.mapper.BizProjectMapper;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
@@ -133,6 +134,14 @@ public class CompletionService {
     }
 
     public void createLabor(LaborSettlementDTO dto) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "labor_settlement");
+            }
+        }
+
         BizLaborSettlement entity = new BizLaborSettlement();
         BeanUtils.copyProperties(dto, entity);
         entity.setSettlementNo(noGeneratorService.generate("LS"));
@@ -349,6 +358,14 @@ public class CompletionService {
     }
 
     public void createDoc(CompletionDocDTO dto) {
+        // V3.0: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "upload_completion_doc");
+            }
+        }
+
         BizCompletionDoc entity = new BizCompletionDoc();
         BeanUtils.copyProperties(dto, entity);
         entity.setDocNo(noGeneratorService.generate("CD"));

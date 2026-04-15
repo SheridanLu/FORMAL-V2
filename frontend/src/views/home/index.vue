@@ -15,6 +15,16 @@
       </div>
     </el-card>
 
+    <!-- 轮播图 -->
+    <el-carousel v-if="banners.length > 0" height="220px" class="banner-carousel" :interval="5000">
+      <el-carousel-item v-for="banner in banners" :key="banner.id">
+        <a :href="banner.link_url || 'javascript:void(0)'" :target="banner.link_url ? '_blank' : '_self'" class="banner-link">
+          <img :src="banner.image_url" :alt="banner.title" class="banner-img" />
+          <div class="banner-title" v-if="banner.title">{{ banner.title }}</div>
+        </a>
+      </el-carousel-item>
+    </el-carousel>
+
     <!-- 统计卡片 -->
     <el-row :gutter="16" v-if="homeData.stats" class="stat-row">
       <el-col :span="6">
@@ -84,11 +94,13 @@
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { getHomeData } from '@/api/auth'
+import { getActiveBanners } from '@/api/banner'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn')
 
 const userStore = useUserStore()
+const banners = ref([])
 
 const homeData = reactive({
   todo_count: 0,
@@ -121,6 +133,7 @@ const fetchHome = async () => {
 
 onMounted(() => {
   fetchHome()
+  getActiveBanners().then(res => { banners.value = res.data || [] }).catch(() => {})
   // V3.2: 每5分钟轮询待办数量
   pollTimer = setInterval(fetchHome, 5 * 60 * 1000)
 })
@@ -230,5 +243,35 @@ onUnmounted(() => {
   font-size: 14px;
   color: #909399;
   margin-top: 8px;
+}
+
+.banner-carousel {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.banner-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  text-decoration: none;
+}
+
+.banner-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.banner-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+  color: #fff;
+  font-size: 16px;
 }
 </style>

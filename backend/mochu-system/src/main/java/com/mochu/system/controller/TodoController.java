@@ -38,6 +38,14 @@ public class TodoController {
     }
 
     /**
+     * V3.0: 待办详情 — GET /api/v1/todos/{id}
+     */
+    @GetMapping("/{id}")
+    public R<TodoVO> detail(@PathVariable Integer id) {
+        return R.ok(todoService.getById(id));
+    }
+
+    /**
      * 标记已处理 — PATCH /api/v1/todos/{id}/done
      */
     @Idempotent
