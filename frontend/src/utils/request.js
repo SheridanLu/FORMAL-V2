@@ -44,6 +44,22 @@ function convertKeysToSnakeCase(obj) {
   return result
 }
 
+/**
+ * 需要 HMAC-SHA256 签名的敏感接口路径（与后端 SignatureVerificationFilter.SIGNED_PATHS 保持一致）
+ * 仅 POST/PUT/PATCH 方法需要签名
+ */
+const SIGNED_PATHS = [
+  '/api/v1/contracts',
+  '/api/v1/payment/apply',
+  '/api/v1/admin/users/reset-password',
+  '/api/v1/finance/payments',
+  '/api/v1/finance/receipts',
+  '/api/v1/attachments',
+  '/api/v1/hr/salary-config',
+  '/api/v1/hr/tax-rate',
+  '/api/v1/completion/labor'
+]
+
 const request = axios.create({
   baseURL: '',
   timeout: 15000,
@@ -85,8 +101,15 @@ request.interceptors.request.use(
       config.data = convertKeysToSnakeCase(config.data)
     }
     // HMAC-SHA256 签名 — V3.2 §3.2 敏感接口安全
-    // 注意: sign_secret 存储在 sessionStorage 中（关闭标签页即清除），
-    // 降低 XSS 持久化攻击风险。后续应改为登录时由后端下发临时密钥。
+    // 自动检测 SIGNED_PATHS，无需每个 API 手动标记 config.sign
+    // sign_secret 存储在 sessionStorage 中（关闭标签页即清除），
+    // 登录时由后端下发，降低 XSS 持久化攻击风险。
+    if (!config.sign && ['POST', 'PUT', 'PATCH'].includes(method)) {
+      const needSign = SIGNED_PATHS.some(path => config.url?.startsWith(path))
+      if (needSign) {
+        config.sign = true
+      }
+    }
     if (config.sign) {
       const timestamp = String(Date.now())
       const nonce = uuid()

@@ -12,4 +12,7 @@ public class LoginVO {
 
     /** 是否需要强制修改密码 */
     private Boolean forceChangePwd;
+
+    /** HMAC 签名密钥 — 登录后下发，前端存入 sessionStorage 用于敏感接口签名 */
+    private String signSecret;
 }

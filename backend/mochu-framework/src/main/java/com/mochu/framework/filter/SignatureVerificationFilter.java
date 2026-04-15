@@ -31,6 +31,16 @@ public class SignatureVerificationFilter implements Filter {
     @Value("${security.signature-key:MochuOA_Signature_Key_2026}")
     private String signatureKey;
 
+    /**
+     * 签名验证总开关。默认关闭。
+     * 开启前需确保：
+     * 1) 后端登录接口已在 LoginVO 中下发 signSecret
+     * 2) 前端已在登录后将 sign_secret 存入 sessionStorage
+     * 3) 前端 request.js 已对 SIGNED_PATHS 自动附加签名头
+     */
+    @Value("${security.signature-enabled:false}")
+    private boolean signatureEnabled;
+
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
@@ -60,6 +70,12 @@ public class SignatureVerificationFilter implements Filter {
                          FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
+
+        // 签名验证总开关 — 关闭时直接放行所有请求
+        if (!signatureEnabled) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         String uri = req.getRequestURI();
         String method = req.getMethod().toUpperCase();

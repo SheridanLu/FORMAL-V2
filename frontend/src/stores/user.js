@@ -23,6 +23,10 @@ export const useUserStore = defineStore('user', {
       const res = await loginByPassword(data)
       this.token = res.data.token
       localStorage.setItem('token', res.data.token)
+      // 保存签名密钥到 sessionStorage（关闭标签页即清除，降低 XSS 持久化风险）
+      if (res.data.sign_secret) {
+        sessionStorage.setItem('sign_secret', res.data.sign_secret)
+      }
       await this.fetchUserInfo()
       return res
     },
@@ -31,6 +35,9 @@ export const useUserStore = defineStore('user', {
       const res = await loginBySms(data)
       this.token = res.data.token
       localStorage.setItem('token', res.data.token)
+      if (res.data.sign_secret) {
+        sessionStorage.setItem('sign_secret', res.data.sign_secret)
+      }
       await this.fetchUserInfo()
       return res
     },
@@ -54,6 +61,7 @@ export const useUserStore = defineStore('user', {
       this.permissions = []
       this.roles = []
       localStorage.removeItem('token')
+      sessionStorage.removeItem('sign_secret')
       const permissionStore = usePermissionStore()
       permissionStore.resetState()
       router.push('/login')
@@ -65,6 +73,7 @@ export const useUserStore = defineStore('user', {
       this.permissions = []
       this.roles = []
       localStorage.removeItem('token')
+      sessionStorage.removeItem('sign_secret')
       const permissionStore = usePermissionStore()
       permissionStore.resetState()
     }

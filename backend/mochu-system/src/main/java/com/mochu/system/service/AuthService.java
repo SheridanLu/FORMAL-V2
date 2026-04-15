@@ -41,6 +41,9 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final PasswordPolicyService passwordPolicyService;
 
+    @org.springframework.beans.factory.annotation.Value("${security.signature-key:MochuOA_Signature_Key_2026}")
+    private String signatureKey;
+
     /**
      * 检查账号 — V3.2 §4.1 check-account
      * P5 增强: 返回 loginType(password/sms) 和 maskedPhone
@@ -312,6 +315,7 @@ public class AuthService {
         LoginVO vo = new LoginVO();
         vo.setToken(token);
         vo.setForceChangePwd(user.getForceChangePwd() != null && user.getForceChangePwd() == 1);
+        vo.setSignSecret(signatureKey);
         return vo;
     }
 
