@@ -108,12 +108,14 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="不含税金额" prop="amountWithoutTax">
-              <el-input-number v-model="form.amountWithoutTax" :precision="2" :min="0" controls-position="right" style="width: 100%" />
+              <el-input-number v-model="form.amountWithoutTax" :precision="2" :min="0" controls-position="right" style="width: 100%" :disabled="form.taxRate == null" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="税率(%)" prop="taxRate">
-              <el-input-number v-model="form.taxRate" :precision="2" :min="0" :max="100" controls-position="right" style="width: 100%" />
+              <el-select v-model="form.taxRate" placeholder="选择税率" style="width: 100%">
+                <el-option v-for="r in TAX_RATES" :key="r" :label="r + '%'" :value="r" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -136,10 +138,20 @@
         </el-row>
         <el-row :gutter="16">
           <el-col :span="12">
-            <el-form-item label="甲方"><el-input v-model="form.partyA" /></el-form-item>
+            <el-form-item label="甲方">
+              <el-autocomplete v-model="form.partyA" :fetch-suggestions="partyAAutoFill.fetchSuggestions"
+                :loading="partyAAutoFill.loading.value" placeholder="输入公司名称自动搜索"
+                value-key="company_name" style="width: 100%"
+                @select="partyAAutoFill.onSelect" @blur="partyAAutoFill.onBlur" />
+            </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="乙方"><el-input v-model="form.partyB" /></el-form-item>
+            <el-form-item label="乙方">
+              <el-autocomplete v-model="form.partyB" :fetch-suggestions="partyBAutoFill.fetchSuggestions"
+                :loading="partyBAutoFill.loading.value" placeholder="输入公司名称自动搜索"
+                value-key="company_name" style="width: 100%"
+                @select="partyBAutoFill.onSelect" @blur="partyBAutoFill.onBlur" />
+            </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="2" /></el-form-item>
@@ -192,6 +204,8 @@ import { Loading } from '@element-plus/icons-vue'
 import { getContractList, createContract, updateContract, deleteContract } from '@/api/contract'
 import { getAllProjects } from '@/api/project'
 import { getContractTypes, getActiveTplVersion, getVersionFields } from '@/api/contractTpl'
+import { useTaxAmountLinkage } from '@/composables/useTaxAmountLinkage'
+import { useCompanyAutoFill } from '@/composables/useCompanyAutoFill'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -234,6 +248,13 @@ const form = reactive({
   signDate: null, startDate: null, endDate: null, partyA: '', partyB: '', remark: '',
   fieldValues: {}
 })
+
+// 价格联动计算
+const { TAX_RATES } = useTaxAmountLinkage(form)
+
+// 甲方/乙方公司信息自动填充
+const partyAAutoFill = useCompanyAutoFill(form, { nameKey: 'partyA' })
+const partyBAutoFill = useCompanyAutoFill(form, { nameKey: 'partyB' })
 
 const rules = {
   contractName: [{ required: true, message: '请输入合同名称', trigger: 'blur' }],

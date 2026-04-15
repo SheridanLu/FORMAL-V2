@@ -27,6 +27,7 @@ import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.util.QueryParamUtils;
+import com.mochu.common.util.TaxAmountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -131,6 +132,9 @@ public class ContractService {
      */
     @Transactional
     public void create(ContractDTO dto, Integer initiatorId) {
+        // V3.0 §3.4: 含税/不含税/税率三值一致性校验
+        TaxAmountValidator.validate(dto.getAmountWithTax(), dto.getAmountWithoutTax(), dto.getTaxRate());
+
         // V3.2: 项目状态操作边界检查
         if (dto.getProjectId() != null) {
             BizProject project = projectMapper.selectById(dto.getProjectId());
@@ -214,6 +218,9 @@ public class ContractService {
         if (!"draft".equals(entity.getStatus()) && !"rejected".equals(entity.getStatus())) {
             throw new BusinessException("仅草稿或已驳回状态的合同可以修改");
         }
+
+        // V3.0 §3.4: 含税/不含税/税率三值一致性校验
+        TaxAmountValidator.validate(dto.getAmountWithTax(), dto.getAmountWithoutTax(), dto.getTaxRate());
 
         // 校验合同类型
         if (!ContractTypeEnum.isValid(dto.getContractType())) {

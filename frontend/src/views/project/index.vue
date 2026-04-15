@@ -141,7 +141,10 @@
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="甲方信息">
-              <el-input v-model="form.clientName" />
+              <el-autocomplete v-model="form.clientName" :fetch-suggestions="clientAutoFill.fetchSuggestions"
+                :loading="clientAutoFill.loading.value" placeholder="输入公司名称自动搜索"
+                value-key="company_name" style="width: 100%"
+                @select="clientAutoFill.onSelect" @blur="clientAutoFill.onBlur" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -158,12 +161,14 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="不含税金额">
-              <el-input-number v-model="form.amountWithoutTax" :precision="2" :min="0" controls-position="right" style="width: 100%" />
+              <el-input-number v-model="form.amountWithoutTax" :precision="2" :min="0" controls-position="right" style="width: 100%" :disabled="form.taxRate == null" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="税率(%)">
-              <el-input-number v-model="form.taxRate" :precision="2" :min="0" :max="100" controls-position="right" style="width: 100%" />
+              <el-select v-model="form.taxRate" placeholder="选择税率" style="width: 100%">
+                <el-option v-for="r in TAX_RATES" :key="r" :label="r + '%'" :value="r" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -202,6 +207,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { getProjectList, createProject, updateProject, updateProjectStatus, deleteProject } from '@/api/project'
 import { getContractTypes } from '@/api/contractTpl'
+import { useTaxAmountLinkage } from '@/composables/useTaxAmountLinkage'
+import { useCompanyAutoFill } from '@/composables/useCompanyAutoFill'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -252,6 +259,12 @@ const form = reactive({
   warrantyDate: null,
   remark: ''
 })
+
+// 价格联动计算
+const { TAX_RATES } = useTaxAmountLinkage(form)
+
+// 甲方公司信息自动填充
+const clientAutoFill = useCompanyAutoFill(form, { nameKey: 'clientName' })
 
 const rules = {
   projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],

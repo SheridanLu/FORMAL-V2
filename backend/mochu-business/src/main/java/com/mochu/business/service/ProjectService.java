@@ -14,6 +14,7 @@ import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.util.QueryParamUtils;
+import com.mochu.common.util.TaxAmountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -82,6 +83,9 @@ public class ProjectService {
 
     @Transactional
     public void create(ProjectDTO dto, Integer initiatorId) {
+        // V3.0 §3.4: 含税/不含税/税率三值一致性校验
+        TaxAmountValidator.validate(dto.getAmountWithTax(), dto.getAmountWithoutTax(), dto.getTaxRate());
+
         BizProject entity = new BizProject();
         BeanUtils.copyProperties(dto, entity);
         entity.setProjectNo(noGeneratorService.generate("PJ"));
@@ -108,6 +112,9 @@ public class ProjectService {
         if (entity == null) {
             throw new BusinessException("项目不存在");
         }
+        // V3.0 §3.4: 含税/不含税/税率三值一致性校验
+        TaxAmountValidator.validate(dto.getAmountWithTax(), dto.getAmountWithoutTax(), dto.getTaxRate());
+
         BeanUtils.copyProperties(dto, entity, "id");
         projectMapper.updateById(entity);
     }

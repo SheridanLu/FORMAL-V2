@@ -55,7 +55,10 @@
         <el-row :gutter="16">
           <el-col :span="24">
             <el-form-item label="供应商名称" prop="supplierName">
-              <el-input v-model="form.supplierName" />
+              <el-autocomplete v-model="form.supplierName" :fetch-suggestions="supplierAutoFill.fetchSuggestions"
+                :loading="supplierAutoFill.loading.value" placeholder="输入公司名称自动搜索"
+                value-key="company_name" style="width: 100%"
+                @select="supplierAutoFill.onSelect" @blur="supplierAutoFill.onBlur" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -103,6 +106,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getSupplierList, createSupplier, updateSupplier, deleteSupplier } from '@/api/supplier'
+import { useCompanyAutoFill } from '@/composables/useCompanyAutoFill'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -121,6 +125,19 @@ const form = reactive({
 })
 
 const rules = { supplierName: [{ required: true, message: '请输入供应商名称', trigger: 'blur' }] }
+
+// 供应商名称 → 公司信息自动填充（联系人、电话、银行、税号等）
+const supplierAutoFill = useCompanyAutoFill(form, {
+  nameKey: 'supplierName',
+  fieldMap: {
+    contact_person: 'contactPerson',
+    contact_phone: 'contactPhone',
+    address: 'address',
+    bank_name: 'bankName',
+    bank_account: 'bankAccount',
+    tax_no: 'taxNo'
+  }
+})
 
 const fetchData = async () => {
   loading.value = true
