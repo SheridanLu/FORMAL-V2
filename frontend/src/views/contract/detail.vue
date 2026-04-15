@@ -58,6 +58,25 @@
         </el-table>
       </el-tab-pane>
 
+      <el-tab-pane label="付款计划" name="paymentPlans">
+        <el-table :data="paymentPlans" border>
+          <el-table-column prop="plan_no" label="期次" width="80" align="center" />
+          <el-table-column prop="plan_amount" label="计划金额" width="130" align="right">
+            <template #default="{ row }"><money-text :value="row.plan_amount" /></template>
+          </el-table-column>
+          <el-table-column prop="plan_date" label="计划日期" width="120" />
+          <el-table-column prop="condition_desc" label="付款条件" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="actual_amount" label="实际金额" width="130" align="right">
+            <template #default="{ row }"><money-text :value="row.actual_amount" /></template>
+          </el-table-column>
+          <el-table-column prop="actual_date" label="实际日期" width="120" />
+          <el-table-column prop="status" label="状态" width="90" align="center">
+            <template #default="{ row }"><status-tag :status="row.status" /></template>
+          </el-table-column>
+        </el-table>
+        <el-empty v-if="paymentPlans.length === 0" description="暂无付款计划" :image-size="60" />
+      </el-tab-pane>
+
       <el-tab-pane label="补充协议" name="supplements">
         <div style="margin-bottom:12px">
           <el-button type="primary" size="small" v-permission="['contract:sign-income','contract:sign-expense']" @click="supplementVisible = true"><el-icon><Plus /></el-icon>新增补充协议</el-button>
@@ -93,7 +112,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getContractById, terminateContract, getSupplements, createSupplement, checkOverquantity, getContractPayments, getContractInvoices } from '@/api/contract'
+import { getContractById, terminateContract, getSupplements, createSupplement, checkOverquantity, getContractPayments, getContractInvoices, getPaymentPlans } from '@/api/contract'
 import { CONTRACT_TYPES } from '@/utils/dict'
 import { ArrowLeft, Plus } from '@element-plus/icons-vue'
 
@@ -105,6 +124,7 @@ const contract = ref({})
 const payments = ref([])
 const invoices = ref([])
 const supplements = ref([])
+const paymentPlans = ref([])
 const overquantityWarning = ref('')
 
 const typeLabel = computed(() => CONTRACT_TYPES[contract.value.contract_type] || contract.value.contract_type)
@@ -147,6 +167,13 @@ async function fetchSupplements() {
   } catch { /* endpoint may not exist */ }
 }
 
+async function fetchPaymentPlans() {
+  try {
+    const res = await getPaymentPlans(contractId)
+    paymentPlans.value = res.data || []
+  } catch { /* endpoint may not exist */ }
+}
+
 async function fetchOverquantity() {
   try {
     const res = await checkOverquantity(contractId)
@@ -178,6 +205,7 @@ onMounted(() => {
   fetchContract()
   fetchPayments()
   fetchInvoices()
+  fetchPaymentPlans()
   fetchSupplements()
   fetchOverquantity()
 })

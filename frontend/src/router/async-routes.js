@@ -163,6 +163,18 @@ export default [
         }
       },
 
+      // ========== 回款督办 ==========
+      {
+        path: 'collection',
+        name: 'CollectionSupervision',
+        component: () => import('@/views/collection/index.vue'),
+        meta: {
+          title: '回款督办',
+          icon: 'Money',
+          permission: ['finance:receipt']
+        }
+      },
+
       // ========== 进度变更 ==========
       {
         path: 'progress',

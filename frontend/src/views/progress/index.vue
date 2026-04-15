@@ -19,6 +19,12 @@
         <el-tab-pane label="变更管理" name="change">
           <change-order-tab :project-id="filterProjectId" />
         </el-tab-pane>
+        <el-tab-pane label="产值报表" name="statement">
+          <statement-tab :project-id="filterProjectId" />
+        </el-tab-pane>
+        <el-tab-pane label="收入拆分" name="incomeSplit">
+          <income-split-tab :project-id="filterProjectId" />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -29,6 +35,8 @@ import { ref } from 'vue'
 import MilestoneTab from './components/MilestoneTab.vue'
 import GanttTab from './components/GanttTab.vue'
 import ChangeOrderTab from './components/ChangeOrderTab.vue'
+import StatementTab from './components/StatementTab.vue'
+import IncomeSplitTab from './components/IncomeSplitTab.vue'
 
 const activeTab = ref('milestone')
 const filterProjectId = ref(null)

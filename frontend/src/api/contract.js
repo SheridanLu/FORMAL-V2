@@ -54,3 +54,12 @@ export function getContractPayments(contractId, params) {
 export function getContractInvoices(contractId, params) {
   return request.get(`/api/v1/contracts/${contractId}/invoices`, { params })
 }
+
+// V3.0: 合同付款计划
+export function getPaymentPlans(contractId) {
+  return request.get(`/api/v1/contracts/${contractId}/payment-plans`)
+}
+
+export function createPaymentPlans(contractId, data) {
+  return request.post(`/api/v1/contracts/${contractId}/payment-plans`, data)
+}
