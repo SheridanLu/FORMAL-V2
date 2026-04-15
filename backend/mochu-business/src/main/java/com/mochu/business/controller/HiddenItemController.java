@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizHiddenItem;
 import com.mochu.business.service.HiddenItemService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class HiddenItemController {
     @PostMapping
     @Idempotent
     @PreAuthorize("hasAuthority('project:view-all')")
+    @AuditLog(operateType = "CREATE", operateModule = "暗项管理", bizType = "hidden_item")
     public R<Void> create(@Valid @RequestBody HiddenItemDTO dto) {
         hiddenItemService.create(dto);
         return R.ok();
@@ -51,6 +53,7 @@ public class HiddenItemController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('project:view-all')")
+    @AuditLog(operateType = "UPDATE", operateModule = "暗项管理", bizType = "hidden_item", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody HiddenItemDTO dto) {
         hiddenItemService.update(id, dto);
         return R.ok();
@@ -58,6 +61,7 @@ public class HiddenItemController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('project:view-all')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "暗项管理", bizType = "hidden_item")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         hiddenItemService.updateStatus(id, body.get("status"));
         return R.ok();
@@ -65,6 +69,7 @@ public class HiddenItemController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('project:view-all')")
+    @AuditLog(operateType = "DELETE", operateModule = "暗项管理", bizType = "hidden_item", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         hiddenItemService.delete(id);
         return R.ok();

@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.AnnouncementDTO;
 import com.mochu.system.dto.AnnouncementQueryDTO;
@@ -48,6 +49,7 @@ public class AnnouncementController {
     @Idempotent
     @PostMapping("/admin/announcements")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "公告管理", bizType = "announcement")
     public R<Integer> create(@Valid @RequestBody AnnouncementDTO dto) {
         return R.ok(announcementService.create(dto));
     }
@@ -58,6 +60,7 @@ public class AnnouncementController {
     @Idempotent
     @PutMapping("/admin/announcements/{id}")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "公告管理", bizType = "announcement", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody AnnouncementDTO dto) {
         dto.setId(id);
         announcementService.update(dto);
@@ -70,6 +73,7 @@ public class AnnouncementController {
     @Idempotent
     @PatchMapping("/admin/announcements/{id}/publish")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "公告管理", bizType = "announcement")
     public R<Void> publish(@PathVariable Integer id) {
         announcementService.publish(id);
         return R.ok();
@@ -81,6 +85,7 @@ public class AnnouncementController {
     @Idempotent
     @PatchMapping("/admin/announcements/{id}/offline")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "公告管理", bizType = "announcement")
     public R<Void> offline(@PathVariable Integer id) {
         announcementService.offline(id);
         return R.ok();
@@ -92,6 +97,7 @@ public class AnnouncementController {
     @Idempotent
     @PatchMapping("/admin/announcements/{id}/toggle-top")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "公告管理", bizType = "announcement")
     public R<Void> toggleTop(@PathVariable Integer id) {
         announcementService.toggleTop(id);
         return R.ok();
@@ -103,6 +109,7 @@ public class AnnouncementController {
     @Idempotent
     @DeleteMapping("/admin/announcements/{id}")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "公告管理", bizType = "announcement", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         announcementService.delete(id);
         return R.ok();

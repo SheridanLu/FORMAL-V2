@@ -10,6 +10,7 @@ import com.mochu.business.service.ContractService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class ContractController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "CREATE", operateModule = "合同管理", bizType = "contract")
     public R<Void> create(@Valid @RequestBody ContractDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.create(dto, userId);
@@ -58,6 +60,7 @@ public class ContractController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "UPDATE", operateModule = "合同管理", bizType = "contract", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractDTO dto) {
         contractService.update(id, dto);
         return R.ok();
@@ -66,6 +69,7 @@ public class ContractController {
     @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "合同管理", bizType = "contract")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         contractService.updateStatus(id, dto.getStatus());
         return R.ok();
@@ -74,6 +78,7 @@ public class ContractController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "DELETE", operateModule = "合同管理", bizType = "contract", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         contractService.delete(id);
         return R.ok();
@@ -84,6 +89,7 @@ public class ContractController {
     @Idempotent
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "CREATE", operateModule = "合同管理", bizType = "contract")
     public R<Void> submit(@PathVariable Integer id) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.submitContract(id, userId);
@@ -93,6 +99,7 @@ public class ContractController {
     @Idempotent
     @PostMapping("/{id}/terminate")
     @PreAuthorize("hasAuthority('contract:terminate')")
+    @AuditLog(operateType = "CREATE", operateModule = "合同管理", bizType = "contract")
     public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.terminateContract(id, dto.getReason(), userId);
@@ -110,6 +117,7 @@ public class ContractController {
     @Idempotent
     @PostMapping("/{contractId}/supplements")
     @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "CREATE", operateModule = "合同管理", bizType = "contract")
     public R<Void> createSupplement(@PathVariable Integer contractId, @Valid @RequestBody ContractDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.createSupplement(contractId, dto, userId);

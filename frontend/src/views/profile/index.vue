@@ -78,6 +78,34 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+
+      <!-- 通知设置 -->
+      <el-tab-pane label="通知设置" name="notification">
+        <el-form :model="notifForm" label-width="120px" style="max-width: 500px; margin: 20px auto 0">
+          <el-form-item label="站内信">
+            <el-switch v-model="notifForm.channelStation" disabled />
+            <span style="margin-left: 8px; color: #909399; font-size: 12px">始终开启</span>
+          </el-form-item>
+          <el-form-item label="短信通知">
+            <el-switch v-model="notifForm.channelSms" />
+          </el-form-item>
+          <el-form-item label="邮件通知">
+            <el-switch v-model="notifForm.channelEmail" />
+          </el-form-item>
+          <el-form-item label="企业微信">
+            <el-switch v-model="notifForm.channelWechat" />
+          </el-form-item>
+          <el-divider />
+          <el-form-item label="免打扰时段">
+            <el-time-picker v-model="notifForm.quietStart" placeholder="开始时间" format="HH:mm" value-format="HH:mm:ss" style="width: 140px" />
+            <span style="margin: 0 8px">至</span>
+            <el-time-picker v-model="notifForm.quietEnd" placeholder="结束时间" format="HH:mm" value-format="HH:mm:ss" style="width: 140px" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" :loading="savingNotif" @click="saveNotifConfig">保存设置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -86,6 +114,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
 import { resetPassword } from '@/api/auth'
 import { getTodoList } from '@/api/todo'
 import request from '@/utils/request'
@@ -198,7 +227,45 @@ onMounted(async () => {
   if (!userStore.userInfo) await userStore.fetchUserInfo()
   initInfoForm()
   fetchTodos()
+  fetchNotifConfig()
 })
+
+// ===== 通知设置 =====
+const savingNotif = ref(false)
+const notifForm = reactive({
+  channelStation: true,
+  channelSms: false,
+  channelEmail: false,
+  channelWechat: false,
+  quietStart: null,
+  quietEnd: null
+})
+
+async function fetchNotifConfig() {
+  try {
+    const res = await request.get('/api/v1/user/notification-config')
+    if (res.data) {
+      Object.assign(notifForm, {
+        channelStation: true,
+        channelSms: res.data.channel_sms || false,
+        channelEmail: res.data.channel_email || false,
+        channelWechat: res.data.channel_wechat || false,
+        quietStart: res.data.quiet_start || null,
+        quietEnd: res.data.quiet_end || null
+      })
+    }
+  } catch { /* ignore */ }
+}
+
+async function saveNotifConfig() {
+  savingNotif.value = true
+  try {
+    await request.put('/api/v1/user/notification-config', notifForm)
+    ElMessage.success('通知设置已保存')
+  } finally {
+    savingNotif.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">

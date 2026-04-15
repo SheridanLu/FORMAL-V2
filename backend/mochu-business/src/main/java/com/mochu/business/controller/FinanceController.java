@@ -10,6 +10,7 @@ import com.mochu.business.entity.*;
 import com.mochu.business.service.FinanceService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class FinanceController {
     @Idempotent
     @PostMapping("/statements")
     @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
+    @AuditLog(operateType = "CREATE", operateModule = "财务管理", bizType = "finance")
     public R<Void> createStatement(@Valid @RequestBody StatementDTO dto) {
         financeService.createStatement(dto);
         return R.ok();
@@ -66,6 +68,7 @@ public class FinanceController {
     @Idempotent
     @PutMapping("/statements/{id}")
     @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
+    @AuditLog(operateType = "UPDATE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> updateStatement(@PathVariable Integer id, @Valid @RequestBody StatementDTO dto) {
         financeService.updateStatement(id, dto);
         return R.ok();
@@ -74,6 +77,7 @@ public class FinanceController {
     @Idempotent
     @PatchMapping("/statements/{id}/status")
     @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "财务管理", bizType = "finance")
     public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateStatementStatus(id, dto.getStatus());
         return R.ok();
@@ -82,6 +86,7 @@ public class FinanceController {
     @Idempotent
     @DeleteMapping("/statements/{id}")
     @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
+    @AuditLog(operateType = "DELETE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> deleteStatement(@PathVariable Integer id) {
         financeService.deleteStatement(id);
         return R.ok();
@@ -116,6 +121,7 @@ public class FinanceController {
     @Idempotent
     @PostMapping("/payments")
     @PreAuthorize("hasAuthority('finance:payment-apply')")
+    @AuditLog(operateType = "CREATE", operateModule = "财务管理", bizType = "finance")
     public R<Void> createPayment(@Valid @RequestBody PaymentApplyDTO dto) {
         financeService.createPayment(dto);
         return R.ok();
@@ -124,6 +130,7 @@ public class FinanceController {
     @Idempotent
     @PutMapping("/payments/{id}")
     @PreAuthorize("hasAuthority('finance:payment-apply')")
+    @AuditLog(operateType = "UPDATE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> updatePayment(@PathVariable Integer id, @Valid @RequestBody PaymentApplyDTO dto) {
         financeService.updatePayment(id, dto);
         return R.ok();
@@ -132,6 +139,7 @@ public class FinanceController {
     @Idempotent
     @PatchMapping("/payments/{id}/status")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "财务管理", bizType = "finance")
     public R<Void> updatePaymentStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updatePaymentStatus(id, dto.getStatus());
         return R.ok();
@@ -140,6 +148,7 @@ public class FinanceController {
     @Idempotent
     @DeleteMapping("/payments/{id}")
     @PreAuthorize("hasAuthority('finance:payment-apply')")
+    @AuditLog(operateType = "DELETE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> deletePayment(@PathVariable Integer id) {
         financeService.deletePayment(id);
         return R.ok();
@@ -174,6 +183,7 @@ public class FinanceController {
     @Idempotent
     @PostMapping("/invoices")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
+    @AuditLog(operateType = "CREATE", operateModule = "财务管理", bizType = "finance")
     public R<Void> createInvoice(@Valid @RequestBody InvoiceDTO dto) {
         financeService.createInvoice(dto);
         return R.ok();
@@ -182,6 +192,7 @@ public class FinanceController {
     @Idempotent
     @PutMapping("/invoices/{id}")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
+    @AuditLog(operateType = "UPDATE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> updateInvoice(@PathVariable Integer id, @Valid @RequestBody InvoiceDTO dto) {
         financeService.updateInvoice(id, dto);
         return R.ok();
@@ -190,6 +201,7 @@ public class FinanceController {
     @Idempotent
     @PatchMapping("/invoices/{id}/status")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "财务管理", bizType = "finance")
     public R<Void> updateInvoiceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateInvoiceStatus(id, dto.getStatus());
         return R.ok();
@@ -198,6 +210,7 @@ public class FinanceController {
     @Idempotent
     @DeleteMapping("/invoices/{id}")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
+    @AuditLog(operateType = "DELETE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> deleteInvoice(@PathVariable Integer id) {
         financeService.deleteInvoice(id);
         return R.ok();
@@ -232,6 +245,7 @@ public class FinanceController {
     @Idempotent
     @PostMapping("/reimburses")
     @PreAuthorize("isAuthenticated()")
+    @AuditLog(operateType = "CREATE", operateModule = "财务管理", bizType = "finance")
     public R<Void> createReimburse(@Valid @RequestBody ReimburseDTO dto) {
         financeService.createReimburse(dto);
         return R.ok();
@@ -240,6 +254,7 @@ public class FinanceController {
     @Idempotent
     @PutMapping("/reimburses/{id}")
     @PreAuthorize("isAuthenticated()")
+    @AuditLog(operateType = "UPDATE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> updateReimburse(@PathVariable Integer id, @Valid @RequestBody ReimburseDTO dto) {
         financeService.updateReimburse(id, dto);
         return R.ok();
@@ -248,6 +263,7 @@ public class FinanceController {
     @Idempotent
     @PatchMapping("/reimburses/{id}/status")
     @PreAuthorize("hasAuthority('finance:reimburse-approve')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "财务管理", bizType = "finance")
     public R<Void> updateReimburseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateReimburseStatus(id, dto.getStatus());
         return R.ok();
@@ -256,6 +272,7 @@ public class FinanceController {
     @Idempotent
     @DeleteMapping("/reimburses/{id}")
     @PreAuthorize("isAuthenticated()")
+    @AuditLog(operateType = "DELETE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> deleteReimburse(@PathVariable Integer id) {
         financeService.deleteReimburse(id);
         return R.ok();
@@ -318,6 +335,7 @@ public class FinanceController {
     @Idempotent
     @PostMapping("/receipts")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
+    @AuditLog(operateType = "CREATE", operateModule = "财务管理", bizType = "finance")
     public R<Void> createReceipt(@Valid @RequestBody ReceiptDTO dto) {
         financeService.createReceipt(dto);
         return R.ok();
@@ -326,6 +344,7 @@ public class FinanceController {
     @Idempotent
     @PutMapping("/receipts/{id}")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
+    @AuditLog(operateType = "UPDATE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> updateReceipt(@PathVariable Integer id, @Valid @RequestBody ReceiptDTO dto) {
         financeService.updateReceipt(id, dto);
         return R.ok();
@@ -334,6 +353,7 @@ public class FinanceController {
     @Idempotent
     @PatchMapping("/receipts/{id}/status")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "财务管理", bizType = "finance")
     public R<Void> updateReceiptStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateReceiptStatus(id, dto.getStatus());
         return R.ok();
@@ -342,6 +362,7 @@ public class FinanceController {
     @Idempotent
     @DeleteMapping("/receipts/{id}")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
+    @AuditLog(operateType = "DELETE", operateModule = "财务管理", bizType = "finance", saveBefore = true)
     public R<Void> deleteReceipt(@PathVariable Integer id) {
         financeService.deleteReceipt(id);
         return R.ok();

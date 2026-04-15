@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizSupplier;
 import com.mochu.business.service.SupplierService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class SupplierController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('contract:sign-expense')")
+    @AuditLog(operateType = "CREATE", operateModule = "供应商管理", bizType = "supplier")
     public R<Void> create(@Valid @RequestBody SupplierDTO dto) {
         supplierService.create(dto);
         return R.ok();
@@ -57,6 +59,7 @@ public class SupplierController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:sign-expense')")
+    @AuditLog(operateType = "UPDATE", operateModule = "供应商管理", bizType = "supplier", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody SupplierDTO dto) {
         supplierService.update(id, dto);
         return R.ok();
@@ -65,6 +68,7 @@ public class SupplierController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:sign-expense')")
+    @AuditLog(operateType = "DELETE", operateModule = "供应商管理", bizType = "supplier", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         supplierService.delete(id);
         return R.ok();

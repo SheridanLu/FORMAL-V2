@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DictDataDTO;
 import com.mochu.system.dto.DictDataQueryDTO;
@@ -41,6 +42,7 @@ public class DictController {
     @Idempotent
     @PostMapping("/types")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "字典管理", bizType = "dict")
     public R<Void> createDictType(@Valid @RequestBody DictTypeDTO dto) {
         dictService.createDictType(dto);
         return R.ok();
@@ -49,6 +51,7 @@ public class DictController {
     @Idempotent
     @PutMapping("/types/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "字典管理", bizType = "dict", saveBefore = true)
     public R<Void> updateDictType(@PathVariable Integer id, @Valid @RequestBody DictTypeDTO dto) {
         dictService.updateDictType(id, dto);
         return R.ok();
@@ -57,6 +60,7 @@ public class DictController {
     @Idempotent
     @DeleteMapping("/types/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "字典管理", bizType = "dict", saveBefore = true)
     public R<Void> deleteDictType(@PathVariable Integer id) {
         dictService.deleteDictType(id);
         return R.ok();
@@ -78,6 +82,7 @@ public class DictController {
     @Idempotent
     @PostMapping("/data")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "字典管理", bizType = "dict")
     public R<Void> createDictData(@Valid @RequestBody DictDataDTO dto) {
         dictService.createDictData(dto);
         return R.ok();
@@ -86,6 +91,7 @@ public class DictController {
     @Idempotent
     @PutMapping("/data/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "字典管理", bizType = "dict", saveBefore = true)
     public R<Void> updateDictData(@PathVariable Integer id, @Valid @RequestBody DictDataDTO dto) {
         dictService.updateDictData(id, dto);
         return R.ok();
@@ -94,6 +100,7 @@ public class DictController {
     @Idempotent
     @DeleteMapping("/data/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "字典管理", bizType = "dict", saveBefore = true)
     public R<Void> deleteDictData(@PathVariable Integer id) {
         dictService.deleteDictData(id);
         return R.ok();

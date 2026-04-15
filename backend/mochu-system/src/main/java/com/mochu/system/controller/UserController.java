@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.UserCreateDTO;
 import com.mochu.system.dto.UserQueryDTO;
@@ -50,6 +51,7 @@ public class UserController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "用户管理", bizType = "user")
     public R<Integer> create(@Valid @RequestBody UserCreateDTO dto) {
         return R.ok(userService.createUser(dto));
     }
@@ -60,6 +62,7 @@ public class UserController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "用户管理", bizType = "user", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody UserUpdateDTO dto) {
         dto.setId(id);
         userService.updateUser(dto);
@@ -72,6 +75,7 @@ public class UserController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "用户管理", bizType = "user", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         userService.deleteUser(id);
         return R.ok();
@@ -83,6 +87,7 @@ public class UserController {
     @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "用户管理", bizType = "user")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
         Integer status = body.get("status");
         if (status == null) {
@@ -98,6 +103,7 @@ public class UserController {
     @Idempotent
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "用户管理", bizType = "user", saveBefore = true)
     public R<Void> assignRoles(@PathVariable Integer id, @RequestBody Map<String, List<Integer>> body) {
         List<Integer> roleIds = body.get("role_ids");
         userService.assignRoles(id, roleIds);
@@ -110,6 +116,7 @@ public class UserController {
     @Idempotent
     @PostMapping("/{id}/reset-password")
     @PreAuthorize("hasAuthority('system:user-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "用户管理", bizType = "user")
     public R<Void> resetPassword(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String newPassword = body.get("new_password");
         if (newPassword == null || newPassword.isBlank()) {

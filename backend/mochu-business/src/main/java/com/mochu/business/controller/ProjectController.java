@@ -11,6 +11,7 @@ import com.mochu.business.service.ProjectService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,7 @@ public class ProjectController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('project:create')")
+    @AuditLog(operateType = "CREATE", operateModule = "项目管理", bizType = "project")
     public R<Void> create(@Valid @RequestBody ProjectDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         projectService.create(dto, userId);
@@ -63,6 +65,7 @@ public class ProjectController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('project:create')")
+    @AuditLog(operateType = "UPDATE", operateModule = "项目管理", bizType = "project", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ProjectDTO dto) {
         projectService.update(id, dto);
         return R.ok();
@@ -71,6 +74,7 @@ public class ProjectController {
     @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('project:create')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "项目管理", bizType = "project")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         projectService.updateStatus(id, dto.getStatus());
         return R.ok();
@@ -79,6 +83,7 @@ public class ProjectController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('project:create')")
+    @AuditLog(operateType = "DELETE", operateModule = "项目管理", bizType = "project")
     public R<Void> delete(@PathVariable Integer id) {
         projectService.delete(id);
         return R.ok();

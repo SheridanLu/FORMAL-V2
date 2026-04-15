@@ -7,6 +7,7 @@ import com.mochu.business.service.MaterialService;
 import com.mochu.business.vo.BatchResult;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class MaterialController {
     @Idempotent
     @PostMapping("/batch")
     @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
+    @AuditLog(operateType = "CREATE", operateModule = "材料管理", bizType = "material")
     public R<BatchResult> batchCreate(@Valid @RequestBody MaterialBatchDTO dto) {
         BatchResult result = materialService.batchCreate(dto);
         return R.ok(result);
@@ -58,6 +60,7 @@ public class MaterialController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
+    @AuditLog(operateType = "UPDATE", operateModule = "材料管理", bizType = "material", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody MaterialDTO dto) {
         materialService.update(id, dto);
         return R.ok();
@@ -66,6 +69,7 @@ public class MaterialController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
+    @AuditLog(operateType = "DELETE", operateModule = "材料管理", bizType = "material", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         materialService.delete(id);
         return R.ok();

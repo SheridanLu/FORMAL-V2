@@ -1,6 +1,7 @@
 package com.mochu.system.controller;
 
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DeptDTO;
 import com.mochu.system.service.DeptService;
@@ -46,6 +47,7 @@ public class DeptController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:dept-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "部门管理", bizType = "dept")
     public R<Integer> create(@Valid @RequestBody DeptDTO dto) {
         return R.ok(deptService.createDept(dto));
     }
@@ -56,6 +58,7 @@ public class DeptController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:dept-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "部门管理", bizType = "dept", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody DeptDTO dto) {
         dto.setId(id);
         deptService.updateDept(dto);
@@ -68,6 +71,7 @@ public class DeptController {
     @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('system:dept-manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "部门管理", bizType = "dept")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
         Integer status = body.get("status");
         if (status == null) {
@@ -83,6 +87,7 @@ public class DeptController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:dept-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "部门管理", bizType = "dept", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         deptService.deleteDept(id);
         return R.ok();

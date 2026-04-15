@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizEquipment;
 import com.mochu.business.service.EquipmentService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class EquipmentController {
     @PostMapping
     @Idempotent
     @PreAuthorize("hasAuthority('equipment:manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "设备管理", bizType = "equipment")
     public R<Void> create(@Valid @RequestBody EquipmentDTO dto) {
         equipmentService.create(dto);
         return R.ok();
@@ -52,6 +54,7 @@ public class EquipmentController {
     @PutMapping("/{id}")
     @Idempotent
     @PreAuthorize("hasAuthority('equipment:manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "设备管理", bizType = "equipment", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody EquipmentDTO dto) {
         equipmentService.update(id, dto);
         return R.ok();
@@ -59,6 +62,7 @@ public class EquipmentController {
 
     @PatchMapping("/{id}/assign")
     @PreAuthorize("hasAuthority('equipment:manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "设备管理", bizType = "equipment")
     public R<Void> assign(@PathVariable Integer id,
                            @RequestParam Integer projectId,
                            @RequestParam(required = false) String location) {
@@ -68,6 +72,7 @@ public class EquipmentController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('equipment:manage')")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "设备管理", bizType = "equipment")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestParam String status) {
         equipmentService.updateStatus(id, status);
         return R.ok();
@@ -75,6 +80,7 @@ public class EquipmentController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('equipment:manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "设备管理", bizType = "equipment", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         equipmentService.delete(id);
         return R.ok();

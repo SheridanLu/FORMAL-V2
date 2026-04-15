@@ -129,3 +129,20 @@ message:
   # message.email.provider: mock (default) or spring-mail
   wechat:
     enabled: false    # true时启用真实企业微信SDK
+    corp-id: ${WECHAT_CORP_ID:}
+    agent-id: ${WECHAT_AGENT_ID:}
+    secret: ${WECHAT_SECRET:}
+
+# Actuator 系统监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers
+      base-path: /api/v1/actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true

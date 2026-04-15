@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.RoleDTO;
 import com.mochu.system.service.RoleService;
@@ -52,6 +53,7 @@ public class RoleController {
     @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:role-manage')")
+    @AuditLog(operateType = "CREATE", operateModule = "角色管理", bizType = "role")
     public R<Integer> create(@Valid @RequestBody RoleDTO dto) {
         return R.ok(roleService.createRole(dto));
     }
@@ -62,6 +64,7 @@ public class RoleController {
     @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "角色管理", bizType = "role", saveBefore = true)
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody RoleDTO dto) {
         dto.setId(id);
         roleService.updateRole(dto);
@@ -74,6 +77,7 @@ public class RoleController {
     @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role-manage')")
+    @AuditLog(operateType = "DELETE", operateModule = "角色管理", bizType = "role", saveBefore = true)
     public R<Void> delete(@PathVariable Integer id) {
         roleService.deleteRole(id);
         return R.ok();
@@ -94,6 +98,7 @@ public class RoleController {
     @Idempotent
     @PutMapping("/{id}/permissions")
     @PreAuthorize("hasAuthority('system:role-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "角色管理", bizType = "role", saveBefore = true)
     public R<Void> updatePermissions(@PathVariable Integer id, @RequestBody Map<String, List<Integer>> body) {
         List<Integer> permissionIds = body.get("permission_ids");
         roleService.updateRolePermissions(id, permissionIds != null ? permissionIds : List.of());
@@ -125,6 +130,7 @@ public class RoleController {
     @Idempotent
     @PutMapping("/{id}/data-scope")
     @PreAuthorize("hasAuthority('system:role-manage')")
+    @AuditLog(operateType = "UPDATE", operateModule = "角色管理", bizType = "role", saveBefore = true)
     public R<Void> updateDataScope(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
         roleService.updateDataScope(id, body.get("data_scope"));
         return R.ok();

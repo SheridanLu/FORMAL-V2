@@ -412,6 +412,12 @@ export default [
             name: 'DictDataManage',
             component: () => import('@/views/system/dict/data.vue'),
             meta: { title: '字典数据', hidden: true, permission: 'system:dict-manage' }
+          },
+          {
+            path: 'monitor',
+            name: 'SystemMonitor',
+            component: () => import('@/views/system/monitor/index.vue'),
+            meta: { title: '系统监控', icon: 'DataAnalysis', permission: 'system:log-view' }
           }
         ]
       },
