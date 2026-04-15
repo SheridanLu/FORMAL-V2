@@ -136,7 +136,10 @@ const editorConfig = {
     uploadImage: {
       server: '/api/v1/attachments/upload',
       fieldName: 'file',
-      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+      // 动态获取 token，避免 token 刷新后上传失败
+      headers() {
+        return { Authorization: `Bearer ${localStorage.getItem('token') || ''}` }
+      },
       customInsert(res, insertFn) {
         if (res.code === 200 && res.data?.file_url) {
           insertFn(res.data.file_url)
