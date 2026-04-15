@@ -5,6 +5,7 @@ import com.mochu.business.service.AttachmentService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ public class AttachmentController {
     private final AttachmentService attachmentService;
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "文档管理", bizType = "attachment")
     @PostMapping("/upload")
     @PreAuthorize("isAuthenticated()")
     public R<BizAttachment> upload(@RequestParam("file") MultipartFile file,
@@ -57,6 +59,7 @@ public class AttachmentController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "文档管理", bizType = "attachment", saveBefore = true)
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public R<Void> delete(@PathVariable Integer id) throws Exception {
@@ -69,6 +72,7 @@ public class AttachmentController {
      * 替换附件 — 原文件保留标记 replaced（status=0）
      */
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "文档管理", bizType = "attachment", saveBefore = true)
     @PostMapping("/{id}/replace")
     @PreAuthorize("isAuthenticated()")
     public R<BizAttachment> replace(@PathVariable Integer id,
@@ -81,6 +85,7 @@ public class AttachmentController {
      * 批量关联附件到指定业务单据
      */
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "文档管理", bizType = "attachment")
     @PostMapping("/bindBatch")
     @PreAuthorize("isAuthenticated()")
     public R<Void> bindBatch(@RequestBody Map<String, Object> body) {

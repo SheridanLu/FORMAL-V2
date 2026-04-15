@@ -7,6 +7,7 @@ import com.mochu.business.entity.BizInventoryTransfer;
 import com.mochu.business.service.InventoryEnhanceService;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +37,7 @@ public class InventoryEnhanceController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "inventory_alert")
     @PostMapping("/alerts")
     @PreAuthorize("hasAuthority('inventory:alert-manage')")
     public R<Void> saveAlert(@Valid @RequestBody InventoryAlertDTO dto) {
@@ -44,6 +46,7 @@ public class InventoryEnhanceController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "库存管理", bizType = "inventory_alert", saveBefore = true)
     @DeleteMapping("/alerts/{id}")
     @PreAuthorize("hasAuthority('inventory:alert-manage')")
     public R<Void> deleteAlert(@PathVariable Integer id) {
@@ -62,6 +65,7 @@ public class InventoryEnhanceController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "inventory_transfer")
     @PostMapping("/transfers")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> createTransfer(@Valid @RequestBody InventoryTransferDTO dto) {
@@ -70,6 +74,7 @@ public class InventoryEnhanceController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "inventory_transfer")
     @PutMapping("/transfers/{id}/confirm")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> confirmTransfer(@PathVariable Integer id) {
@@ -78,6 +83,7 @@ public class InventoryEnhanceController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "inventory_transfer")
     @PutMapping("/transfers/{id}/cancel")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> cancelTransfer(@PathVariable Integer id) {

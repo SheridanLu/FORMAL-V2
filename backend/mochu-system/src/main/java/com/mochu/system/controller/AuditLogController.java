@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.entity.SysAuditLog;
 import com.mochu.system.service.AuditLogService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +41,7 @@ public class AuditLogController {
     @GetMapping("/export")
     @PreAuthorize("hasAuthority('system:log-view')")
     @Idempotent
+    @AuditLog(operateType = "EXPORT", operateModule = "审计日志", bizType = "audit_log")
     public void exportLogs(
             @RequestParam(required = false) String module,
             @RequestParam(required = false) String startDate,

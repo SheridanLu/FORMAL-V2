@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.dto.*;
 import com.mochu.system.service.AuthService;
 import com.mochu.system.vo.CheckAccountVO;
@@ -45,6 +46,7 @@ public class AuthController {
      * 密码登录 — POST /api/v1/auth/login-by-password
      */
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "认证管理", bizType = "auth_login")
     @PostMapping("/login-by-password")
     public R<LoginVO> loginByPassword(@Valid @RequestBody LoginByPasswordDTO dto,
                                       HttpServletRequest request) {
@@ -56,6 +58,7 @@ public class AuthController {
      * 短信登录 — POST /api/v1/auth/login-by-sms
      */
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "认证管理", bizType = "auth_login")
     @PostMapping("/login-by-sms")
     public R<LoginVO> loginBySms(@Valid @RequestBody LoginBySmsDTO dto,
                                  HttpServletRequest request) {
@@ -67,6 +70,7 @@ public class AuthController {
      * 退出登录 — POST /api/v1/auth/logout
      */
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "认证管理", bizType = "auth_logout")
     @PostMapping("/logout")
     public R<Void> logout(HttpServletRequest request) {
         Integer userId = SecurityUtils.getCurrentUserId();
@@ -89,6 +93,7 @@ public class AuthController {
      * 重置密码 — POST /api/v1/auth/reset-password
      */
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "认证管理", bizType = "auth_password")
     @PostMapping("/reset-password")
     public R<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
         authService.resetPassword(dto);

@@ -18,6 +18,7 @@ import com.mochu.business.service.CompletionService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +57,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "completion_finish")
     @PostMapping("/finish")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createFinish(@Valid @RequestBody CompletionFinishDTO dto) {
@@ -64,6 +66,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "completion_finish", saveBefore = true)
     @PutMapping("/finish/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateFinish(@PathVariable Integer id, @Valid @RequestBody CompletionFinishDTO dto) {
@@ -72,6 +75,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "completion_finish")
     @PatchMapping("/finish/{id}/status")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateFinishStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -80,6 +84,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "completion_finish", saveBefore = true)
     @DeleteMapping("/finish/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteFinish(@PathVariable Integer id) {
@@ -110,6 +115,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "labor_settlement")
     @PostMapping("/labor")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> createLabor(@Valid @RequestBody LaborSettlementDTO dto) {
@@ -118,6 +124,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "labor_settlement", saveBefore = true)
     @PutMapping("/labor/{id}")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateLabor(@PathVariable Integer id, @Valid @RequestBody LaborSettlementDTO dto) {
@@ -126,6 +133,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "labor_settlement")
     @PatchMapping("/labor/{id}/status")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateLaborStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -134,6 +142,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "labor_settlement", saveBefore = true)
     @DeleteMapping("/labor/{id}")
     @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> deleteLabor(@PathVariable Integer id) {
@@ -164,6 +173,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "case")
     @PostMapping("/cases")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createCase(@Valid @RequestBody CaseDTO dto) {
@@ -172,6 +182,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "case", saveBefore = true)
     @PutMapping("/cases/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateCase(@PathVariable Integer id, @Valid @RequestBody CaseDTO dto) {
@@ -180,6 +191,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "case")
     @PatchMapping("/cases/{id}/status")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateCaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -188,6 +200,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "case", saveBefore = true)
     @DeleteMapping("/cases/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteCase(@PathVariable Integer id) {
@@ -218,6 +231,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "exception_task")
     @PostMapping("/exceptions")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createException(@Valid @RequestBody ExceptionTaskDTO dto) {
@@ -226,6 +240,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "exception_task", saveBefore = true)
     @PutMapping("/exceptions/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateException(@PathVariable Integer id, @Valid @RequestBody ExceptionTaskDTO dto) {
@@ -234,6 +249,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "exception_task")
     @PatchMapping("/exceptions/{id}/resolve")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> resolveException(@PathVariable Integer id, @Valid @RequestBody ResolveExceptionDTO dto) {
@@ -242,6 +258,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "exception_task", saveBefore = true)
     @DeleteMapping("/exceptions/{id}")
     @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteException(@PathVariable Integer id) {
@@ -272,6 +289,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "drawing")
     @PostMapping("/drawings")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> createDrawing(@Valid @RequestBody DrawingDTO dto) {
@@ -280,6 +298,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "drawing", saveBefore = true)
     @PutMapping("/drawings/{id}")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDrawing(@PathVariable Integer id, @Valid @RequestBody DrawingDTO dto) {
@@ -288,6 +307,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "drawing")
     @PatchMapping("/drawings/{id}/status")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDrawingStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -296,6 +316,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "drawing", saveBefore = true)
     @DeleteMapping("/drawings/{id}")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> deleteDrawing(@PathVariable Integer id) {
@@ -326,6 +347,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "竣工管理", bizType = "completion_doc")
     @PostMapping("/docs")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> createDoc(@Valid @RequestBody CompletionDocDTO dto) {
@@ -334,6 +356,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "竣工管理", bizType = "completion_doc", saveBefore = true)
     @PutMapping("/docs/{id}")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDoc(@PathVariable Integer id, @Valid @RequestBody CompletionDocDTO dto) {
@@ -342,6 +365,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "竣工管理", bizType = "completion_doc")
     @PatchMapping("/docs/{id}/status")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDocStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -350,6 +374,7 @@ public class CompletionController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "竣工管理", bizType = "completion_doc", saveBefore = true)
     @DeleteMapping("/docs/{id}")
     @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> deleteDoc(@PathVariable Integer id) {

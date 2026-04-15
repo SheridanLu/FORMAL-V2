@@ -5,8 +5,7 @@ import com.mochu.business.entity.BizContract;
 import com.mochu.business.entity.BizProjectMember;
 import com.mochu.business.mapper.BizContractMapper;
 import com.mochu.business.mapper.BizProjectMemberMapper;
-import com.mochu.system.entity.SysTodo;
-import com.mochu.system.mapper.SysTodoMapper;
+import com.mochu.system.service.message.NotificationService;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class ContractExpireScheduler {
 
     private final BizContractMapper contractMapper;
     private final BizProjectMemberMapper memberMapper;
-    private final SysTodoMapper todoMapper;
+    private final NotificationService notificationService;
     private final StringRedisTemplate redisTemplate;
 
     @XxlJob("contractExpireJob")
@@ -64,16 +63,13 @@ public class ContractExpireScheduler {
                 Integer managerId = findProjectManager(c.getProjectId());
                 if (managerId == null) continue;
 
-                SysTodo todo = new SysTodo();
-                todo.setUserId(managerId);
-                todo.setTitle(String.format("【合同到期】合同\"%s\"还剩%d天到期",
-                        c.getContractName(), days));
-                todo.setContent(String.format("合同编号: %s，结束日期: %s",
-                        c.getContractNo(), c.getEndDate()));
-                todo.setBizType("contract_expire");
-                todo.setBizId(c.getId());
-                todo.setStatus(0);
-                todoMapper.insert(todo);
+                String title = String.format("【合同到期】合同\"%s\"还剩%d天到期",
+                        c.getContractName(), days);
+                String content = String.format("合同编号: %s，结束日期: %s",
+                        c.getContractNo(), c.getEndDate());
+
+                notificationService.notify(managerId, title, content,
+                        "contract_expire", c.getId());
 
                 redisTemplate.opsForValue().set(dedupKey, "1", Duration.ofHours(24));
                 warned++;

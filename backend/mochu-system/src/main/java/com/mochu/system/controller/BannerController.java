@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.dto.BannerDTO;
 import com.mochu.system.entity.SysBanner;
 import com.mochu.system.service.BannerService;
@@ -59,6 +60,7 @@ public class BannerController {
      */
     @PostMapping
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "横幅管理", bizType = "banner")
     @PreAuthorize("hasAuthority('system:banner-manage')")
     public R<Void> create(@Valid @RequestBody BannerDTO dto) {
         bannerService.create(dto);
@@ -70,6 +72,7 @@ public class BannerController {
      */
     @PutMapping("/{id}")
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "横幅管理", bizType = "banner", saveBefore = true)
     @PreAuthorize("hasAuthority('system:banner-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody BannerDTO dto) {
         bannerService.update(id, dto);
@@ -80,6 +83,7 @@ public class BannerController {
      * 删除
      */
     @DeleteMapping("/{id}")
+    @AuditLog(operateType = "DELETE", operateModule = "横幅管理", bizType = "banner", saveBefore = true)
     @PreAuthorize("hasAuthority('system:banner-manage')")
     public R<Void> delete(@PathVariable Integer id) {
         bannerService.delete(id);
@@ -90,6 +94,7 @@ public class BannerController {
      * 切换启用/禁用
      */
     @PatchMapping("/{id}/toggle")
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "横幅管理", bizType = "banner")
     @PreAuthorize("hasAuthority('system:banner-manage')")
     public R<Void> toggle(@PathVariable Integer id) {
         bannerService.toggleStatus(id);

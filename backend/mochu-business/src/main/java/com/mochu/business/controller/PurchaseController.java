@@ -10,6 +10,7 @@ import com.mochu.business.service.PurchaseService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +53,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "采购管理", bizType = "purchase_list")
     @PostMapping("/api/v1/purchases")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> createPurchaseList(@Valid @RequestBody PurchaseListDTO dto) {
@@ -60,6 +62,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "采购管理", bizType = "purchase_list", saveBefore = true)
     @PutMapping("/api/v1/purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updatePurchaseList(@PathVariable Integer id, @Valid @RequestBody PurchaseListDTO dto) {
@@ -68,6 +71,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "采购管理", bizType = "purchase_list")
     @PatchMapping("/api/v1/purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updatePurchaseListStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -76,6 +80,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "采购管理", bizType = "purchase_list", saveBefore = true)
     @DeleteMapping("/api/v1/purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> deletePurchaseList(@PathVariable Integer id) {
@@ -104,6 +109,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "采购管理", bizType = "spot_purchase")
     @PostMapping("/api/v1/spot-purchases")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> createSpotPurchase(@Valid @RequestBody SpotPurchaseDTO dto) {
@@ -112,6 +118,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "采购管理", bizType = "spot_purchase", saveBefore = true)
     @PutMapping("/api/v1/spot-purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updateSpotPurchase(@PathVariable Integer id, @Valid @RequestBody SpotPurchaseDTO dto) {
@@ -120,6 +127,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "采购管理", bizType = "spot_purchase")
     @PatchMapping("/api/v1/spot-purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updateSpotPurchaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -128,6 +136,7 @@ public class PurchaseController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "采购管理", bizType = "spot_purchase", saveBefore = true)
     @DeleteMapping("/api/v1/spot-purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> deleteSpotPurchase(@PathVariable Integer id) {

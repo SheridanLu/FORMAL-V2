@@ -8,6 +8,7 @@ import com.mochu.business.service.CollectionSupervisionService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,7 @@ public class CollectionSupervisionController {
         return R.ok(collectionService.listPlans(contractId, projectId, status, page, size));
     }
 
+    @AuditLog(operateType = "CREATE", operateModule = "回款督办", bizType = "receipt_plan")
     @PostMapping("/plans")
     @Idempotent
     @PreAuthorize("hasAuthority('finance:receipt')")
@@ -49,6 +51,7 @@ public class CollectionSupervisionController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "UPDATE", operateModule = "回款督办", bizType = "receipt_plan", saveBefore = true)
     @PutMapping("/plans/{id}")
     @PreAuthorize("hasAuthority('finance:receipt')")
     public R<Void> updatePlan(@PathVariable Integer id, @Valid @RequestBody ReceiptPlanDTO dto) {
@@ -56,6 +59,7 @@ public class CollectionSupervisionController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "回款督办", bizType = "receipt_plan")
     @PatchMapping("/plans/{id}/confirm")
     @PreAuthorize("hasAuthority('finance:receipt')")
     public R<Void> confirmReceipt(@PathVariable Integer id,
@@ -65,6 +69,7 @@ public class CollectionSupervisionController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "DELETE", operateModule = "回款督办", bizType = "receipt_plan", saveBefore = true)
     @DeleteMapping("/plans/{id}")
     @PreAuthorize("hasAuthority('finance:receipt')")
     public R<Void> deletePlan(@PathVariable Integer id) {
@@ -86,6 +91,7 @@ public class CollectionSupervisionController {
         return R.ok(collectionService.listFollowUps(planId));
     }
 
+    @AuditLog(operateType = "CREATE", operateModule = "回款督办", bizType = "collection_follow_up")
     @PostMapping("/follow-ups")
     @Idempotent
     @PreAuthorize("hasAuthority('finance:receipt')")

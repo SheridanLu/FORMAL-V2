@@ -4,6 +4,7 @@ import com.mochu.business.dto.CompanyInfoDTO;
 import com.mochu.business.entity.BizCompanyInfo;
 import com.mochu.business.service.CompanyInfoService;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import jakarta.validation.Valid;
@@ -69,6 +70,7 @@ public class CompanyInfoController {
      */
     @PostMapping
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "公司信息", bizType = "company_info")
     @PreAuthorize("hasAuthority('system:company-info')")
     public R<Void> create(@Valid @RequestBody CompanyInfoDTO dto) {
         companyInfoService.create(dto);
@@ -80,6 +82,7 @@ public class CompanyInfoController {
      */
     @PutMapping("/{id}")
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "公司信息", bizType = "company_info", saveBefore = true)
     @PreAuthorize("hasAuthority('system:company-info')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody CompanyInfoDTO dto) {
         companyInfoService.update(id, dto);
@@ -90,6 +93,7 @@ public class CompanyInfoController {
      * 删除
      */
     @DeleteMapping("/{id}")
+    @AuditLog(operateType = "DELETE", operateModule = "公司信息", bizType = "company_info", saveBefore = true)
     @PreAuthorize("hasAuthority('system:company-info')")
     public R<Void> delete(@PathVariable Integer id) {
         companyInfoService.delete(id);

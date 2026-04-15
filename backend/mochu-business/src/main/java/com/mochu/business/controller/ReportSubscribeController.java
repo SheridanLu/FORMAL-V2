@@ -5,6 +5,7 @@ import com.mochu.common.result.R;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.security.SecurityUtils;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class ReportSubscribeController {
         return R.ok(reportSubscribeService.listByUser(userId, page, size));
     }
 
+    @AuditLog(operateType = "CREATE", operateModule = "报表管理", bizType = "report_subscribe")
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     @Idempotent
@@ -38,6 +40,7 @@ public class ReportSubscribeController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "DELETE", operateModule = "报表管理", bizType = "report_subscribe", saveBefore = true)
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @Idempotent

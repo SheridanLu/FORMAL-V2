@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 企业微信消息发送 — 真实实现
@@ -37,6 +38,7 @@ public class RealWechatSender implements WechatSender {
     private final StringRedisTemplate redisTemplate;
 
     private static final String TOKEN_KEY = "wechat:access_token";
+    private static final String TOKEN_LOCK_KEY = "wechat:token:lock";
     private static final String TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s";
     private static final String SEND_URL = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s";
 
@@ -84,27 +86,50 @@ public class RealWechatSender implements WechatSender {
 
     /**
      * 获取 access_token（带 Redis 缓存，有效期 7200s，提前 300s 刷新）
+     * 使用 Redis SETNX 分布式锁防止多线程同时刷新导致 token stampede
      */
     private String getAccessToken() {
         String cached = redisTemplate.opsForValue().get(TOKEN_KEY);
         if (cached != null) return cached;
 
-        try {
-            String tokenUrl = String.format(TOKEN_URL, corpId, secret);
-            ResponseEntity<Map> resp = restTemplate.getForEntity(tokenUrl, Map.class);
-            if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                Object errcode = resp.getBody().get("errcode");
-                if (errcode != null && ((Number) errcode).intValue() == 0) {
-                    String token = (String) resp.getBody().get("access_token");
-                    // 缓存 115 分钟（比实际 2h 少 5 分钟）
-                    redisTemplate.opsForValue().set(TOKEN_KEY, token, Duration.ofMinutes(115));
-                    return token;
-                } else {
-                    log.error("[企业微信] 获取token失败: {}", resp.getBody());
+        // 尝试获取分布式锁
+        Boolean locked = redisTemplate.opsForValue()
+                .setIfAbsent(TOKEN_LOCK_KEY, "1", 10, TimeUnit.SECONDS);
+
+        if (Boolean.TRUE.equals(locked)) {
+            try {
+                // 双重检查：获锁后再次检查缓存（可能其他线程已刷新）
+                cached = redisTemplate.opsForValue().get(TOKEN_KEY);
+                if (cached != null) return cached;
+
+                String tokenUrl = String.format(TOKEN_URL, corpId, secret);
+                ResponseEntity<Map> resp = restTemplate.getForEntity(tokenUrl, Map.class);
+                if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                    Object errcode = resp.getBody().get("errcode");
+                    if (errcode != null && ((Number) errcode).intValue() == 0) {
+                        String token = (String) resp.getBody().get("access_token");
+                        // 缓存 115 分钟（比实际 2h 少 5 分钟）
+                        redisTemplate.opsForValue().set(TOKEN_KEY, token, Duration.ofMinutes(115));
+                        return token;
+                    } else {
+                        log.error("[企业微信] 获取token失败: {}", resp.getBody());
+                    }
                 }
+            } catch (Exception e) {
+                log.error("[企业微信] 获取token异常", e);
+            } finally {
+                redisTemplate.delete(TOKEN_LOCK_KEY);
             }
-        } catch (Exception e) {
-            log.error("[企业微信] 获取token异常", e);
+        } else {
+            // 未获取到锁，等待后重试读取缓存
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            cached = redisTemplate.opsForValue().get(TOKEN_KEY);
+            if (cached != null) return cached;
+            log.warn("[企业微信] 等待token刷新超时，缓存仍为空");
         }
         return null;
     }

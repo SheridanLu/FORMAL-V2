@@ -7,6 +7,7 @@ import com.mochu.bpm.service.BpmProcessInstanceService;
 import com.mochu.bpm.vo.ProcessInstanceVO;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ public class BpmProcessInstanceController {
 
     private final BpmProcessInstanceService instanceService;
 
+    @AuditLog(operateType = "CREATE", operateModule = "流程管理", bizType = "process_instance")
     @PostMapping("/start")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
     public R<String> start(@Valid @RequestBody StartProcessDTO dto) {
@@ -66,6 +68,7 @@ public class BpmProcessInstanceController {
         return R.ok(instanceService.listOaRules());
     }
 
+    @AuditLog(operateType = "CREATE", operateModule = "流程管理", bizType = "oa_rule")
     @PostMapping("/rules")
     @PreAuthorize("hasAuthority('bpm:rule-manage')")
     public R<Void> saveRule(@Valid @RequestBody OaRuleDTO dto) {
@@ -73,6 +76,7 @@ public class BpmProcessInstanceController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "DELETE", operateModule = "流程管理", bizType = "oa_rule", saveBefore = true)
     @DeleteMapping("/rules/{id}")
     @PreAuthorize("hasAuthority('bpm:rule-manage')")
     public R<Void> deleteRule(@PathVariable Integer id) {

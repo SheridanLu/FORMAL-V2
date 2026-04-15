@@ -14,6 +14,7 @@ import com.mochu.business.service.InventoryService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +57,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "inbound_order")
     @PostMapping("/inbound")
     @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> createInbound(@Valid @RequestBody InboundOrderDTO dto) {
@@ -64,6 +66,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "库存管理", bizType = "inbound_order", saveBefore = true)
     @PutMapping("/inbound/{id}")
     @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> updateInbound(@PathVariable Integer id, @Valid @RequestBody InboundOrderDTO dto) {
@@ -72,6 +75,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "inbound_order")
     @PatchMapping("/inbound/{id}/status")
     @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> updateInboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -80,6 +84,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "库存管理", bizType = "inbound_order", saveBefore = true)
     @DeleteMapping("/inbound/{id}")
     @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> deleteInbound(@PathVariable Integer id) {
@@ -112,6 +117,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "outbound_order")
     @PostMapping("/outbound")
     @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> createOutbound(@Valid @RequestBody OutboundOrderDTO dto) {
@@ -120,6 +126,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "库存管理", bizType = "outbound_order", saveBefore = true)
     @PutMapping("/outbound/{id}")
     @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> updateOutbound(@PathVariable Integer id, @Valid @RequestBody OutboundOrderDTO dto) {
@@ -128,6 +135,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "outbound_order")
     @PatchMapping("/outbound/{id}/status")
     @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> updateOutboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -136,6 +144,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "库存管理", bizType = "outbound_order", saveBefore = true)
     @DeleteMapping("/outbound/{id}")
     @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> deleteOutbound(@PathVariable Integer id) {
@@ -168,6 +177,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "return_order")
     @PostMapping("/return")
     @PreAuthorize("hasAuthority('material:return')")
     public R<Void> createReturn(@Valid @RequestBody ReturnOrderDTO dto) {
@@ -176,6 +186,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "库存管理", bizType = "return_order", saveBefore = true)
     @PutMapping("/return/{id}")
     @PreAuthorize("hasAuthority('material:return')")
     public R<Void> updateReturn(@PathVariable Integer id, @Valid @RequestBody ReturnOrderDTO dto) {
@@ -184,6 +195,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "return_order")
     @PatchMapping("/return/{id}/status")
     @PreAuthorize("hasAuthority('material:return')")
     public R<Void> updateReturnStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -192,6 +204,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "库存管理", bizType = "return_order", saveBefore = true)
     @DeleteMapping("/return/{id}")
     @PreAuthorize("hasAuthority('material:return')")
     public R<Void> deleteReturn(@PathVariable Integer id) {
@@ -224,6 +237,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "库存管理", bizType = "inventory_check")
     @PostMapping("/check")
     @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> createCheck(@Valid @RequestBody InventoryCheckDTO dto) {
@@ -232,6 +246,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "库存管理", bizType = "inventory_check", saveBefore = true)
     @PutMapping("/check/{id}")
     @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> updateCheck(@PathVariable Integer id, @Valid @RequestBody InventoryCheckDTO dto) {
@@ -240,6 +255,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "库存管理", bizType = "inventory_check")
     @PatchMapping("/check/{id}/status")
     @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> updateCheckStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -248,6 +264,7 @@ public class InventoryController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "库存管理", bizType = "inventory_check", saveBefore = true)
     @DeleteMapping("/check/{id}")
     @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> deleteCheck(@PathVariable Integer id) {

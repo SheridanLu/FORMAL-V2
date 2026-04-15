@@ -3,8 +3,7 @@ package com.mochu.business.scheduler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.business.entity.BizEquipment;
 import com.mochu.business.mapper.BizEquipmentMapper;
-import com.mochu.system.entity.SysTodo;
-import com.mochu.system.mapper.SysTodoMapper;
+import com.mochu.system.service.message.NotificationService;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ import java.util.List;
 public class EquipmentMaintenanceScheduler {
 
     private final BizEquipmentMapper equipmentMapper;
-    private final SysTodoMapper todoMapper;
+    private final NotificationService notificationService;
     private final StringRedisTemplate redisTemplate;
 
     @XxlJob("equipmentMaintenanceJob")
@@ -56,18 +55,21 @@ public class EquipmentMaintenanceScheduler {
                 String dedupKey = "equipment_maint:warned:" + eq.getId() + ":" + days;
                 if (Boolean.TRUE.equals(redisTemplate.hasKey(dedupKey))) continue;
 
-                // 通知管理员(userId=1)
-                SysTodo todo = new SysTodo();
-                todo.setUserId(1);
-                todo.setTitle(String.format("【保养提醒】设备\"%s\"(%s)%s需要保养",
+                // 通知设备创建者
+                Integer targetUserId = eq.getCreatorId();
+                if (targetUserId == null) {
+                    log.warn("设备{}无创建者，跳过通知", eq.getId());
+                    continue;
+                }
+
+                String title = String.format("【保养提醒】设备\"%s\"(%s)%s需要保养",
                         eq.getEquipmentName(), eq.getEquipmentNo(),
-                        days == 0 ? "今天" : "还剩" + days + "天"));
-                todo.setContent(String.format("设备位置: %s，下次保养日期: %s",
-                        eq.getLocation(), eq.getNextMaintenanceDate()));
-                todo.setBizType("equipment_maintenance");
-                todo.setBizId(eq.getId());
-                todo.setStatus(0);
-                todoMapper.insert(todo);
+                        days == 0 ? "今天" : "还剩" + days + "天");
+                String content = String.format("设备位置: %s，下次保养日期: %s",
+                        eq.getLocation(), eq.getNextMaintenanceDate());
+
+                notificationService.notify(targetUserId, title, content,
+                        "equipment_maintenance", eq.getId());
 
                 redisTemplate.opsForValue().set(dedupKey, "1", Duration.ofHours(24));
                 warned++;

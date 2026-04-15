@@ -152,21 +152,35 @@ const fetchData = async () => {
     const res = await getContractList(params)
     tableData.value = res.data?.records || []
     total.value = res.data?.total || 0
-    calcStats()
   } finally { loading.value = false }
 }
 
-const calcStats = () => {
-  const all = tableData.value
-  stats.totalCount = total.value
-  stats.incomeAmount = all.filter(c => c.contract_type === 'income')
-    .reduce((s, c) => s + (Number(c.amount_with_tax) || 0), 0)
-  stats.expenseAmount = all.filter(c => c.contract_type === 'expense')
-    .reduce((s, c) => s + (Number(c.amount_with_tax) || 0), 0)
-  stats.expiringCount = all.filter(c => {
-    const d = remainDays(c.end_date)
-    return d >= 0 && d <= 30
-  }).length
+// Fetch aggregated stats from ALL contracts (not just the current page).
+// Ideally the backend should provide a dedicated stats/aggregation API;
+// as a workaround we request a very large page to get the full dataset.
+const fetchStats = async () => {
+  try {
+    const params = { page: 1, size: 99999 }
+    if (queryForm.contractType) params.contractType = queryForm.contractType
+    if (queryForm.status) params.status = queryForm.status
+    if (queryForm.signDateRange?.length === 2) {
+      params.signDateStart = queryForm.signDateRange[0]
+      params.signDateEnd = queryForm.signDateRange[1]
+    }
+    const res = await getContractList(params)
+    const all = res.data?.records || []
+    stats.totalCount = res.data?.total || all.length
+    stats.incomeAmount = all.filter(c => c.contract_type === 'income')
+      .reduce((s, c) => s + (Number(c.amount_with_tax) || 0), 0)
+    stats.expenseAmount = all.filter(c => c.contract_type === 'expense')
+      .reduce((s, c) => s + (Number(c.amount_with_tax) || 0), 0)
+    stats.expiringCount = all.filter(c => {
+      const d = remainDays(c.end_date)
+      return d >= 0 && d <= 30
+    }).length
+  } catch {
+    // stats fetch failed – leave previous values in place
+  }
 }
 
 const summaryMethod = ({ columns, data }) => {
@@ -182,13 +196,13 @@ const summaryMethod = ({ columns, data }) => {
   })
 }
 
-const handleSearch = () => { queryForm.page = 1; fetchData() }
+const handleSearch = () => { queryForm.page = 1; fetchData(); fetchStats() }
 const handleReset = () => {
   queryForm.contractType = ''; queryForm.status = ''; queryForm.signDateRange = null
-  queryForm.page = 1; fetchData()
+  queryForm.page = 1; fetchData(); fetchStats()
 }
 
-onMounted(() => fetchData())
+onMounted(() => { fetchData(); fetchStats() })
 </script>
 
 <style scoped>

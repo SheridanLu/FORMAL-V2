@@ -1,6 +1,7 @@
 package com.mochu.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mochu.business.dto.HiddenItemDTO;
 import com.mochu.business.entity.BizHiddenItem;
@@ -13,8 +14,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 暗项管理 Service
@@ -70,7 +72,12 @@ public class HiddenItemService {
         hiddenItemMapper.updateById(entity);
     }
 
+    private static final Set<String> VALID_STATUSES = Set.of("identified", "quoted", "approved", "settled");
+
     public void updateStatus(Integer id, String status) {
+        if (!VALID_STATUSES.contains(status)) {
+            throw new IllegalArgumentException("非法状态值");
+        }
         BizHiddenItem entity = hiddenItemMapper.selectById(id);
         if (entity == null) throw new BusinessException("暗项不存在");
         entity.setStatus(status);
@@ -82,26 +89,16 @@ public class HiddenItemService {
     }
 
     /**
-     * 按项目汇总暗项金额
+     * 按项目汇总暗项金额（SQL 聚合，避免全表加载）
      */
     public Map<String, Object> summary(Integer projectId) {
-        LambdaQueryWrapper<BizHiddenItem> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BizHiddenItem::getProjectId, projectId);
-
-        var all = hiddenItemMapper.selectList(wrapper);
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        BigDecimal estimatedCost = BigDecimal.ZERO;
-        int count = all.size();
-
-        for (BizHiddenItem item : all) {
-            if (item.getTotalAmount() != null) totalAmount = totalAmount.add(item.getTotalAmount());
-            if (item.getEstimatedCost() != null) estimatedCost = estimatedCost.add(item.getEstimatedCost());
-        }
-
-        return Map.of(
-                "count", count,
-                "totalAmount", totalAmount,
-                "estimatedCost", estimatedCost
-        );
+        QueryWrapper<BizHiddenItem> qw = new QueryWrapper<>();
+        qw.select("COUNT(*) AS total_count",
+                  "IFNULL(SUM(total_amount),0) AS total_amount",
+                  "IFNULL(SUM(estimated_cost),0) AS estimated_cost")
+          .eq("project_id", projectId)
+          .eq("deleted", 0);
+        List<Map<String, Object>> result = hiddenItemMapper.selectMaps(qw);
+        return result.isEmpty() ? Map.of("total_count", 0, "total_amount", 0, "estimated_cost", 0) : result.get(0);
     }
 }

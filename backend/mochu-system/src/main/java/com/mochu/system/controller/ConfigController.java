@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.dto.ConfigDTO;
 import com.mochu.system.dto.ConfigQueryDTO;
 import com.mochu.system.entity.SysConfig;
@@ -39,6 +40,7 @@ public class ConfigController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "系统配置", bizType = "config")
     @PostMapping
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> create(@Valid @RequestBody ConfigDTO dto) {
@@ -47,6 +49,7 @@ public class ConfigController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "系统配置", bizType = "config", saveBefore = true)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ConfigDTO dto) {
@@ -55,6 +58,7 @@ public class ConfigController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "系统配置", bizType = "config", saveBefore = true)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> delete(@PathVariable Integer id) {

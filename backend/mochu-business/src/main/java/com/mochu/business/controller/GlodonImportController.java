@@ -5,6 +5,7 @@ import com.mochu.business.service.GlodonImportService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class GlodonImportController {
         return R.ok(glodonImportService.list(projectId, page, size));
     }
 
+    @AuditLog(operateType = "IMPORT", operateModule = "广联达导入", bizType = "glodon_import")
     @PostMapping("/import")
     @Idempotent
     @PreAuthorize("hasAuthority('project:view-all')")
@@ -39,6 +41,7 @@ public class GlodonImportController {
         return R.ok(glodonImportService.importExcel(projectId, importType, file));
     }
 
+    @AuditLog(operateType = "DELETE", operateModule = "广联达导入", bizType = "glodon_import", saveBefore = true)
     @DeleteMapping("/imports/{id}")
     @PreAuthorize("hasAuthority('project:view-all')")
     public R<Void> deleteImport(@PathVariable Integer id) {

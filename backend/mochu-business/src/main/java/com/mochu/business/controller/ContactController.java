@@ -6,6 +6,7 @@ import com.mochu.business.service.ContactService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +38,7 @@ public class ContactController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "通讯录", bizType = "external_contact")
     @PostMapping("/external")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> createExternal(@Valid @RequestBody ExternalContactDTO dto) {
@@ -45,6 +47,7 @@ public class ContactController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "通讯录", bizType = "external_contact", saveBefore = true)
     @PutMapping("/external/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> updateExternal(@PathVariable Integer id, @Valid @RequestBody ExternalContactDTO dto) {
@@ -53,6 +56,7 @@ public class ContactController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "通讯录", bizType = "external_contact", saveBefore = true)
     @DeleteMapping("/external/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> deleteExternal(@PathVariable Integer id) {

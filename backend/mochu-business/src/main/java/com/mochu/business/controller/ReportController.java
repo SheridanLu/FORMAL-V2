@@ -2,6 +2,7 @@ package com.mochu.business.controller;
 
 import com.mochu.business.service.ReportService;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +57,7 @@ public class ReportController {
         return R.ok(reportService.getHrSummary());
     }
 
+    @AuditLog(operateType = "EXPORT", operateModule = "报表管理", bizType = "report")
     @GetMapping("/export")
     @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public void exportReport(

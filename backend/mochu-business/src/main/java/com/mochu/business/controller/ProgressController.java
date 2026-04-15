@@ -19,6 +19,7 @@ import com.mochu.business.vo.MilestoneVO;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,6 +60,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "进度管理", bizType = "gantt_task")
     @PostMapping("/gantt")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createGanttTask(@Valid @RequestBody GanttTaskDTO dto) {
@@ -67,6 +69,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "gantt_task", saveBefore = true)
     @PutMapping("/gantt/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateGanttTask(@PathVariable Integer id, @Valid @RequestBody GanttTaskDTO dto) {
@@ -75,6 +78,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "进度管理", bizType = "gantt_task")
     @PatchMapping("/gantt/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateGanttTaskStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -83,6 +87,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "进度管理", bizType = "gantt_task", saveBefore = true)
     @DeleteMapping("/gantt/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteGanttTask(@PathVariable Integer id) {
@@ -109,6 +114,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "进度管理", bizType = "milestone")
     @PostMapping("/milestones")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createMilestone(@Valid @RequestBody MilestoneDTO dto) {
@@ -117,6 +123,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "milestone", saveBefore = true)
     @PutMapping("/milestones/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateMilestone(@PathVariable Integer id, @Valid @RequestBody MilestoneDTO dto) {
@@ -125,6 +132,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "进度管理", bizType = "milestone", saveBefore = true)
     @DeleteMapping("/milestones/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteMilestone(@PathVariable Integer id) {
@@ -133,6 +141,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "进度管理", bizType = "milestone")
     @PatchMapping("/milestones/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateMilestoneStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -176,6 +185,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "变更管理", bizType = "change_order")
     @PostMapping("/changes")
     @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> createChangeOrder(@Valid @RequestBody ChangeOrderDTO dto) {
@@ -184,6 +194,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "变更管理", bizType = "change_order", saveBefore = true)
     @PutMapping("/changes/{id}")
     @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> updateChangeOrder(@PathVariable Integer id, @Valid @RequestBody ChangeOrderDTO dto) {
@@ -192,6 +203,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "变更管理", bizType = "change_order")
     @PatchMapping("/changes/{id}/status")
     @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> updateChangeOrderStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -200,6 +212,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "变更管理", bizType = "change_order", saveBefore = true)
     @DeleteMapping("/changes/{id}")
     @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> deleteChangeOrder(@PathVariable Integer id) {
@@ -230,6 +243,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "进度管理", bizType = "progress_statement")
     @PostMapping("/statements")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createStatement(@Valid @RequestBody ProgressStatementDTO dto) {
@@ -238,6 +252,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "progress_statement", saveBefore = true)
     @PutMapping("/statements/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateStatement(@PathVariable Integer id, @Valid @RequestBody ProgressStatementDTO dto) {
@@ -246,6 +261,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "进度管理", bizType = "progress_statement")
     @PatchMapping("/statements/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -254,6 +270,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "进度管理", bizType = "progress_statement", saveBefore = true)
     @DeleteMapping("/statements/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteStatement(@PathVariable Integer id) {
@@ -284,6 +301,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "进度管理", bizType = "income_split")
     @PostMapping("/income-split")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createIncomeSplit(@Valid @RequestBody IncomeSplitDTO dto) {
@@ -292,6 +310,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "income_split", saveBefore = true)
     @PutMapping("/income-split/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateIncomeSplit(@PathVariable Integer id, @Valid @RequestBody IncomeSplitDTO dto) {
@@ -300,6 +319,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "进度管理", bizType = "income_split")
     @PatchMapping("/income-split/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateIncomeSplitStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -308,6 +328,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "进度管理", bizType = "income_split", saveBefore = true)
     @DeleteMapping("/income-split/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteIncomeSplit(@PathVariable Integer id) {
@@ -337,6 +358,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "进度管理", bizType = "progress_report")
     @PostMapping("/reports")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createReport(@Valid @RequestBody ProgressReportDTO dto) {
@@ -345,6 +367,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "progress_report", saveBefore = true)
     @PutMapping("/reports/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateReport(@PathVariable Integer id, @Valid @RequestBody ProgressReportDTO dto) {
@@ -353,6 +376,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "进度管理", bizType = "progress_report")
     @PatchMapping("/reports/{id}/status")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateReportStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -361,6 +385,7 @@ public class ProgressController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "进度管理", bizType = "progress_report", saveBefore = true)
     @DeleteMapping("/reports/{id}")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteReport(@PathVariable Integer id) {
@@ -371,6 +396,7 @@ public class ProgressController {
     // ===================== 进度校正 =====================
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "进度管理", bizType = "progress_correct")
     @PostMapping("/correct")
     @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> correctProgress(@Valid @RequestBody ProgressCorrectDTO dto) {

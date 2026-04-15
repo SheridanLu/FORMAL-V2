@@ -27,6 +27,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GlodonImportService {
 
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final int MAX_ROWS = 10000;
+
     private final BizGlodonImportMapper importMapper;
 
     public PageResult<BizGlodonImport> list(Integer projectId, int page, int size) {
@@ -42,15 +45,27 @@ public class GlodonImportService {
      * 解析并导入广联达 Excel 文件
      */
     public BizGlodonImport importExcel(Integer projectId, String importType, MultipartFile file) {
+        // 文件大小校验
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("文件大小不能超过10MB");
+        }
+        // 文件类型校验
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null
+                || (!originalFilename.toLowerCase().endsWith(".xls")
+                    && !originalFilename.toLowerCase().endsWith(".xlsx"))) {
+            throw new IllegalArgumentException("仅支持 .xls/.xlsx 格式");
+        }
+
         BizGlodonImport record = new BizGlodonImport();
         record.setProjectId(projectId);
-        record.setFileName(file.getOriginalFilename());
+        record.setFileName(originalFilename);
         record.setImportType(importType);
         record.setStatus("processing");
         importMapper.insert(record);
 
-        try (InputStream is = file.getInputStream()) {
-            Workbook workbook = WorkbookFactory.create(is);
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
             Sheet sheet = workbook.getSheetAt(0);
             int totalRows = sheet.getLastRowNum();
             record.setTotalRows(totalRows);
@@ -73,6 +88,10 @@ public class GlodonImportService {
             int successRows = 0;
             List<Map<String, String>> dataRows = new ArrayList<>();
             for (int i = 1; i <= totalRows; i++) {
+                if (successRows >= MAX_ROWS) {
+                    record.setErrorMsg("数据行数超过上限(" + MAX_ROWS + "行)，仅导入前" + MAX_ROWS + "行");
+                    break;
+                }
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 Map<String, String> rowData = new LinkedHashMap<>();
@@ -93,7 +112,6 @@ public class GlodonImportService {
             record.setSuccessRows(successRows);
             record.setStatus("success");
             importMapper.updateById(record);
-            workbook.close();
         } catch (Exception e) {
             log.error("广联达导入失败", e);
             record.setStatus("failed");

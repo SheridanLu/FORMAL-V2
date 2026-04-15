@@ -140,7 +140,9 @@ const fetchAll = async () => {
   loading.value = true
   try {
     // 获取成本明细
-    const costRes = await getCostLedgerList({ projectId: projectId.value, size: 100 })
+    // NOTE: Using size: 9999 to load all cost items. Ideally the backend should provide
+    // a dedicated aggregation API so the frontend doesn't need to fetch everything.
+    const costRes = await getCostLedgerList({ projectId: projectId.value, size: 9999 })
     costData.value = costRes.data?.records || costRes.data || []
 
     // 获取费用汇总
@@ -152,14 +154,14 @@ const fetchAll = async () => {
 
     // 获取收入合同金额
     try {
-      const contractRes = await getContractList({ projectId: projectId.value, contractType: 'income', size: 100 })
+      const contractRes = await getContractList({ projectId: projectId.value, contractType: 'income', size: 9999 })
       const contracts = contractRes.data?.records || []
       overview.incomeAmount = contracts.reduce((s, c) => s + (Number(c.amount_with_tax) || 0), 0)
     } catch { /* ignore */ }
 
     // 获取回款总额
     try {
-      const receiptRes = await getReceiptPlanList({ projectId: projectId.value, status: 'completed', size: 100 })
+      const receiptRes = await getReceiptPlanList({ projectId: projectId.value, status: 'completed', size: 9999 })
       const plans = receiptRes.data?.records || []
       overview.receivedAmount = plans.reduce((s, p) => s + (Number(p.actual_amount) || 0), 0)
     } catch { /* ignore */ }
@@ -173,7 +175,7 @@ const fetchAll = async () => {
 
     // 生成趋势数据 (从付款记录)
     try {
-      const payRes = await getPaymentList({ projectId: projectId.value, size: 200 })
+      const payRes = await getPaymentList({ projectId: projectId.value, size: 9999 })
       const payments = payRes.data?.records || payRes.data || []
       const monthMap = {}
       payments.forEach(p => {

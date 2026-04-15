@@ -138,7 +138,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,env,loggers
+        include: health,info,metrics,loggers
       base-path: /api/v1/actuator
   endpoint:
     health:

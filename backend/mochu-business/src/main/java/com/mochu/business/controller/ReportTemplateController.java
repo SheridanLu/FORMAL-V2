@@ -5,6 +5,7 @@ import com.mochu.business.entity.SysReportTemplate;
 import com.mochu.business.service.ReportTemplateService;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +36,7 @@ public class ReportTemplateController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "报表管理", bizType = "report_template")
     @PostMapping("/templates")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> createTemplate(@Valid @RequestBody ReportTemplateDTO dto) {
@@ -43,6 +45,7 @@ public class ReportTemplateController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "报表管理", bizType = "report_template", saveBefore = true)
     @PutMapping("/templates/{id}")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> updateTemplate(@PathVariable Integer id, @Valid @RequestBody ReportTemplateDTO dto) {
@@ -51,6 +54,7 @@ public class ReportTemplateController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "报表管理", bizType = "report_template", saveBefore = true)
     @DeleteMapping("/templates/{id}")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> deleteTemplate(@PathVariable Integer id) {
@@ -59,6 +63,7 @@ public class ReportTemplateController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "EXPORT", operateModule = "报表管理", bizType = "report_template")
     @PostMapping("/templates/{id}/execute")
     @PreAuthorize("hasAuthority('report:view')")
     public R<Map<String, Object>> executeTemplate(@PathVariable Integer id,

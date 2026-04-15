@@ -12,6 +12,7 @@ import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +52,7 @@ public class ContractTplController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "合同模板", bizType = "contract_tpl")
     @PostMapping
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Integer> create(@Valid @RequestBody ContractTplDTO dto) {
@@ -63,6 +65,7 @@ public class ContractTplController {
      * 创建模板并同时上传模板文件（合并操作）
      */
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "合同模板", bizType = "contract_tpl")
     @PostMapping("/with-file")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTplVersion> createWithFile(
@@ -81,6 +84,7 @@ public class ContractTplController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "合同模板", bizType = "contract_tpl", saveBefore = true)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractTplDTO dto) {
@@ -90,6 +94,7 @@ public class ContractTplController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "合同模板", bizType = "contract_tpl", saveBefore = true)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -101,6 +106,7 @@ public class ContractTplController {
     // ===================== 版本管理 =====================
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "合同模板", bizType = "contract_tpl_version")
     @PostMapping("/{id}/versions")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTplVersion> uploadVersion(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
@@ -124,6 +130,7 @@ public class ContractTplController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "合同模板", bizType = "contract_tpl_version")
     @PatchMapping("/versions/{versionId}/status")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> updateVersionStatus(@PathVariable Integer versionId, @Valid @RequestBody VersionStatusDTO dto) {
@@ -136,6 +143,7 @@ public class ContractTplController {
      * 提交版本启用审批（电子流审批）
      */
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "合同模板", bizType = "contract_tpl_version")
     @PostMapping("/versions/{versionId}/submit-approval")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> submitVersionApproval(@PathVariable Integer versionId) {
@@ -165,6 +173,7 @@ public class ContractTplController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "合同模板", bizType = "contract_tpl_field", saveBefore = true)
     @PutMapping("/versions/{versionId}/fields")
     @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> updateFields(@PathVariable Integer versionId, @Valid @RequestBody TplFieldUpdateDTO dto) {

@@ -6,6 +6,7 @@ import com.mochu.business.service.ContractPaymentPlanService;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +40,8 @@ public class ContractPaymentPlanController {
      * 创建 / 重新生成付款计划（批量替换）
      */
     @Idempotent
-    @PostMapping
-    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
+    @AuditLog(operateType = "CREATE", operateModule = "合同管理", bizType = "payment_plan")
+    @PostMapping("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> create(@PathVariable Integer contractId,
                           @Valid @RequestBody List<ContractPaymentPlanDTO> plans) {
         Integer userId = SecurityUtils.getCurrentUserId();

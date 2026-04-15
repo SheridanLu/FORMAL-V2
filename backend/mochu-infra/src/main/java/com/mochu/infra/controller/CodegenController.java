@@ -2,6 +2,7 @@ package com.mochu.infra.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.infra.dto.CodegenColumnDTO;
 import com.mochu.infra.dto.CodegenTableDTO;
 import com.mochu.infra.dto.CodegenTableQueryDTO;
@@ -40,6 +41,7 @@ public class CodegenController {
         return R.ok(codegenService.listDbTables());
     }
 
+    @AuditLog(operateType = "IMPORT", operateModule = "代码生成", bizType = "codegen_table")
     @PostMapping("/tables/import")
     @PreAuthorize("hasAuthority('infra:codegen')")
     public R<Void> importTable(@RequestParam String tableName,
@@ -54,6 +56,7 @@ public class CodegenController {
         return R.ok(codegenService.getTableDetail(id));
     }
 
+    @AuditLog(operateType = "UPDATE", operateModule = "代码生成", bizType = "codegen_table", saveBefore = true)
     @PutMapping("/tables/{id}")
     @PreAuthorize("hasAuthority('infra:codegen')")
     public R<Void> updateTable(@PathVariable Integer id, @Valid @RequestBody CodegenTableDTO dto) {
@@ -61,6 +64,7 @@ public class CodegenController {
         return R.ok();
     }
 
+    @AuditLog(operateType = "DELETE", operateModule = "代码生成", bizType = "codegen_table", saveBefore = true)
     @DeleteMapping("/tables/{id}")
     @PreAuthorize("hasAuthority('infra:codegen')")
     public R<Void> deleteTable(@PathVariable Integer id) {
@@ -76,6 +80,7 @@ public class CodegenController {
         return R.ok(codegenService.listColumnsVO(id));
     }
 
+    @AuditLog(operateType = "UPDATE", operateModule = "代码生成", bizType = "codegen_column", saveBefore = true)
     @PutMapping("/tables/{id}/columns")
     @PreAuthorize("hasAuthority('infra:codegen')")
     public R<Void> updateColumns(@PathVariable Integer id,

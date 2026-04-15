@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.dto.DelegationDTO;
 import com.mochu.system.service.DelegationService;
 import com.mochu.system.entity.SysDelegation;
@@ -39,6 +40,7 @@ public class DelegationController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "委托代理", bizType = "delegation")
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public R<Void> create(@Valid @RequestBody DelegationDTO dto) {
@@ -47,6 +49,7 @@ public class DelegationController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "委托代理", bizType = "delegation")
     @PatchMapping("/{id}/revoke")
     @PreAuthorize("isAuthenticated()")
     public R<Void> revoke(@PathVariable Integer id) {
@@ -55,6 +58,7 @@ public class DelegationController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "委托代理", bizType = "delegation", saveBefore = true)
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public R<Void> delete(@PathVariable Integer id) {

@@ -3,6 +3,7 @@ package com.mochu.system.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.AuditLog;
 import com.mochu.system.entity.SysUserNotificationConfig;
 import com.mochu.system.mapper.SysUserNotificationConfigMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class NotificationConfigController {
     }
 
     @PutMapping
+    @AuditLog(operateType = "UPDATE", operateModule = "通知配置", bizType = "notification_config", saveBefore = true)
     @PreAuthorize("isAuthenticated()")
     public R<Void> updateMyConfig(@RequestBody SysUserNotificationConfig config) {
         Integer userId = SecurityUtils.getCurrentUserId();

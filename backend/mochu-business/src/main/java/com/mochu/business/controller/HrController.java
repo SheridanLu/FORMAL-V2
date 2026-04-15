@@ -6,6 +6,7 @@ import com.mochu.business.service.HrService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,6 +41,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "salary")
     @PostMapping("/salaries")
     @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> createSalary(@Valid @RequestBody SalaryDTO dto) {
@@ -48,6 +50,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "salary", saveBefore = true)
     @PutMapping("/salaries/{id}")
     @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> updateSalary(@PathVariable Integer id, @Valid @RequestBody SalaryDTO dto) {
@@ -56,6 +59,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "salary")
     @PatchMapping("/salaries/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> updateSalaryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -64,6 +68,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "salary", saveBefore = true)
     @DeleteMapping("/salaries/{id}")
     @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> deleteSalary(@PathVariable Integer id) {
@@ -90,6 +95,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "hr_contract")
     @PostMapping("/contracts")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> createContract(@Valid @RequestBody HrContractDTO dto) {
@@ -98,6 +104,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "hr_contract", saveBefore = true)
     @PutMapping("/contracts/{id}")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> updateContract(@PathVariable Integer id, @Valid @RequestBody HrContractDTO dto) {
@@ -106,6 +113,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "hr_contract")
     @PatchMapping("/contracts/{id}/status")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> updateContractStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -114,6 +122,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "hr_contract", saveBefore = true)
     @DeleteMapping("/contracts/{id}")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> deleteContract(@PathVariable Integer id) {
@@ -140,6 +149,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "hr_certificate")
     @PostMapping("/certificates")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> createCertificate(@Valid @RequestBody HrCertificateDTO dto) {
@@ -148,6 +158,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "hr_certificate", saveBefore = true)
     @PutMapping("/certificates/{id}")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> updateCertificate(@PathVariable Integer id, @Valid @RequestBody HrCertificateDTO dto) {
@@ -156,6 +167,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "hr_certificate")
     @PatchMapping("/certificates/{id}/status")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> updateCertificateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -164,6 +176,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "hr_certificate", saveBefore = true)
     @DeleteMapping("/certificates/{id}")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> deleteCertificate(@PathVariable Integer id) {
@@ -190,6 +203,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "hr_entry")
     @PostMapping("/entries")
     @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> createEntry(@Valid @RequestBody HrEntryDTO dto) {
@@ -198,6 +212,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "hr_entry", saveBefore = true)
     @PutMapping("/entries/{id}")
     @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> updateEntry(@PathVariable Integer id, @Valid @RequestBody HrEntryDTO dto) {
@@ -206,6 +221,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "hr_entry")
     @PatchMapping("/entries/{id}/status")
     @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> updateEntryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -214,6 +230,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "hr_entry", saveBefore = true)
     @DeleteMapping("/entries/{id}")
     @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> deleteEntry(@PathVariable Integer id) {
@@ -240,6 +257,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "hr_resign")
     @PostMapping("/resigns")
     @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> createResign(@Valid @RequestBody HrResignDTO dto) {
@@ -248,6 +266,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "hr_resign", saveBefore = true)
     @PutMapping("/resigns/{id}")
     @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> updateResign(@PathVariable Integer id, @Valid @RequestBody HrResignDTO dto) {
@@ -256,6 +275,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "hr_resign")
     @PatchMapping("/resigns/{id}/status")
     @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> updateResignStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -264,6 +284,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "hr_resign", saveBefore = true)
     @DeleteMapping("/resigns/{id}")
     @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> deleteResign(@PathVariable Integer id) {
@@ -290,6 +311,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "salary_config")
     @PostMapping("/salary-config")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> createSalaryConfig(@Valid @RequestBody SalaryConfigDTO dto) {
@@ -298,6 +320,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "salary_config", saveBefore = true)
     @PutMapping("/salary-config/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateSalaryConfig(@PathVariable Integer id, @Valid @RequestBody SalaryConfigDTO dto) {
@@ -306,6 +329,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "salary_config")
     @PatchMapping("/salary-config/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateSalaryConfigStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -314,6 +338,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "salary_config", saveBefore = true)
     @DeleteMapping("/salary-config/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> deleteSalaryConfig(@PathVariable Integer id) {
@@ -340,6 +365,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "social_insurance")
     @PostMapping("/social-insurance")
     @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> createSocialInsurance(@Valid @RequestBody SocialInsuranceDTO dto) {
@@ -348,6 +374,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "social_insurance", saveBefore = true)
     @PutMapping("/social-insurance/{id}")
     @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> updateSocialInsurance(@PathVariable Integer id, @Valid @RequestBody SocialInsuranceDTO dto) {
@@ -356,6 +383,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "social_insurance")
     @PatchMapping("/social-insurance/{id}/status")
     @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> updateSocialInsuranceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -364,6 +392,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "social_insurance", saveBefore = true)
     @DeleteMapping("/social-insurance/{id}")
     @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> deleteSocialInsurance(@PathVariable Integer id) {
@@ -390,6 +419,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "tax_rate")
     @PostMapping("/tax-rate")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> createTaxRate(@Valid @RequestBody TaxRateDTO dto) {
@@ -398,6 +428,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "tax_rate", saveBefore = true)
     @PutMapping("/tax-rate/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateTaxRate(@PathVariable Integer id, @Valid @RequestBody TaxRateDTO dto) {
@@ -406,6 +437,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "tax_rate", saveBefore = true)
     @DeleteMapping("/tax-rate/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> deleteTaxRate(@PathVariable Integer id) {
@@ -432,6 +464,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "人力资源", bizType = "asset_transfer")
     @PostMapping("/asset-transfer")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> createAssetTransfer(@Valid @RequestBody AssetTransferDTO dto) {
@@ -440,6 +473,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "人力资源", bizType = "asset_transfer", saveBefore = true)
     @PutMapping("/asset-transfer/{id}")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> updateAssetTransfer(@PathVariable Integer id, @Valid @RequestBody AssetTransferDTO dto) {
@@ -448,6 +482,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "人力资源", bizType = "asset_transfer")
     @PatchMapping("/asset-transfer/{id}/status")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> updateAssetTransferStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -456,6 +491,7 @@ public class HrController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "人力资源", bizType = "asset_transfer", saveBefore = true)
     @DeleteMapping("/asset-transfer/{id}")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> deleteAssetTransfer(@PathVariable Integer id) {

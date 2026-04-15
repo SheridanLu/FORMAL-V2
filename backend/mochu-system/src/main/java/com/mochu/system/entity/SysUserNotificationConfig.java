@@ -1,19 +1,20 @@
 package com.mochu.system.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mochu.common.entity.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
  * 用户通知偏好
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_user_notification_config")
-public class SysUserNotificationConfig {
+public class SysUserNotificationConfig extends BaseEntity {
 
-    private Integer id;
     private Integer userId;
     /** 站内信(始终开启) */
     private Boolean channelStation;
@@ -27,6 +28,4 @@ public class SysUserNotificationConfig {
     private LocalTime quietStart;
     /** 免打扰结束时间 */
     private LocalTime quietEnd;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

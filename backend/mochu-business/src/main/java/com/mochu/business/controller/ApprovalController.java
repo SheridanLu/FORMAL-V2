@@ -11,6 +11,7 @@ import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
 import com.mochu.framework.annotation.Idempotent;
+import com.mochu.framework.annotation.AuditLog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,6 +50,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "流程审批", bizType = "flow_def")
     @PostMapping("/flows")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> createFlowDef(@Valid @RequestBody FlowDefDTO dto) {
@@ -57,6 +59,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "UPDATE", operateModule = "流程审批", bizType = "flow_def", saveBefore = true)
     @PutMapping("/flows/{id}")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> updateFlowDef(@PathVariable Integer id, @Valid @RequestBody FlowDefDTO dto) {
@@ -65,6 +68,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "DELETE", operateModule = "流程审批", bizType = "flow_def", saveBefore = true)
     @DeleteMapping("/flows/{id}")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> deleteFlowDef(@PathVariable Integer id) {
@@ -75,6 +79,7 @@ public class ApprovalController {
     // ===================== 审批操作 =====================
 
     @Idempotent
+    @AuditLog(operateType = "CREATE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/submit")
     @PreAuthorize("isAuthenticated()")
     public R<Void> submitForApproval(@Valid @RequestBody ApprovalActionDTO dto) {
@@ -84,6 +89,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/approve")
     @PreAuthorize("isAuthenticated()")
     public R<Void> approve(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
@@ -93,6 +99,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/reject")
     @PreAuthorize("isAuthenticated()")
     public R<Void> reject(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
@@ -102,6 +109,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/withdraw")
     @PreAuthorize("isAuthenticated()")
     public R<Void> withdraw(@PathVariable Integer instanceId) {
@@ -111,6 +119,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/transfer")
     @PreAuthorize("isAuthenticated()")
     public R<Void> transfer(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
@@ -120,6 +129,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/cosign")
     @PreAuthorize("isAuthenticated()")
     public R<Void> addCosigner(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
@@ -129,6 +139,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/cosign/{cosignId}/approve")
     @PreAuthorize("isAuthenticated()")
     public R<Void> approveCosign(@PathVariable Integer cosignId, @Valid @RequestBody ApprovalOpinionDTO dto) {
@@ -138,6 +149,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/read-handle")
     @PreAuthorize("isAuthenticated()")
     public R<Void> sendReadHandle(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
@@ -147,6 +159,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/{instanceId}/cc")
     @PreAuthorize("isAuthenticated()")
     public R<Void> sendCc(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalCcDTO dto) {
@@ -156,6 +169,7 @@ public class ApprovalController {
     }
 
     @Idempotent
+    @AuditLog(operateType = "STATUS_CHANGE", operateModule = "流程审批", bizType = "approval_instance")
     @PostMapping("/cc/{ccId}/handle")
     @PreAuthorize("isAuthenticated()")
     public R<Void> markHandled(@PathVariable Integer ccId) {
