@@ -34,12 +34,14 @@ public class SignatureVerificationFilter implements Filter {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    /** 需要签名验证的路径 */
+    /**
+     * 需要签名验证的路径。
+     *
+     * 注意: /api/v1/auth/* 认证接口已移除 — 用户登录前无法获取签名密钥，
+     * 前端的 sign_secret 需要登录后由后端下发才可用，因此认证接口不能
+     * 要求签名验证。认证安全由密码策略、短信验证码、登录频率限制等保障。
+     */
     private static final Set<String> SIGNED_PATHS = Set.of(
-            "/api/v1/auth/login-by-password",
-            "/api/v1/auth/login-by-sms",
-            "/api/v1/auth/forgot-password",
-            "/api/v1/auth/reset-password",
             "/api/v1/contracts",
             "/api/v1/payment/apply",
             "/api/v1/admin/users/reset-password",
