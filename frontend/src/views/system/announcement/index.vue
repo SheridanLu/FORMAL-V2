@@ -98,7 +98,16 @@
           <el-input v-model="form.scope" placeholder="all 或逗号分隔部门ID" />
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input v-model="form.content" type="textarea" :rows="10" placeholder="支持HTML富文本" />
+          <div style="border: 1px solid #ccc; z-index: 100;">
+            <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" style="border-bottom: 1px solid #ccc" mode="simple" />
+            <Editor
+              v-model="form.content"
+              :defaultConfig="editorConfig"
+              style="height: 350px; overflow-y: hidden;"
+              mode="simple"
+              @onCreated="handleEditorCreated"
+            />
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -110,12 +119,42 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, shallowRef, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import '@wangeditor/editor/dist/css/style.css'
 import {
   getAnnouncementList, createAnnouncement, updateAnnouncement,
   publishAnnouncement, offlineAnnouncement, toggleTopAnnouncement, deleteAnnouncement
 } from '@/api/announcement'
+
+const editorRef = shallowRef(null)
+const toolbarConfig = {}
+const editorConfig = {
+  placeholder: '请输入公告内容...',
+  MENU_CONF: {
+    uploadImage: {
+      server: '/api/v1/attachments/upload',
+      fieldName: 'file',
+      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+      customInsert(res, insertFn) {
+        if (res.code === 200 && res.data?.file_url) {
+          insertFn(res.data.file_url)
+        }
+      }
+    }
+  }
+}
+
+const handleEditorCreated = (editor) => {
+  editorRef.value = editor
+}
+
+onBeforeUnmount(() => {
+  if (editorRef.value) {
+    editorRef.value.destroy()
+  }
+})
 
 const typeNameMap = { notice: '通知', policy: '制度', activity: '活动' }
 const typeTagMap = { notice: '', policy: 'warning', activity: 'success' }

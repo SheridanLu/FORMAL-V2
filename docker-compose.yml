@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: mochu-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: mochu@2026
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: mochu_oa
     ports:
       - "3306:3306"
@@ -16,7 +14,7 @@ services:
       - ./backend/mochu-admin/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pmochu@2026"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -26,13 +24,13 @@ services:
     image: redis:7-alpine
     container_name: mochu-redis
     restart: unless-stopped
-    command: redis-server --requirepass mochu@2026
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "mochu@2026", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 3s
       timeout: 3s
       retries: 10
@@ -43,8 +41,8 @@ services:
     container_name: mochu-minio
     restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: mochu_admin
-      MINIO_ROOT_PASSWORD: mochu@2026
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -76,10 +74,16 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mochu_oa?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_general_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: mochu@2026
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PASSWORD: mochu@2026
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_AES_KEY: ${ENCRYPTION_AES_KEY}
+      SIGNATURE_KEY: ${SIGNATURE_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS}
 
   frontend:
     build:
